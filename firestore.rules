@@ -1,0 +1,32 @@
+rules_version = '2';
+
+// Prácticas 5S — reglas de Firestore
+// Cualquiera puede GUARDAR su resultado (sin cuenta), pero solo el administrador puede LEERLOS.
+// La cuenta genérica de administración (admin@practicas-5s.app) se crea una vez en Firebase Authentication.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /resultados/{id} {
+      function esAdmin() {
+        return request.auth != null
+          && request.auth.token.email == 'admin@practicas-5s.app';
+      }
+      function texto(v, max) {
+        return v is string && v.size() > 0 && v.size() <= max;
+      }
+
+      allow create: if request.resource.data.keys().hasOnly(
+                         ['nombre', 'apellido', 'sector', 'total', 'scores', 'seiton', 'duracionMin', 'version', 'fecha'])
+                    && texto(request.resource.data.nombre, 60)
+                    && texto(request.resource.data.apellido, 60)
+                    && texto(request.resource.data.sector, 80)
+                    && request.resource.data.total is number
+                    && request.resource.data.total >= 0 && request.resource.data.total <= 5
+                    && request.resource.data.scores is map
+                    && request.resource.data.fecha == request.time;
+
+      allow read, delete: if esAdmin();
+      allow update: if false;
+    }
+  }
+}
