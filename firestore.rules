@@ -16,14 +16,15 @@ service cloud.firestore {
       }
 
       allow create: if request.resource.data.keys().hasOnly(
-                         ['nombre', 'apellido', 'sector', 'total', 'scores', 'seiton', 'duracionMin', 'version', 'fecha'])
+                         ['nombre', 'apellido', 'sector', 'total', 'scores', 'seiton', 'duracionMin', 'version', 'fecha', 'prueba'])
                     && texto(request.resource.data.nombre, 60)
                     && texto(request.resource.data.apellido, 60)
                     && texto(request.resource.data.sector, 80)
                     && request.resource.data.total is number
                     && request.resource.data.total >= 0 && request.resource.data.total <= 5
                     && request.resource.data.scores is map
-                    && request.resource.data.fecha == request.time;
+                    && request.resource.data.fecha == request.time
+                    && (!('prueba' in request.resource.data) || request.resource.data.prueba == true);
 
       allow read, delete: if esAdmin();
       allow update: if false;

@@ -224,6 +224,13 @@ p{margin:0 0 10px}
 .srow-tip{grid-column:1/-1;font-size:12px;line-height:17px;color:var(--ink-2);margin:-2px 0 6px}
 .score-row.wide{grid-template-columns:150px 1fr 64px auto}
 @media (max-width:640px){.score-row.wide{grid-template-columns:1fr auto auto;row-gap:6px}.score-row.wide .meter{grid-column:1/-1;grid-row:2}}
+.chk{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer}
+.chk input{width:16px;height:16px;accent-color:var(--solid)}
+.tag-test{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:var(--radius-pill);background:#fdf1d6;color:#7a4f00;font-size:11px;font-weight:600}
+.btn.danger{background:var(--danger);color:#fff}
+.btn.danger[disabled]{opacity:.45}
+.dlg{width:min(420px,92vw);padding:20px}
+#tbl input[type=checkbox]{width:16px;height:16px;accent-color:var(--solid)}
 .retry{height:26px;padding:0 10px;font-size:12px;border:0;border-radius:var(--radius-pill);background:var(--surface-3);cursor:pointer}
 
 /* Auditoría */
@@ -330,11 +337,18 @@ if (CONFIG) {
       logout: () => au.signOut(auth),
       list: async () => (await fs.getDocs(fs.query(fs.collection(store, 'resultados'), fs.orderBy('fecha', 'desc'))))
         .docs.map(x => { const d = x.data(); return { id: x.id, ...d, fecha: d.fecha?.toDate?.() ?? null }; }),
+      remove: async ids => {
+        for (let i = 0; i < ids.length; i += 400) {
+          const b = fs.writeBatch(store);
+          ids.slice(i, i + 400).forEach(id => b.delete(fs.doc(store, 'resultados', id)));
+          await b.commit();
+        }
+      },
     };
   } catch (err) {
     console.warn('Firebase no disponible', err);
     const fail = () => Promise.reject(err);
-    api = { mode: 'error', save: fail, login: fail, logout: async () => {}, list: fail };
+    api = { mode: 'error', save: fail, login: fail, logout: async () => {}, list: fail, remove: fail };
   }
 } else {
   const KEY = 'p5s_resultados';
@@ -346,6 +360,7 @@ if (CONFIG) {
     login: async (_e, pass) => { if (pass !== 'admin5s') throw new Error('auth'); logged = true; },
     logout: async () => { logged = false; },
     list: async () => { if (!logged) throw new Error('auth'); return read(); },
+    remove: async ids => { if (!logged) throw new Error('auth'); const del = new Set(ids); try { localStorage.setItem(KEY, JSON.stringify(read().filter(r => !del.has(r.id)))); } catch {} },
   };
 }
 window.DB = api;
@@ -1924,6 +1939,7 @@ function register() {
       <label class="fld"><span>Nombre</span><input name="nombre" autocomplete="given-name" maxlength="60" required></label>
       <label class="fld"><span>Apellido</span><input name="apellido" autocomplete="family-name" maxlength="60" required></label>
       <label class="fld"><span>Sector</span><input name="sector" maxlength="80" required placeholder="Ej.: Mantenimiento"></label>
+      <label class="chk"><input type="checkbox" id="regTest"><span>Partida de prueba <small class="muted">· se guarda marcada y no cuenta en las estadísticas</small></span></label>
       <p class="muted" id="regErr" style="margin:0;color:var(--danger);display:none">Completá nombre, apellido y sector.</p>
       <button class="btn yellow" type="button" id="regGo">Continuar</button>
       <button class="btn ghostbtn" type="button" id="toAdmin" style="height:32px;font-size:12px">Acceso de administración</button>
@@ -1932,6 +1948,7 @@ function register() {
   const go = () => {
     const u = Object.fromEntries(['nombre', 'apellido', 'sector'].map(k => [k, $(`#reg input[name=${k}]`).value.trim()]));
     if (!u.nombre || !u.apellido || !u.sector) { $('#regErr').style.display = ''; return; }
+    if ($('#regTest').checked) u.prueba = true;
     S.user = u; S.t0 = Date.now(); S.saved = false;
     $('#steps').style.visibility = '';
     home();
@@ -1954,6 +1971,7 @@ async function saveResult(sc, avg) {
     duracionMin: Math.round((Date.now() - (S.t0 || Date.now())) / 6000) / 10,
     version: 1,
   };
+  if (S.user.prueba) doc.prueba = true;
   const pill = $('#saveState');
   try {
     await (await db()).save(doc);
@@ -1990,6 +2008,32 @@ function adminLogin() {
   });
 }
 
+function modal(html) {
+  const o = h(`<div class="overlay"><div class="card dlg">${html}</div></div>`);
+  document.body.appendChild(o);
+  return o;
+}
+function choiceDialog(title, text, opts) {
+  return new Promise(res => {
+    const o = modal(`<h3 style="margin:0 0 6px">${title}</h3><p class="muted" style="margin:0 0 14px">${text}</p>
+      <div style="display:grid;gap:8px">${opts.map(x => `<button class="btn ${x.danger ? 'danger' : 'ghostbtn'}" data-k="${x.k}">${x.t}</button>`).join('')}
+      <button class="btn ghostbtn" data-k="" style="height:32px;font-size:12px">Cancelar</button></div>`);
+    o.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { o.remove(); res(b.dataset.k || null); });
+  });
+}
+function confirmDelete(text) {
+  return new Promise(res => {
+    const o = modal(`<h3 style="margin:0 0 6px">Confirmar borrado</h3><p class="muted" style="margin:0 0 12px">${text}</p>
+      <label class="fld"><span>Escribí BORRAR para confirmar</span><input id="cdIn" autocomplete="off"></label>
+      <div class="row" style="margin-top:14px"><span class="spacer"></span><button class="btn ghostbtn" id="cdNo">Cancelar</button><button class="btn danger" id="cdOk" disabled>Borrar</button></div>`);
+    const inp = o.querySelector('#cdIn'), ok = o.querySelector('#cdOk');
+    inp.oninput = () => ok.disabled = inp.value.trim().toUpperCase() !== 'BORRAR';
+    inp.onkeydown = e => { if (e.key === 'Enter' && !ok.disabled) ok.click(); };
+    o.querySelector('#cdNo').onclick = () => { o.remove(); res(false); };
+    ok.onclick = () => { o.remove(); res(true); };
+    inp.focus();
+  });
+}
 async function adminPanel() {
   const api = await db();
   view(`<section><div class="kicker">Administración</div><h2>Cargando resultados…</h2></section>`);
@@ -1997,24 +2041,28 @@ async function adminPanel() {
   try { rows = await api.list(); }
   catch (err) { view(`<section class="card"><h2>No se pudieron leer los resultados</h2><p class="muted">Revisá que la base de Firestore esté creada y que las reglas estén publicadas.</p><button class="btn" id="out">Salir</button></section>`); $('#out').onclick = async () => { await api.logout(); register(); }; return; }
   const keys = STAGES.map(s => s.key);
-  const state = { sector: '', q: '', sort: 'fecha', dir: -1 };
+  const state = { sector: '', q: '', sort: 'fecha', dir: -1, tests: false };
+  const sel = new Set();
   const fmtDate = d => d ? new Date(d).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—';
   const sectors = [...new Set(rows.map(r => r.sector).filter(Boolean))].sort();
 
   view(`<section>
     <div class="stage-head"><div><div class="kicker">Administración${api.mode === 'local' ? ' · modo local' : ''}</div><h2>Resultados de los participantes</h2></div>
-      <div class="row"><button class="btn ghostbtn" id="copy">Copiar tabla</button><button class="btn ghostbtn" id="csv">Descargar CSV</button><button class="btn" id="out">Salir</button></div></div>
+      <div class="row"><button class="btn ghostbtn" id="delMenu">Borrar resultados</button><button class="btn ghostbtn" id="copy">Copiar tabla</button><button class="btn ghostbtn" id="csv">Descargar CSV</button><button class="btn" id="out">Salir</button></div></div>
     <div class="compare" id="kpis"></div>
     <div class="card" style="padding:16px;margin-bottom:14px">
       <div class="row" style="gap:10px">
         <input id="q" class="inp" placeholder="Buscar por nombre o apellido" style="flex:1;min-width:200px">
         <select id="sec" class="inp"><option value="">Todos los sectores</option>${sectors.map(s => `<option>${esc(s)}</option>`).join('')}</select>
+        <label class="chk"><input type="checkbox" id="tests"><span>Mostrar partidas de prueba (<span id="nTests">0</span>)</span></label>
       </div>
+      <div class="row" id="selBar" style="display:none;margin-top:12px;gap:10px"><span id="selN"></span><span class="spacer"></span>
+        <button class="btn ghostbtn" id="selClear" style="height:32px">Quitar selección</button><button class="btn danger" id="selDel" style="height:32px">Borrar seleccionados</button></div>
     </div>
     <div class="card" style="padding:0;overflow:auto"><table class="tbl" id="tbl"></table></div>
   </section>`);
 
-  const filtered = () => rows.filter(r => (!state.sector || r.sector === state.sector) && (!state.q || `${r.nombre} ${r.apellido}`.toLowerCase().includes(state.q.toLowerCase())))
+  const filtered = () => rows.filter(r => (state.tests || !r.prueba) && (!state.sector || r.sector === state.sector) && (!state.q || `${r.nombre} ${r.apellido}`.toLowerCase().includes(state.q.toLowerCase())))
     .sort((a, b) => {
       const v = x => state.sort === 'fecha' ? +new Date(x.fecha || 0) : state.sort === 'nombre' ? `${x.apellido} ${x.nombre}`.toLowerCase() : state.sort === 'sector' ? (x.sector || '').toLowerCase() : state.sort === 'total' ? x.total : x.scores?.[state.sort] ?? 0;
       return (v(a) > v(b) ? 1 : v(a) < v(b) ? -1 : 0) * state.dir;
@@ -2022,6 +2070,10 @@ async function adminPanel() {
   const avgOf = (list, f) => list.length ? list.reduce((t, x) => t + (f(x) || 0), 0) / list.length : 0;
   const render = () => {
     const list = filtered();
+    $('#nTests').textContent = rows.filter(r => r.prueba).length;
+    [...sel].forEach(id => { if (!rows.some(r => r.id === id)) sel.delete(id); });
+    $('#selBar').style.display = sel.size ? '' : 'none';
+    $('#selN').textContent = `${sel.size} seleccionado${sel.size === 1 ? '' : 's'}`;
     const perS = keys.map(k => ({ k, v: avgOf(list, x => x.scores?.[k]) }));
     const low = [...perS].sort((a, b) => a.v - b.v)[0];
     $('#kpis').innerHTML = `
@@ -2030,17 +2082,41 @@ async function adminPanel() {
       <div class="metric"><div class="v">${list.length ? STAGES.find(s => s.key === low.k).jp : '—'}</div><div class="l">la S más baja${list.length ? ` (promedio ${dec(low.v.toFixed(1))})` : ''}: punto de mejora del grupo</div></div>
       <div class="metric"><div class="l" style="margin:0 0 8px">Promedio por S</div>${perS.map(p => `<div class="row" style="gap:8px;font-size:12px;margin-top:4px"><span style="width:62px">${STAGES.find(s => s.key === p.k).jp}</span><div class="meter" style="min-width:60px"><i style="width:${p.v / 5 * 100}%;background:var(--accent)"></i></div><b style="font-weight:500;width:26px;text-align:right">${list.length ? dec(p.v.toFixed(1)) : '—'}</b></div>`).join('')}</div>`;
     const th = (k, t) => `<th data-sort="${k}">${t}${state.sort === k ? (state.dir > 0 ? ' ↑' : ' ↓') : ''}</th>`;
-    $('#tbl').innerHTML = `<thead><tr>${th('fecha', 'Fecha')}${th('nombre', 'Participante')}${th('sector', 'Sector')}${th('total', 'Promedio')}${STAGES.map(s => th(s.key, s.jp)).join('')}<th>Criterio en Seiton</th><th>Duración</th></tr></thead>
-      <tbody>${list.length ? list.map(r => `<tr><td>${fmtDate(r.fecha)}</td><td><b style="font-weight:500">${esc(r.apellido)}, ${esc(r.nombre)}</b></td><td>${esc(r.sector)}</td>
+    const allOn = list.length && list.every(r => sel.has(r.id));
+    $('#tbl').innerHTML = `<thead><tr><th style="width:36px"><input type="checkbox" id="selAll" ${allOn ? 'checked' : ''} aria-label="Seleccionar todos"></th>${th('fecha', 'Fecha')}${th('nombre', 'Participante')}${th('sector', 'Sector')}${th('total', 'Promedio')}${STAGES.map(s => th(s.key, s.jp)).join('')}<th>Criterio en Seiton</th><th>Duración</th></tr></thead>
+      <tbody>${list.length ? list.map(r => `<tr><td><input type="checkbox" data-sel="${esc(r.id)}" ${sel.has(r.id) ? 'checked' : ''} aria-label="Seleccionar"></td><td>${fmtDate(r.fecha)}</td><td><b style="font-weight:500">${esc(r.apellido)}, ${esc(r.nombre)}</b>${r.prueba ? ' <span class="tag-test">Prueba</span>' : ''}</td><td>${esc(r.sector)}</td>
         <td><span class="score ${r.total >= 4 ? 'hi' : r.total >= 3 ? 'mid' : 'lo'}">${dec(Number(r.total).toFixed(1))}</span></td>
         ${keys.map(k => `<td>${r.scores?.[k] != null ? dec(Number(r.scores[k]).toFixed(1)) : '—'}</td>`).join('')}
         <td>${esc(r.seiton?.criterio || '—')}</td><td>${r.duracionMin != null ? dec(r.duracionMin) + ' min' : '—'}</td></tr>`).join('')
-        : `<tr><td colspan="${6 + keys.length}" class="muted" style="text-align:center;padding:28px">Todavía no hay resultados${state.sector || state.q ? ' para este filtro' : ''}.</td></tr>`}</tbody>`;
+        : `<tr><td colspan="${7 + keys.length}" class="muted" style="text-align:center;padding:28px">Todavía no hay resultados${state.sector || state.q ? ' para este filtro' : ''}.</td></tr>`}</tbody>`;
+    $$('[data-sel]').forEach(c => c.onchange = () => { c.checked ? sel.add(c.dataset.sel) : sel.delete(c.dataset.sel); render(); });
+    $('#selAll').onchange = e => { list.forEach(r => e.target.checked ? sel.add(r.id) : sel.delete(r.id)); render(); };
     $$('#tbl th[data-sort]').forEach(t => t.onclick = () => { const k = t.dataset.sort; state.dir = state.sort === k ? -state.dir : (k === 'nombre' || k === 'sector' ? 1 : -1); state.sort = k; render(); });
   };
   render();
   $('#q').oninput = e => { state.q = e.target.value; render(); };
   $('#sec').onchange = e => { state.sector = e.target.value; render(); };
+  $('#tests').onchange = e => { state.tests = e.target.checked; render(); };
+  $('#selClear').onclick = () => { sel.clear(); render(); };
+  const doDelete = async (ids, what) => {
+    if (!ids.length) return toast('No hay resultados para borrar.', 'ko');
+    if (!await confirmDelete(`Vas a borrar ${what}: ${ids.length} resultado${ids.length === 1 ? '' : 's'}. No se puede deshacer.`)) return;
+    try {
+      await api.remove(ids);
+      const del = new Set(ids); rows = rows.filter(r => !del.has(r.id)); ids.forEach(id => sel.delete(id));
+      render(); toast(`Se borraron ${ids.length} resultado${ids.length === 1 ? '' : 's'}.`, 'ok');
+    } catch (err) { console.warn(err); toast('No se pudo borrar. Revisá que las reglas de Firestore estén publicadas.', 'ko'); }
+  };
+  $('#selDel').onclick = () => doDelete([...sel], 'los seleccionados');
+  $('#delMenu').onclick = async () => {
+    const nT = rows.filter(r => r.prueba).length;
+    const pick = await choiceDialog('Borrar resultados', 'Elegí qué querés borrar. También podés tildar filas en la tabla y borrar solo esas.', [
+      { k: 'tests', t: `Solo las partidas de prueba (${nT})` },
+      { k: 'all', t: `Todos los resultados (${rows.length})`, danger: true },
+    ]);
+    if (pick === 'tests') doDelete(rows.filter(r => r.prueba).map(r => r.id), 'las partidas de prueba');
+    if (pick === 'all') doDelete(rows.map(r => r.id), 'todos los resultados');
+  };
   const toCSV = () => {
     const head = ['Fecha', 'Apellido', 'Nombre', 'Sector', 'Promedio', ...STAGES.map(s => s.jp), 'Criterio Seiton', 'Puntaje Seiton', 'Duración (min)'];
     const q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
