@@ -109,7 +109,7 @@ p{margin:0 0 10px}
 .bin b{font-size:15px;font-weight:500}
 .bin small{font-size:12px;color:var(--ink-2)}
 .bin:hover,.bin.over{background:var(--surface-2);box-shadow:inset 0 0 0 1.5px var(--green),0 0 0 4px var(--green-soft)}
-.ghost{position:fixed;pointer-events:none;z-index:1000;opacity:.95;transform:rotate(-2deg);box-shadow:var(--shadow-float)!important}
+.ghost{position:fixed!important;pointer-events:none;margin:0!important;z-index:1000;opacity:.95;transform:rotate(-2deg);box-shadow:var(--shadow-float)!important}
 
 /* Seiton */
 .target-ask{display:flex;align-items:center;gap:12px;height:56px;padding:0 16px;background:var(--night);color:var(--on-night);border-radius:var(--radius-md);margin-bottom:12px}
@@ -169,6 +169,16 @@ p{margin:0 0 10px}
 
 /* Seiketsu */
 .split{display:grid;grid-template-columns:1fr 320px;gap:16px;align-items:start}
+.pgrid{display:grid;grid-template-columns:1fr 320px;grid-template-areas:"tray tray" "scene side";gap:16px;align-items:start}
+.pgrid>.tray{grid-area:tray;margin:0}.pgrid>.scene-wrap{grid-area:scene}.pgrid>.side{grid-area:side}
+@media (min-width:1280px){
+  main:has(.pgrid){max-width:1480px}
+  body:has(.pgrid) .bar{max-width:1480px}
+  .pgrid{grid-template-columns:230px minmax(0,1fr) 300px;grid-template-areas:"tray scene side"}
+  .pgrid>.tray{flex-direction:column;flex-wrap:nowrap;gap:6px;max-height:calc(100vh - 120px);overflow:auto;position:sticky;top:16px}
+  .pgrid>.tray .tool{padding:4px 10px 4px 4px}.pgrid>.tray .tool svg{width:30px;height:30px}
+  .pgrid>.side{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto}
+}
 .side{display:grid;gap:10px}
 .problems{display:grid;gap:8px;margin:0;padding:0;list-style:none}
 .problems li{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:19px;background:var(--surface);border-radius:var(--radius-md);box-shadow:inset 0 0 0 1px var(--line);padding:8px 10px}
@@ -198,6 +208,23 @@ p{margin:0 0 10px}
 .opt.best{background:var(--green-soft);color:var(--green-ink);box-shadow:inset 0 0 0 1.5px var(--green)}
 .opt.worse{box-shadow:inset 0 0 0 1.5px var(--danger)}
 .opt[disabled]{cursor:default}
+.zchips{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.zchip{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 6px 0 10px;border:0;border-radius:var(--radius-pill);background:var(--green-soft);color:var(--green-ink);font-size:12px;cursor:pointer}
+.zchip span{font-size:14px;line-height:1;opacity:.7}
+.problems li[data-drop].over{box-shadow:inset 0 0 0 1.5px var(--green)}
+.zst{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:700;color:#fff;margin-right:4px}
+.zst.ok{background:var(--green)}.zst.mid{background:#e9a613}.zst.ko{background:var(--danger)}
+.opt.mid{background:#fdf1d6;color:#7a4f00;box-shadow:inset 0 0 0 1.5px #e9a613}
+.opt.dim{opacity:.72}
+.opt .lv{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:var(--radius-pill);font-size:11px;font-weight:600;background:var(--surface-3);color:var(--ink-2);white-space:nowrap}
+.opt .lv.best{background:var(--green-soft);color:var(--green-ink)}.opt .lv.mid{background:#fdf1d6;color:#7a4f00}.opt .lv.worse{background:#f8dcd6;color:var(--danger)}
+.next-step{margin-top:16px;padding:16px 18px;border-radius:var(--radius-md);background:var(--solid);color:var(--on-solid)}
+.next-step .kicker{color:var(--on-night-2)}
+.next-step p{margin:6px 0 0;font-size:14px;line-height:21px}
+.srow-tip{grid-column:1/-1;font-size:12px;line-height:17px;color:var(--ink-2);margin:-2px 0 6px}
+.score-row.wide{grid-template-columns:150px 1fr 64px auto}
+@media (max-width:640px){.score-row.wide{grid-template-columns:1fr auto auto;row-gap:6px}.score-row.wide .meter{grid-column:1/-1;grid-row:2}}
+.retry{height:26px;padding:0 10px;font-size:12px;border:0;border-radius:var(--radius-pill);background:var(--surface-3);cursor:pointer}
 
 /* Auditoría */
 .audit{display:grid;grid-template-columns:360px 1fr;gap:28px;align-items:center}
@@ -404,7 +431,8 @@ function enableDrag(node, onDrop) {
         moved = true;
         ghost = node.cloneNode(true);
         ghost.classList.add('ghost');
-        ghost.style.width = rect.width + 'px'; ghost.style.margin = 0;
+        ghost.style.width = rect.width + 'px'; ghost.style.height = rect.height + 'px'; ghost.style.margin = 0; ghost.style.maxWidth = 'none';
+        ghost.style.left = (ev.clientX - ox) + 'px'; ghost.style.top = (ev.clientY - oy) + 'px';
         document.body.appendChild(ghost);
         node.classList.add('dragging');
       }
@@ -578,11 +606,11 @@ const S = { r: {} };
 const STAGES = [
   { key: 'seiri', n: '1S', jp: 'Seiri', kanji: '整理', es: 'Clasificar',
     def: 'Separar lo necesario de lo innecesario y sacar del puesto todo lo que no aporta al trabajo.',
-    how: ['Van a aparecer objetos del puesto, de a uno.', 'Arrastralos (o tocá el destino) a Necesario, Innecesario o Dudoso.', 'Lo dudoso lleva tarjeta roja: se aparta y se decide después.'],
+    how: ['Vas a ver los objetos que hay en el puesto, con la información de cada uno.', 'Pasalos a Necesario, Innecesario o Dudoso según tu criterio, y evaluá cuando estés conforme.', 'Vas a ver qué hiciste bien y un punto de mejora. Podés corregir y volver a evaluar.'],
     fn: () => seiri() },
   { key: 'seiton', n: '2S', jp: 'Seiton', kanji: '整頓', es: 'Ordenar',
     def: 'Un lugar para cada cosa y cada cosa en su lugar: lo más usado, más cerca, y todo identificado.',
-    how: ['Primero: encontrá la llave 13 mm en la mesa desordenada (se mide el tiempo).', 'Después: ubicá cada objeto en el tablero, la estantería o el depósito, según cuánto se usa.', 'Al final se repite la búsqueda para comparar.'],
+    how: ['Primero: juntá lo que pide una orden de trabajo en el taller desordenado (se mide el tiempo).', 'Después: ordená el puesto a tu manera, con el criterio que elijas.', 'Al final se repite la orden para comparar.'],
     fn: () => seiton() },
   { key: 'seiso', n: '3S', jp: 'Seiso', kanji: '清掃', es: 'Limpiar',
     def: 'Limpiar el puesto y, al hacerlo, inspeccionarlo: la limpieza deja a la vista las fallas.',
@@ -590,11 +618,11 @@ const STAGES = [
     fn: () => seiso() },
   { key: 'seiketsu', n: '4S', jp: 'Seiketsu', kanji: '清潔', es: 'Estandarizar',
     def: 'Convertir lo logrado en controles visuales, para que cualquiera detecte un desvío de un vistazo, sin preguntar ni recordar.',
-    how: ['El puesto tiene 5 problemas que se repiten (los números amarillos).', 'Arrastrá a cada número el control visual que lo resuelve. Ojo: hay controles que no sirven.', 'Después, una semana más tarde, auditás el puesto en 40 segundos usando esos controles.'],
+    how: ['El puesto tiene 5 zonas para controlar (los números amarillos).', 'Armá tu propio estándar: elegí qué control visual va en cada zona, o si no hace falta ninguno.', 'Una semana después auditás el puesto en 40 segundos: tu estándar decide qué desvíos se pueden ver.'],
     fn: () => seiketsu() },
   { key: 'shitsuke', n: '5S', jp: 'Shitsuke', kanji: '躾', es: 'Disciplina',
     def: 'Sostener lo logrado por hábito, aunque haya apuro y aunque nadie esté mirando.',
-    how: ['Vas a vivir una semana de trabajo, de lunes a viernes.', 'Cada día aparece una situación real y elegís qué hacer. Tus decisiones tienen consecuencias en los días siguientes.', 'Al cierre de cada turno tenés 15 segundos para la ronda: tocá todo lo que esté fuera del estándar.'],
+    how: ['Vas a vivir una semana de trabajo, de lunes a viernes.', 'Cada día aparece una situación y elegís qué hacer: hay opciones sostenibles, a medias y atajos. Suman al hábito de la semana y tienen consecuencias.', 'Al cierre de cada turno tenés 15 segundos para la ronda: tocá todo lo que esté fuera del estándar.'],
     fn: () => shitsuke() },
 ];
 
@@ -604,7 +632,7 @@ function setStep(idx) {
 }
 
 function home() {
-  S.r = {};
+  S.r = {}; S.first = null; S.replay = null;
   setStep(-1);
   view(`<section class="hero">
     <div>
@@ -646,9 +674,9 @@ function stageEnd(i, statsHtml, lesson) {
     ${statsHtml}
     <div class="tip"><b>Para llevarte:</b> ${lesson}</div>
     <div class="row" style="margin-top:20px"><span class="spacer"></span>
-      <button class="btn yellow" id="go">${i < 4 ? 'Siguiente: ' + STAGES[i + 1].jp + ' →' : 'Ver auditoría final →'}</button></div>
+      <button class="btn yellow" id="go">${S.replay ? 'Volver a la auditoría →' : i < 4 ? 'Siguiente: ' + STAGES[i + 1].jp + ' →' : 'Ver auditoría final →'}</button></div>
   </section>`);
-  $('#go').onclick = () => i < 4 ? intro(i + 1) : audit();
+  $('#go').onclick = () => S.replay || i === 4 ? audit() : intro(i + 1);
 }
 
 // =========================================================
@@ -656,17 +684,33 @@ function stageEnd(i, statsHtml, lesson) {
 // =========================================================
 const LABEL = { nec: 'Necesario', inn: 'Innecesario', dud: 'Dudoso (tarjeta roja)' };
 // Solo datos objetivos: la persona decide a partir de la información, sin que la descripción le diga qué hacer
-const SEIRI_ITEMS = [
+// Pozo de objetos: en cada partida salen 3 de cada clase, así no son siempre los mismos
+const SEIRI_POOL = [
   { id: 'llave', ic: 'wrench', n: 'Llave combinada 13 mm', h: 'Uso: varias veces por día', c: 'nec', x: 'Se usa todos los días: es necesaria y se queda en el puesto.' },
   { id: 'guantes', ic: 'gloves', n: 'Guantes de trabajo', h: 'Estado: bueno · Uso: diario', c: 'nec', x: 'Se usan a diario y están en condiciones: se quedan.' },
   { id: 'antiparras', ic: 'goggles', n: 'Antiparras', h: 'EPP · se usa en cada tarea', c: 'nec', x: 'Es EPP de uso diario: necesario y siempre a mano.' },
+  { id: 'dest', ic: 'screwdriver', n: 'Destornillador plano', h: 'Uso: todos los días', c: 'nec', x: 'Es una herramienta de uso diario: se queda en el puesto.' },
+  { id: 'linterna', ic: 'flashlight', n: 'Linterna', h: 'Batería: 100 % · Uso: en cada recorrida', c: 'nec', x: 'Funciona y se usa en cada recorrida: se queda.' },
+  { id: 'chaleco', ic: 'safety-vest', n: 'Chaleco reflectivo', h: 'EPP · obligatorio en el sector', c: 'nec', x: 'Es EPP obligatorio para trabajar en el sector: necesario.' },
+  { id: 'tijera', ic: 'scissors', n: 'Tijera de electricista', h: 'Estado: bueno · Uso: diario', c: 'nec', x: 'Está en condiciones y se usa a diario: se queda.' },
   { id: 'calendario', ic: 'spiral-calendar', n: 'Calendario de 2019', h: 'Calendario de pared', c: 'inn', x: 'Un calendario de 2019 ya no cumple ninguna función: se descarta.' },
   { id: 'taza', ic: 'hot-beverage', n: 'Taza rajada', h: 'Borde partido', c: 'inn', x: 'Una taza rota no sirve y puede cortar: se descarta.' },
   { id: 'pilas', ic: 'low-battery', n: 'Pilas AA', h: 'Carga: 0 %', c: 'inn', x: 'Pilas sin carga no sirven: van a su disposición final, no a un cajón.' },
+  { id: 'diario', ic: 'newspaper', n: 'Diario', h: 'Fecha: marzo de 2021', c: 'inn', x: 'Un diario de hace años no aporta nada al trabajo: se descarta.' },
+  { id: 'pizza', ic: 'pizza', n: 'Caja de pizza', h: 'Vacía · de anoche', c: 'inn', x: 'Es basura: va al cesto, no se queda en el puesto.' },
+  { id: 'orden', ic: 'page-with-curl', n: 'Orden de trabajo', h: 'Estado: cerrada en 2020 · ya archivada', c: 'inn', x: 'Está cerrada y archivada: la copia en el puesto ya no sirve.' },
+  { id: 'lapicera', ic: 'pen', n: 'Lapicera', h: 'Sin tinta', c: 'inn', x: 'Una lapicera sin tinta no sirve: se descarta.' },
+  { id: 'vaso', ic: 'cup-with-straw', n: 'Vaso descartable', h: 'Usado', c: 'inn', x: 'Es basura: va al cesto.' },
   { id: 'cable', ic: 'electric-plug', n: 'Cable de alimentación', h: 'Sin etiqueta · equipo desconocido', c: 'dud', x: 'No se sabe de qué equipo es ni si alguien lo necesita: tarjeta roja hasta averiguarlo.' },
   { id: 'caja', ic: 'package', n: 'Caja cerrada', h: 'Sin rótulo · contenido desconocido', c: 'dud', x: 'Antes de decidir hay que saber qué tiene: tarjeta roja y revisión.' },
   { id: 'repuesto', ic: 'gear', n: 'Repuesto de bomba', h: 'Uso: una vez al año', c: 'dud', x: 'Se necesita, pero no en el puesto: con tarjeta roja se decide dónde guardarlo (por ejemplo, en el depósito).' },
+  { id: 'llavecandado', ic: 'old-key', n: 'Llave de candado', h: 'Sin etiqueta · no se sabe qué abre', c: 'dud', x: 'Puede ser de un candado o un tablero que alguien necesita: tarjeta roja hasta averiguarlo.' },
+  { id: 'frasco', ic: 'test-tube', n: 'Frasco con líquido', h: 'Sin rótulo · contenido desconocido', c: 'dud', x: 'No se sabe qué es: no se tira sin identificarlo. Tarjeta roja y consulta al responsable.' },
+  { id: 'bulones', ic: 'nut-and-bolt', n: 'Bolsa de bulones', h: 'Sin rótulo · de un equipo desconocido', c: 'dud', x: 'Pueden ser de un equipo que se está armando: tarjeta roja hasta saber de quién son.' },
+  { id: 'caja2', ic: 'toolbox', n: 'Caja de herramientas', h: 'De otro sector · sin nombre', c: 'dud', x: 'Tiene dueño, pero no se sabe quién: tarjeta roja y aviso, no se la queda nadie.' },
+  { id: 'bateria', ic: 'battery', n: 'Batería de 12 V', h: 'Estado de carga: sin datos', c: 'dud', x: 'Puede servir o no: hay que medirla antes de decidir. Tarjeta roja.' },
 ];
+const pickSeiriItems = () => shuffle(['nec', 'inn', 'dud'].flatMap(c => shuffle(SEIRI_POOL.filter(i => i.c === c)).slice(0, 3)));
 const SEIRI_COLS = [
   { k: 'nec', t: 'Necesario', d: 'Se queda en el puesto', tone: 'green', ic: 'check' },
   { k: 'inn', t: 'Innecesario', d: 'Se descarta o se devuelve', tone: '', ic: 'trash' },
@@ -691,19 +735,21 @@ function seiriWhy(pick, correct) {
 }
 
 function seiri() {
+  const ITEMS = pickSeiriItems();
   const assign = {};
   let selected = null, prev = null, attempts = 0, lastEval = null;
   view(`<section>
     <div class="stage-head">
       <div><div class="kicker">1S · Seiri 整理 · Clasificar</div><h2>¿Qué se queda en el puesto?</h2>
       <p class="muted">Pasá cada objeto a la columna que te parezca (arrastrándolo, o tocándolo y después la columna). Podés cambiar de idea las veces que quieras. Cuando estés conforme, evaluá tu clasificación.</p></div>
-      <div class="counter" id="cnt">0 / ${SEIRI_ITEMS.length}</div>
+      <div class="counter" id="cnt">0 / ${ITEMS.length}</div>
     </div>
     <div class="tray" id="tray"></div>
     <div class="scols">${SEIRI_COLS.map(c => `<div class="scol" data-drop="${c.k}"><div class="scol-h">${tile(c.ic, c.tone)}<div><b>${c.t}</b><small>${c.d}</small></div></div><div class="scol-b" id="col-${c.k}"></div></div>`).join('')}</div>
     <div class="row" style="margin-top:14px"><span class="spacer"></span>
-      <button class="btn ghostbtn" id="next" style="display:none">Seguir</button>
-      <button class="btn yellow" id="eval" disabled>Evaluar mi clasificación</button></div>
+      <button class="btn ghostbtn" id="reroll" style="display:none">Probar con otros objetos</button>
+      <button class="btn yellow" id="eval" disabled>Evaluar mi clasificación</button>
+      <button class="btn yellow" id="next" style="display:none">Seguir</button></div>
     <div id="sres"></div>
   </section>`);
 
@@ -714,7 +760,7 @@ function seiri() {
   const render = () => {
     $('#tray').innerHTML = '';
     SEIRI_COLS.forEach(c => { $(`#col-${c.k}`).innerHTML = ''; });
-    SEIRI_ITEMS.forEach(it => {
+    ITEMS.forEach(it => {
       const node = card(it);
       const target = assign[it.id] ? $(`#col-${assign[it.id]}`) : $('#tray');
       target.appendChild(node);
@@ -726,8 +772,13 @@ function seiri() {
     });
     $('#tray').style.display = $('#tray').children.length ? '' : 'none';
     const n = Object.keys(assign).length;
-    $('#cnt').textContent = `${n} / ${SEIRI_ITEMS.length}`;
-    $('#eval').disabled = n < SEIRI_ITEMS.length;
+    $('#cnt').textContent = `${n} / ${ITEMS.length}`;
+    $('#eval').disabled = n < ITEMS.length;
+    const perfect = lastEval?.score === 100;
+    $('#eval').style.display = perfect ? 'none' : '';
+    $('#reroll').style.display = perfect ? '' : 'none';
+    $('#eval').className = `btn ${attempts ? 'ghostbtn' : 'yellow'}`;
+    $('#next').textContent = 'Seguir a Seiton →';
   };
   const put_ = (id, k) => { assign[id] = k; selected = null; lastEval = null; render(); };
   $$('.scol').forEach(c => c.onclick = e => { if (selected && !e.target.closest('.scard')) put_(selected, c.dataset.drop); });
@@ -735,15 +786,15 @@ function seiri() {
 
   $('#eval').onclick = () => {
     attempts++;
-    const res = SEIRI_ITEMS.map(it => ({ it, pick: assign[it.id], p: seiriPoints(assign[it.id], it.c) }));
-    const pts = res.reduce((t, r) => t + r.p, 0), score = Math.round(pts / SEIRI_ITEMS.length * 100);
+    const res = ITEMS.map(it => ({ it, pick: assign[it.id], p: seiriPoints(assign[it.id], it.c) }));
+    const pts = res.reduce((t, r) => t + r.p, 0), score = Math.round(pts / ITEMS.length * 100);
     lastEval = { pts, score };
     render();
     const errs = res.filter(r => r.p < 1).sort((a, b) => a.p - b.p);
     const exact = res.filter(r => r.p === 1);
     const delta = prev === null ? '' : ` <span style="font-size:14px;color:${score >= prev ? 'var(--green-text)' : 'var(--danger)'}">${score >= prev ? '+' : ''}${score - prev} vs intento anterior</span>`;
     prev = score;
-    const goodTxt = exact.length === SEIRI_ITEMS.length ? 'Clasificaste todo con buen criterio.' :
+    const goodTxt = exact.length === ITEMS.length ? 'Clasificaste todo con buen criterio.' :
       exact.some(r => r.it.c === 'dud') ? 'Usaste la tarjeta roja para lo que no se puede decidir en el momento: esa es la idea.' :
       exact.some(r => r.it.c === 'inn') ? 'Sacaste del puesto lo que ya no cumple ninguna función.' : 'Identificaste lo que se usa todos los días.';
     const e = errs[0];
@@ -753,16 +804,17 @@ function seiri() {
       <div class="row" style="align-items:baseline;gap:8px"><span style="font-size:36px;font-weight:600;letter-spacing:-.02em">${score}</span><span class="muted">/ 100</span>${delta}</div>
       <p class="muted" style="margin:6px 0 0;font-size:13px">✓ bien clasificado · ≈ aceptable pero mejorable · ✗ a revisar</p>
       <div class="tip" style="background:var(--green-soft);color:var(--green-ink);box-shadow:none;margin-top:12px"><b>Lo que hiciste bien:</b> ${goodTxt}</div>
-      <div class="tip" style="margin-top:8px"><b>Punto de mejora:</b> ${tipTxt}</div></div>`;
+      <div class="tip" style="margin-top:8px"><b>${score === 100 ? 'Para sostenerlo' : 'Punto de mejora'}:</b> ${score === 100 ? 'en el puesto real, lo dudoso tiene que llevar fecha y responsable en su tarjeta roja, y alguien tiene que decidir antes de que venza. Si querés, probá con otros objetos para seguir practicando.' : tipTxt}</div></div>`;
     $('#eval').textContent = 'Volver a evaluar';
     $('#next').style.display = '';
-    S.r.seiri = { ok: pts, total: SEIRI_ITEMS.length, attempts, score };
+    S.r.seiri = { ok: pts, total: ITEMS.length, attempts, score, tip: errs.length ? tipTxt : '' };
   };
+  $('#reroll').onclick = seiri;
   $('#next').onclick = () => {
     const r = S.r.seiri;
     stageEnd(0,
       `<div class="compare"><div class="metric"><div class="v">${r.score} / 100</div><div class="l">tu clasificación, en ${r.attempts} intento${r.attempts === 1 ? '' : 's'}</div></div>
-       <div class="metric"><div class="v">${SEIRI_ITEMS.filter(x => assign[x.id] !== 'nec').length}</div><div class="l">objetos que salieron del puesto</div></div></div>`,
+       <div class="metric"><div class="v">${ITEMS.filter(x => assign[x.id] !== 'nec').length}</div><div class="l">objetos que salieron del puesto</div></div></div>`,
       'antes de ordenar hay que sacar lo que sobra. La pregunta clave es <b>¿esto se usa y cada cuánto?</b> Lo que se puede decidir, se decide en el momento; lo que genera dudas no se queda “por las dudas”: lleva tarjeta roja con fecha y responsable.');
   };
 }
@@ -1034,12 +1086,15 @@ function seiton() {
       <div class="stage-head"><div><div class="kicker">2S · Seiton 整頓 · Ordenar</div><h2>Paso 2 · Ordená el puesto a tu manera</h2>
         <p class="muted">No hay una sola forma correcta. Ubicá cada objeto donde te parezca (arrastrándolo o tocándolo y después el lugar) con el criterio que elijas: por uso, por tipo, por tamaño… Al confirmar, el juego reconoce tu criterio y te dice qué mejorar.</p></div>
         <div class="counter" id="cnt">0 / ${SEITON_ITEMS.length}</div></div>
+      <div class="pgrid">
       <div class="tray" id="tray"></div>
-      <div class="split">
         <div class="scene-wrap" id="plan" style="aspect-ratio:1200/620"><div id="svgbox" class="layer"></div><div class="layer" id="slots"></div></div>
         <div class="side">
           <div><b style="font-size:13px">¿Qué criterio usaste?</b><div id="crit" class="row" style="gap:6px;margin-top:8px">
             ${[['', 'Que lo detecte el juego'], ['frecuencia', 'Por uso'], ['tipo', 'Por tipo'], ['tamano', 'Por tamaño']].map(([k, t], i) => `<button class="chip" data-crit="${k}" style="border:0;cursor:pointer;${i === 0 ? 'background:var(--solid);color:var(--on-solid)' : ''}">${t}</button>`).join('')}</div></div>
+          <div class="card" id="result" style="padding:16px"><b>Cómo se evalúa</b><p class="muted" style="margin:6px 0 0;font-size:13px;line-height:19px">Coherencia de tu criterio, recorrido semanal para buscar y guardar, y seguridad (lo pesado abajo, lo cortante protegido, el EPP a mano). Cada aspecto suma puntos por separado.</p></div>
+          <button class="btn yellow" id="next" style="display:none">Seguir con este orden</button>
+          <button class="btn yellow" id="confirm" disabled>Evaluar mi orden</button>
           <details class="card" style="padding:12px 14px" open><summary style="cursor:pointer;font-weight:600;font-size:13px">Qué conviene guardar en cada mueble</summary>
             <div class="mguide" style="margin-top:10px">
               <div><span><b>Tablero</b><br><em>0,5 m</em></span><span>Herramientas de mano: a la vista y al alcance mientras trabajás.</span></div>
@@ -1050,9 +1105,6 @@ function seiton() {
               <div><span><b>Casilleros</b><br><em>4 m</em></span><span>Elementos personales y EPP de cada persona.</span></div>
               <div><span><b>Depósito</b><br><em>25 m</em></span><span>Lo de uso ocasional: fuera del puesto.</span></div>
             </div></details>
-          <div class="card" id="result" style="padding:16px"><b>Cómo se evalúa</b><p class="muted" style="margin:6px 0 0;font-size:13px;line-height:19px">Coherencia de tu criterio, recorrido semanal para buscar y guardar, y seguridad (lo pesado abajo, lo cortante protegido, el EPP a mano). Cada aspecto suma puntos por separado.</p></div>
-          <button class="btn yellow" id="confirm" disabled>Evaluar mi orden</button>
-          <button class="btn ghostbtn" id="next" style="display:none">Seguir con este orden</button>
         </div>
       </div>
     </section>`);
@@ -1065,7 +1117,7 @@ function seiton() {
         node.addEventListener('tapselect', () => { $$('.tool.sel').forEach(t => t.classList.remove('sel')); node.classList.add('sel'); selected = it.id; });
         $('#tray').appendChild(node);
       });
-      $('#tray').style.display = $('#tray').children.length ? '' : 'none';
+      if (!$('#tray').children.length) $('#tray').innerHTML = '<p class="muted" style="font-size:12px;line-height:17px;margin:6px">Todos los objetos están ubicados.</p>';
     };
     const renderSlots = () => {
       $('#svgbox').innerHTML = workshopSVG(assign);
@@ -1083,6 +1135,7 @@ function seiton() {
       const n = Object.keys(assign).length;
       $('#cnt').textContent = `${n} / ${SEITON_ITEMS.length}`;
       $('#confirm').disabled = n < SEITON_ITEMS.length;
+      $('#confirm').style.display = '';
     };
     const drop = (itemId, pid) => {
       const prev = Object.keys(assign).find(k => assign[k] === pid);
@@ -1110,8 +1163,10 @@ function seiton() {
         <p style="margin:6px 0 0;font-size:13px">${ev.declared ? 'Criterio elegido' : 'Criterio detectado'}: <b style="font-weight:600">${ev.clear || ev.declared ? ev.main.n : 'sin criterio claro'}</b>${ev.declared ? ` <span class="muted">(${Math.round(ev.main.v * 100)} % aplicado)</span>` : ''}${ev.clear && ev.also.length ? `<span class="muted"> · también respeta el orden ${ev.also.map(c => c.n).join(' y ')}</span>` : ''}</p>
         ${bar('Coherencia del criterio', ev.coh)}${bar(`Recorrido (${meters(ev.w)}/sem)`, ev.eff)}${bar('Seguridad', ev.seg)}
         <div class="tip" style="background:var(--green-soft);color:var(--green-ink);box-shadow:none;margin-top:14px"><b>Lo que hiciste bien:</b> ${ev.good}</div>
-        <div class="tip" style="margin-top:8px"><b>Punto de mejora:</b> ${ev.tip}</div>`;
+        <div class="tip" style="margin-top:8px"><b>${ev.total === 100 ? 'Para sostenerlo' : 'Punto de mejora'}:</b> ${ev.tip}</div>`;
       $('#confirm').textContent = 'Volver a evaluar';
+      $('#confirm').style.display = ev.total === 100 ? 'none' : '';
+      $('#confirm').className = 'btn ghostbtn';
       $('#next').style.display = '';
     };
     $('#next').onclick = () => search2(assign);
@@ -1323,7 +1378,7 @@ function seiso() {
     const pick = await choice('Fuente de suciedad', SEISO_SOURCE.q, SEISO_SOURCE.o);
     await feedback({ ok: !!pick.ok, title: pick.ok ? 'Eso es Seiso' : 'Eso no alcanza', text: pick.ok ? pick.x : `${pick.x}\n\nLo correcto: atacar las fuentes de suciedad.`, btn: 'Ver resultado' });
     const clean = SEISO_ZONES.reduce((a, z) => a + prog[z.id], 0) / SEISO_ZONES.length;
-    S.r.seiso = { clean, rep: found.size, act: actOk.size, total: SEISO_ANOM.length, src: pick.ok ? 1 : 0, toolErr };
+    S.r.seiso = { clean, rep: found.size, act: actOk.size, total: SEISO_ANOM.length, src: pick.ok ? 1 : 0, toolErr, wrong: SEISO_ANOM.filter((a, i) => !actOk.has(i)).map(a => a.n) };
     stageEnd(2,
       `<div class="compare">
         <div class="metric"><div class="v">${Math.round(clean * 100)} %</div><div class="l">del puesto limpio (${toolErr} vez${toolErr === 1 ? '' : 'es'} con la herramienta equivocada)</div></div>
@@ -1343,91 +1398,147 @@ const CTL_ICONS = {
   minmax: `<svg viewBox="0 0 48 48"><rect width="48" height="48" rx="8" fill="#E9EEF2"/><rect x="12" y="24" width="24" height="17" fill="#8E979D"/><path d="M10 8 H38 L36 42 H12 Z" fill="rgba(170,205,230,.35)" stroke="#3D6F99" stroke-width="2"/><path d="M8 34 H40" stroke="#C8372D" stroke-width="2.5" stroke-dasharray="4 2"/><path d="M8 13 H40" stroke="#2F8F5B" stroke-width="2.5" stroke-dasharray="4 2"/></svg>`,
   zones: `<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="21" fill="#fff" stroke="#8E979D" stroke-width="3"/><path d="${arc(15, -60, 45)}" transform="translate(24 24)" stroke="#2F8F5B" stroke-width="6" fill="none"/><path d="${arc(15, 60, 135)}" transform="translate(24 24)" stroke="#C8372D" stroke-width="6" fill="none"/><path d="M24 24 L24 9" stroke="#333" stroke-width="2"/></svg>`,
   sched: `<svg viewBox="0 0 32 32">${ICONS.clipboard}</svg>`,
-  cartel: `<svg viewBox="0 0 48 48"><rect x="4" y="10" width="40" height="28" fill="#FFF59A"/><text x="24" y="28" font-size="8" font-weight="900" text-anchor="middle" fill="#55503A" ${T}>¡ORDEN!</text></svg>`,
+  cartel: `<svg viewBox="0 0 48 48"><rect x="4" y="10" width="40" height="28" fill="#FFF59A"/><text x="24" y="28" font-size="8" font-weight="900" text-anchor="middle" fill="#55503A" ${T}>ORDEN</text></svg>`,
   verbal: `<svg viewBox="0 0 32 32">${ICONS['speech-balloon']}</svg>`,
 };
 const CONTROLS = [
-  { id: 'sil', n: 'Lugar fijo con etiqueta', d: 'Cada herramienta con su gancho y su etiqueta en el tablero', spot: 1, s: 'Sostiene Seiton: cada herramienta tiene un lugar único e identificado. Si falta, el lugar etiquetado vacío lo muestra al instante.' },
-  { id: 'tape', n: 'Demarcación amarilla', d: 'Líneas en el piso que delimitan zonas', spot: 2, s: 'Sostiene Seiri y Seiton: el pasillo queda definido y nada se “estaciona” ahí sin que se note.' },
-  { id: 'minmax', n: 'Marcas de mínimo y máximo', d: 'Niveles dibujados en cada contenedor', spot: 3, s: 'Sostiene Seiri: se repone antes de que falte y no se acumula de más.' },
-  { id: 'zones', n: 'Rango verde y rojo', d: 'Zonas de color en el instrumento', spot: 4, s: 'Sostiene Seiso: la inspección es inmediata, cualquiera ve si la lectura está fuera de rango.' },
-  { id: 'sched', n: 'Cronograma de limpieza', d: 'Quién limpia qué y cuándo, con firma', spot: 5, s: 'Sostiene Seiso: la limpieza tiene responsable y frecuencia, y queda registrada.' },
-  { id: 'cartel', n: 'Cartel “¡Mantener el orden!”', d: 'Un aviso general en la pared', spot: 0, x: 'Un cartel genérico no dice qué, dónde ni cuánto: no permite detectar ningún desvío concreto. No es un estándar.' },
-  { id: 'verbal', n: 'Recordatorio en la reunión', d: 'Avisarlo de palabra al equipo', spot: 0, x: 'Lo que se dice de palabra se olvida y no queda a la vista. Un estándar tiene que verse en el puesto.' },
+  { id: 'sil', n: 'Lugar fijo con etiqueta', d: 'Un gancho y una etiqueta para cada cosa' },
+  { id: 'tape', n: 'Demarcación amarilla', d: 'Líneas en el piso que delimitan zonas' },
+  { id: 'minmax', n: 'Marcas de mínimo y máximo', d: 'Niveles dibujados en el contenedor' },
+  { id: 'zones', n: 'Rango verde y rojo', d: 'Zonas de color en un instrumento' },
+  { id: 'sched', n: 'Cronograma con firma', d: 'Quién hace qué y cuándo, firmado' },
+  { id: 'cartel', n: 'Cartel “Mantener el orden”', d: 'Un aviso general en la pared' },
+  { id: 'verbal', n: 'Recordatorio en la reunión', d: 'Avisarlo de palabra al equipo' },
 ];
-const SPOTS = [
-  { n: 1, x: 350, y: 145, t: 'Cuando falta una herramienta del tablero, nadie lo nota hasta que la necesita.' },
-  { n: 2, x: 250, y: 545, t: 'Cajas y carros terminan invadiendo el paso de a poco.' },
-  { n: 3, x: 760, y: 92, t: 'Los insumos se agotan sin aviso, o se acumulan de más.' },
-  { n: 4, x: 628, y: 178, t: 'Nadie sabe si la presión que marca el manómetro está bien o mal.' },
-  { n: 5, x: 73, y: 214, t: 'No está claro quién limpia qué ni cuándo.' },
+const ctlById = id => CONTROLS.find(c => c.id === id);
+// Zonas del puesto: solo información objetiva, sin decir qué control va
+const ZONES = [
+  { id: 'tablero', n: 'Tablero de herramientas', en: 'el tablero', x: 350, y: 145, info: 'Herramientas compartidas entre tres turnos.' },
+  { id: 'piso', n: 'Pasillo', en: 'el pasillo', x: 250, y: 545, info: 'Por acá circulan carros y personas.' },
+  { id: 'cont', n: 'Contenedores de insumos', en: 'los contenedores', x: 760, y: 92, info: 'Tornillos y tarugos que se reponen cada semana.' },
+  { id: 'mano', n: 'Manómetro de la línea de aire', en: 'el manómetro', x: 628, y: 178, info: 'La presión correcta va de 4 a 6 bar.' },
+  { id: 'limp', n: 'Limpieza del puesto', en: 'la limpieza', x: 73, y: 214, info: 'La hacen tres turnos distintos durante la semana.' },
 ];
+// Cuánto hace visible cada control en cada zona: 1 lo hace evidente, 0,5 ayuda a medias
+const COVER = {
+  sil: { tablero: 1, cont: .5 }, tape: { piso: 1 }, minmax: { cont: 1, mano: .5 },
+  zones: { mano: 1, cont: .5 }, sched: { limp: 1 }, cartel: {}, verbal: {},
+};
+const ZONE_FIX = {
+  tablero: { dev: 'faltaba el destornillador y nadie lo notó', best: 'sil', why: 'el hueco vacío se ve al instante' },
+  piso: { dev: 'una caja quedó invadiendo el pasillo', best: 'tape', why: 'cualquier cosa que invade el paso se nota' },
+  cont: { dev: 'los tornillos M6 estaban por agotarse', best: 'minmax', why: 'se repone antes de que falte' },
+  mano: { dev: 'la presión estaba fuera de rango', best: 'zones', why: 'cualquiera ve si la lectura está bien' },
+  limp: { dev: 'la limpieza del jueves no se hizo', best: 'sched', why: 'queda a la vista lo que no se hizo' },
+};
+const PARTIAL_NOTE = {
+  'sil:cont': 'la etiqueta dice qué va en cada contenedor, pero no cuánto: no avisa cuándo reponer',
+  'minmax:mano': 'una marca de mínimo y máximo sirve, pero un rango de color se lee más rápido',
+  'zones:cont': 'el color ayuda, pero sin una marca de mínimo no queda claro cuándo reponer',
+};
 const DEVS = [
-  { id: 'sil', x: 272, y: 100, t: 'Falta el destornillador: su lugar etiquetado está vacío. Sin lugar fijo, nadie lo hubiera notado.' },
-  { id: 'box', x: 430, y: 500, t: 'La caja cruza la línea amarilla: el pasillo tiene que quedar libre.' },
-  { id: 'gauge', x: 628, y: 118, t: 'La aguja está en la zona roja: presión fuera de rango, hay que avisar a mantenimiento.' },
-  { id: 'bin', x: 698, y: 130, t: 'Los tornillos M6 están debajo de la marca de mínimo: hay que pedir reposición.' },
-  { id: 'sched', x: 98, y: 168, t: 'Falta la firma de la limpieza del jueves: no hay registro de que se haya hecho.' },
+  { id: 'sil', z: 'tablero', x: 272, y: 100, t: 'Falta el destornillador: su lugar etiquetado está vacío.' },
+  { id: 'box', z: 'piso', x: 430, y: 500, t: 'La caja cruza la línea amarilla: el pasillo tiene que quedar libre.' },
+  { id: 'gauge', z: 'mano', x: 628, y: 118, t: 'La aguja está en la zona roja: presión fuera de rango, hay que avisar a mantenimiento.' },
+  { id: 'bin', z: 'cont', x: 698, y: 130, t: 'Los tornillos M6 están debajo de la marca de mínimo: hay que pedir reposición.' },
+  { id: 'sched', z: 'limp', x: 98, y: 168, t: 'Falta la firma de la limpieza del jueves: no hay registro de que se haya hecho.' },
 ];
+
+function evalStandard(plan) {
+  const cov = {}, waste = [];
+  ZONES.forEach(z => {
+    let best = 0;
+    [...(plan[z.id] || [])].sort((a, b) => (COVER[b][z.id] || 0) - (COVER[a][z.id] || 0)).forEach(c => {
+      const v = COVER[c][z.id] || 0;
+      if (v > best) best = v; else waste.push({ c, z: z.id });
+    });
+    cov[z.id] = best;
+  });
+  const coverage = ZONES.reduce((t, z) => t + cov[z.id], 0) / ZONES.length;
+  const econ = clamp(1 - waste.length * .25);
+  return { cov, waste, coverage, econ };
+}
+function seiketsuTip(plan, ev) {
+  const zName = id => ZONES.find(z => z.id === id).en;
+  const weak = [...ZONES].sort((a, b) => ev.cov[a.id] - ev.cov[b.id])[0];
+  const generic = ev.waste.find(w => w.c === 'cartel' || w.c === 'verbal');
+  if (ev.cov[weak.id] === 0) {
+    const f = ZONE_FIX[weak.id];
+    const used = (plan[weak.id] || []).map(c => ctlById(c).n.toLowerCase());
+    return `En ${zName(weak.id)} ${used.length ? `pusiste ${used.join(' y ')}, pero eso no permite ver un desvío concreto` : 'no había ningún control'}: en la auditoría ${f.dev}. Por ejemplo, con ${ctlById(f.best).n.toLowerCase()} ${f.why}.`;
+  }
+  if (ev.cov[weak.id] < 1) {
+    const c = (plan[weak.id] || []).find(c => PARTIAL_NOTE[`${c}:${weak.id}`]);
+    const f = ZONE_FIX[weak.id];
+    return `En ${zName(weak.id)} ${PARTIAL_NOTE[`${c}:${weak.id}`]}. Con ${ctlById(f.best).n.toLowerCase()} ${f.why}.`;
+  }
+  if (generic) return `Tu estándar hace visible todo. Para simplificarlo, sacá “${ctlById(generic.c).n}” de ${zName(generic.z)}: no dice qué, dónde ni cuánto, así que no detecta ningún desvío y es una cosa más para mantener.`;
+  if (ev.waste.length) return `Tu estándar hace visible todo. Para simplificarlo, sacá ${ctlById(ev.waste[0].c).n.toLowerCase()} de ${zName(ev.waste[0].z)}: esa zona ya está cubierta y es un control más para mantener.`;
+  return 'Tu estándar hace visible cada desvío con lo justo. Lo que sigue es sostenerlo todos los días (Shitsuke).';
+}
 
 function seiketsu() {
-  const on = {}, missed = new Set();
-  let selected = null;
-  const r = { first: 0, found: 0, errors: 0, time: 0 };
-  const sceneOpts = () => ({ board: ALL_TOOLS.filter(t => t !== 'dest'), labels: on.sil ? true : [], sil: on.sil, messyBoard: !on.sil, tape: on.tape, minmax: on.minmax,
-    zones: on.zones, sched: on.sched, needle: 20, bins: { torn: .12, aran: 1.15, tar: .6 }, boxWalk: true });
-
-  view(`<section>
-    <div class="stage-head"><div><div class="kicker">4S · Seiketsu 清潔 · Estandarizar</div><h2>Paso 1 · Instalá los controles visuales</h2>
-      <p class="muted">Arrastrá a cada número el control que resuelve ese problema (o tocá el control y después el número).</p></div>
-      <div class="counter" id="cnt">0 / 5</div></div>
-    <div class="split">
-      <div class="scene-wrap" id="sw"><div id="svgbox" class="layer"></div><div class="layer" id="spots"></div></div>
-      <div class="side"><b>Problemas que se repiten</b><ul class="problems" id="probs">${SPOTS.map(p => `<li data-n="${p.n}"><span class="num">${p.n}</span><span>${p.t}</span></li>`).join('')}</ul></div>
-    </div>
-    <div class="ctls" id="ctls"></div>
-  </section>`);
-  const paint = () => { $('#svgbox').innerHTML = sceneSVG(sceneOpts()); };
-  paint();
-  $('#spots').innerHTML = SPOTS.map(p => `<div class="hotspot" data-drop="${p.n}" style="${pct(p.x, p.y)}">${p.n}</div>`).join('');
-
-  const apply = async (c, node, spotN) => {
-    spotN = +spotN;
-    const spotEl = $(`.hotspot[data-drop="${spotN}"]`);
-    if (spotEl.classList.contains('ok')) return;
-    if (c.spot === spotN) {
-      on[c.id] = true;
-      if (!missed.has(c.id)) r.first++;
-      node.classList.add('used'); node.classList.remove('sel'); selected = null;
-      spotEl.classList.add('ok'); spotEl.textContent = '✓';
-      $(`#probs li[data-n="${spotN}"]`).classList.add('ok');
-      paint();
-      const n = Object.keys(on).length;
-      $('#cnt').textContent = `${n} / 5`;
-      await feedback({ ok: true, title: `${c.n}: instalado`, text: c.s, btn: n === 5 ? 'Ir a la auditoría' : 'Seguir' });
-      if (n === 5) audit40();
-    } else {
-      missed.add(c.id);
-      const txt = c.spot === 0 ? c.x : `“${c.n}” sirve para otra cosa: ${c.d.toLowerCase()}. Para el problema ${spotN} hace falta otro control.`;
-      await feedback({ title: 'Ese control no resuelve este problema', text: txt });
-    }
-  };
-  shuffle(CONTROLS).forEach(c => {
-    const node = h(`<div class="ctl">${CTL_ICONS[c.id]}<div><b>${c.n}</b><small>${c.d}</small></div></div>`);
-    enableDrag(node, z => apply(c, node, z));
-    node.addEventListener('tapselect', () => { $$('.ctl.sel').forEach(t => t.classList.remove('sel')); node.classList.add('sel'); selected = { c, node }; });
-    $('#ctls').appendChild(node);
+  let plan = {}, attempts = 0, prevScore = null, selected = null;
+  const flags = p => ({
+    sil: (p.tablero || []).includes('sil'), tape: (p.piso || []).includes('tape'), minmax: (p.cont || []).includes('minmax'),
+    zones: (p.mano || []).includes('zones'), sched: (p.limp || []).includes('sched'),
   });
-  $$('.hotspot').forEach(s => s.onclick = () => { if (selected) apply(selected.c, selected.node, s.dataset.drop); });
+  design();
+
+  function design() {
+    view(`<section>
+      <div class="stage-head"><div><div class="kicker">4S · Seiketsu 清潔 · Estandarizar</div><h2>Paso 1 · Armá tu estándar</h2>
+        <p class="muted">Decidí qué control visual poner en cada zona: arrastralo al número o a la zona de la lista (o tocá el control y después la zona). Hasta 2 por zona, o ninguno. Un buen estándar deja ver cualquier desvío de un vistazo, con lo justo.</p></div>
+        <div class="counter" id="cnt"></div></div>
+      <div class="split">
+        <div class="scene-wrap" id="sw"><div id="svgbox" class="layer"></div><div class="layer" id="spots"></div></div>
+        <div class="side"><b>Zonas del puesto</b><ul class="problems" id="zl"></ul></div>
+      </div>
+      <div class="ctls" id="ctls"></div>
+      <div class="row" style="margin-top:14px"><span class="spacer"></span><button class="btn yellow" id="try" disabled>Probar mi estándar</button></div>
+    </section>`);
+    CONTROLS.forEach(c => {
+      const node = h(`<div class="ctl">${CTL_ICONS[c.id]}<div><b>${c.n}</b><small>${c.d}</small></div></div>`);
+      enableDrag(node, z => add(c.id, z));
+      node.addEventListener('tapselect', () => { $$('.ctl.sel').forEach(t => t.classList.remove('sel')); if (selected === c.id) { selected = null; return; } node.classList.add('sel'); selected = c.id; });
+      $('#ctls').appendChild(node);
+    });
+    $('#try').onclick = audit40;
+    render();
+  }
+  function add(c, z) {
+    const list = plan[z] || (plan[z] = []);
+    selected = null; $$('.ctl.sel').forEach(t => t.classList.remove('sel'));
+    if (list.includes(c)) return toast('Ese control ya está en esta zona.', 'ko');
+    if (list.length >= 2) return toast('Ya hay 2 controles en esta zona: sacá uno primero.', 'ko');
+    list.push(c);
+    render();
+  }
+  function render() {
+    const f = flags(plan);
+    $('#svgbox').innerHTML = sceneSVG({ board: ALL_TOOLS.filter(t => t !== 'dest'), labels: f.sil, sil: f.sil, messyBoard: !f.sil, tape: f.tape, minmax: f.minmax,
+      zones: f.zones, sched: f.sched, needle: 20, bins: { torn: .12, aran: 1.15, tar: .6 }, boxWalk: true });
+    $('#spots').innerHTML = ZONES.map((z, i) => `<div class="hotspot ${(plan[z.id] || []).length ? 'ok' : ''}" data-drop="${z.id}" data-z="${z.id}" style="${pct(z.x, z.y)}">${i + 1}</div>`).join('');
+    $('#zl').innerHTML = ZONES.map((z, i) => `<li data-drop="${z.id}" data-z="${z.id}" class="${(plan[z.id] || []).length ? 'ok' : ''}"><span class="num">${i + 1}</span><span style="flex:1"><b style="font-weight:500">${z.n}</b><br><span class="muted">${z.info}</span>
+      <span class="zchips">${(plan[z.id] || []).map(c => `<button class="zchip" data-rm="${z.id}:${c}" title="Quitar">${ctlById(c).n}<span aria-hidden="true">×</span></button>`).join('')}</span></span></li>`).join('');
+    $$('[data-z]').forEach(el => el.onclick = e => { if (e.target.closest('[data-rm]')) return; if (selected) add(selected, el.dataset.z); });
+    $$('[data-rm]').forEach(b => b.onclick = () => { const [z, c] = b.dataset.rm.split(':'); plan[z] = plan[z].filter(x => x !== c); render(); });
+    const n = Object.values(plan).reduce((t, l) => t + l.length, 0);
+    $('#cnt').textContent = `${n} control${n === 1 ? '' : 'es'}`;
+    $('#try').disabled = n === 0;
+  }
 
   function audit40() {
-    const LIMIT = 40;
+    const LIMIT = 40, ev = evalStandard(plan), f = flags(plan);
+    const det = DEVS.filter(d => ev.cov[d.z] >= .5);
+    const r = { found: 0, errors: 0, time: 0 };
+    attempts++;
     view(`<section>
       <div class="stage-head"><div><div class="kicker">4S · Seiketsu 清潔 · Estandarizar</div><h2>Paso 2 · Una semana después: auditoría de ${LIMIT} segundos</h2>
-        <p class="muted">Con los controles instalados, recorré el puesto y tocá cada cosa que esté fuera del estándar. Hay 5.</p></div>
-        <div class="counter" id="cnt">Desvíos: 0 / 5</div></div>
+        <p class="muted">Recorré el puesto con tu estándar y tocá todo lo que esté fuera de él.</p></div>
+        <div class="counter" id="cnt">Desvíos: 0</div></div>
       <div class="scene-wrap solo" id="sw" style="cursor:pointer">
-        <div class="layer">${sceneSVG({ board: ALL_TOOLS.filter(t => t !== 'dest'), labels: true, sil: true, tape: true, minmax: true, zones: true, sched: true, schedUnsigned: true, needle: 110, bins: { torn: .12, aran: .75, tar: .6 }, boxWalk: true })}</div>
+        <div class="layer">${sceneSVG({ board: ALL_TOOLS.filter(t => t !== 'dest'), labels: f.sil, sil: f.sil, messyBoard: !f.sil, tape: f.tape, minmax: f.minmax, zones: f.zones, sched: f.sched, schedUnsigned: true, needle: 110, bins: { torn: .12, aran: .75, tar: .6 }, boxWalk: true })}</div>
         <div class="layer">${DEVS.map(d => `<div class="hit" data-dev="${d.id}" style="${pct(d.x, d.y)}"></div>`).join('')}</div>
       </div>
       <div class="row" style="margin-top:14px"><b>Tiempo</b><div class="timebar" style="flex:1"><i id="tb"></i></div><span class="muted">Errores: <b id="err">0</b></span></div>
@@ -1441,36 +1552,67 @@ function seiketsu() {
       if (left <= 0) finish(); else requestAnimationFrame(tick);
     };
     tick();
+    const blind = new Set();
     $('#sw').onclick = e => {
       if (over) return;
       const hit = e.target.closest('[data-dev]');
-      if (hit) {
-        if (hit.classList.contains('found')) return;
-        hit.classList.add('found'); r.found++;
-        $('#cnt').textContent = `Desvíos: ${r.found} / 5`;
-        toast(DEVS.find(d => d.id === hit.dataset.dev).t, 'ok');
-        if (r.found === 5) setTimeout(finish, 900);
-      } else {
-        r.errors++; $('#err').textContent = r.errors;
-        toast('Eso está dentro del estándar.', 'ko');
+      if (!hit) { r.errors++; $('#err').textContent = r.errors; return toast('Eso está dentro del estándar.', 'ko'); }
+      const d = DEVS.find(x => x.id === hit.dataset.dev);
+      if (hit.classList.contains('found')) return;
+      if (ev.cov[d.z] < .5) {
+        if (!blind.has(d.id)) { blind.add(d.id); toast('Acá no hay un control que diga cómo debería estar: no se puede saber si está bien o mal.'); }
+        return;
       }
+      hit.classList.add('found'); r.found++;
+      $('#cnt').textContent = `Desvíos: ${r.found}`;
+      toast(d.t, 'ok');
+      if (r.found === det.length) setTimeout(finish, 900);
     };
+    if (!det.length) setTimeout(() => toast('Con este estándar no hay forma de saber qué está fuera de lugar.'), 600);
     async function finish() {
       if (over) return;
       over = true;
       r.time = (performance.now() - t0) / 1000;
-      const missedDevs = DEVS.filter(d => !$(`[data-dev="${d.id}"]`).classList.contains('found'));
-      missedDevs.forEach(d => $(`[data-dev="${d.id}"]`).classList.add('pulse'));
-      if (missedDevs.length) await feedback({ title: `Se terminó el tiempo: faltaron ${missedDevs.length}`, text: missedDevs.map(d => '• ' + d.t).join('\n') });
-      S.r.seiketsu = r;
-      stageEnd(3,
-        `<div class="compare">
-          <div class="metric"><div class="v">${r.first} / 5</div><div class="l">controles bien elegidos al primer intento</div></div>
-          <div class="metric"><div class="v">${r.found} / 5</div><div class="l">desvíos detectados en la auditoría</div></div>
-          <div class="metric"><div class="v">${fmt(Math.min(r.time, LIMIT))}</div><div class="l">tiempo de auditoría (${r.errors} error${r.errors === 1 ? '' : 'es'})</div></div>
-        </div>`,
-        'un estándar no es un cartel ni un recordatorio: es un <b>control visual en el lugar</b> (lugar fijo con etiqueta, demarcación, mínimo y máximo, rango de color, cronograma con firma). Sin esos controles, ninguno de los 5 desvíos se hubiera notado; con ellos, cualquier persona los encuentra en segundos.');
+      const missed = det.filter(d => !$(`[data-dev="${d.id}"]`).classList.contains('found'));
+      missed.forEach(d => $(`[data-dev="${d.id}"]`).classList.add('pulse'));
+      if (missed.length) await feedback({ title: `Se terminó el tiempo: faltaron ${missed.length}`, text: missed.map(d => '• ' + d.t).join('\n') });
+      result(ev, r, det);
     }
+  }
+
+  function result(ev, r, det) {
+    const score = Math.round(100 * clamp(.45 * ev.coverage + .35 * (r.found / DEVS.length) + .2 * ev.econ - r.errors * .03));
+    const tip = seiketsuTip(plan, ev);
+    const visible = ZONES.filter(z => ev.cov[z.id] === 1).length;
+    const delta = prevScore === null ? '' : ` <span style="font-size:14px;color:${score >= prevScore ? 'var(--green-text)' : 'var(--danger)'}">${score >= prevScore ? '+' : ''}${score - prevScore} vs intento anterior</span>`;
+    prevScore = score;
+    const good = visible === ZONES.length ? 'Tu estándar hace visible cada uno de los problemas del puesto.' : visible ? `Tu estándar hace evidente lo que pasa en ${visible} de ${ZONES.length} zonas: ${ZONES.filter(z => ev.cov[z.id] === 1).map(z => z.en).join(', ')}.` : det.length ? 'Algunos desvíos se pueden detectar, aunque todavía con controles a medias.' : 'Diste el primer paso: pensar qué hay que controlar en cada zona.';
+    S.r.seiketsu = { score, coverage: ev.coverage, waste: ev.waste.length, found: r.found, detectable: det.length, errors: r.errors, time: r.time, attempts, tip, plan: JSON.parse(JSON.stringify(plan)) };
+    view(`<section>
+      <div class="stage-head"><div><div class="kicker">4S · Seiketsu 清潔 · Estandarizar</div><h2>Cómo funcionó tu estándar</h2></div></div>
+      <div class="card" style="padding:18px">
+        <div class="kicker" style="margin-bottom:4px">Intento ${attempts}</div>
+        <div class="row" style="align-items:baseline;gap:8px"><span style="font-size:36px;font-weight:600;letter-spacing:-.02em">${score}</span><span class="muted">/ 100</span>${delta}</div>
+        <table class="tbl ztbl" style="margin-top:12px"><thead><tr><th>Zona</th><th>Tu control</th><th>En la auditoría</th></tr></thead><tbody>
+          ${ZONES.map(z => { const v = ev.cov[z.id]; const st = v === 1 ? ['ok', '✓', 'Se ve de un vistazo'] : v > 0 ? ['mid', '≈', 'A medias'] : ['ko', '✗', 'Pasó sin que se note'];
+            return `<tr><td>${z.n}</td><td>${(plan[z.id] || []).map(c => ctlById(c).n).join(' + ') || '<span class="muted">Ninguno</span>'}</td><td><span class="zst ${st[0]}">${st[1]}</span> ${st[2]}</td></tr>`; }).join('')}
+        </tbody></table>
+        <p class="muted" style="margin:8px 0 0;font-size:13px">Detectaste ${r.found} de ${DEVS.length} desvíos en ${fmt(Math.min(r.time, 40))}${r.errors ? ` · ${r.errors} toque${r.errors === 1 ? '' : 's'} de más` : ''}${ev.waste.length ? ` · ${ev.waste.length} control${ev.waste.length === 1 ? '' : 'es'} que no suma${ev.waste.length === 1 ? '' : 'n'}` : ''}.</p>
+        <div class="tip" style="background:var(--green-soft);color:var(--green-ink);box-shadow:none;margin-top:12px"><b>Lo que hiciste bien:</b> ${good}</div>
+        <div class="tip" style="margin-top:8px"><b>${score === 100 ? 'Para sostenerlo' : 'Punto de mejora'}:</b> ${tip}</div>
+      </div>
+      <div class="row" style="margin-top:14px"><span class="spacer"></span>
+        ${score === 100 ? '' : '<button class="btn ghostbtn" id="adjust">Ajustar mi estándar</button>'}
+        <button class="btn yellow" id="next">Seguir</button></div>
+    </section>`);
+    if ($('#adjust')) $('#adjust').onclick = design;
+    $('#next').onclick = () => stageEnd(3,
+      `<div class="compare">
+        <div class="metric"><div class="v">${score} / 100</div><div class="l">tu estándar, en ${attempts} intento${attempts === 1 ? '' : 's'}</div></div>
+        <div class="metric"><div class="v">${visible} / ${ZONES.length}</div><div class="l">zonas donde un desvío se ve de un vistazo</div></div>
+        <div class="metric"><div class="v">${r.found} / ${DEVS.length}</div><div class="l">desvíos detectados en la auditoría</div></div>
+      </div>`,
+      'un estándar no es un cartel ni un recordatorio: es un <b>control visual en el lugar</b> que dice qué, dónde y cuánto. Donde no hay control, un desvío pasa sin que nadie lo note; donde hay uno de más, se suma trabajo sin ganar nada.');
   }
 }
 
@@ -1479,38 +1621,42 @@ function seiketsu() {
 // =========================================================
 const DILEMMAS = [
   { day: 'Lunes', q: 'Faltan 10 minutos para el cierre y te piden adelantar un trabajo para mañana.', o: [
-    { t: 'Hacés la ronda de cierre de 5 minutos y después seguís con el trabajo.', best: 1, fb: 'La ronda corta no se negocia: cinco minutos hoy evitan perder mucho más mañana.' },
-    { t: 'Saltás la ronda: mañana ordenás todo junto.', skip: 1, fb: 'Hoy no hay ronda de cierre: lo que quedó fuera de lugar se acumula para mañana.',
+    { t: 'Hacés la ronda de cierre de 5 minutos y después seguís con el trabajo.', lv: 3, fb: 'La ronda corta no se negocia: cinco minutos hoy evitan perder mucho más mañana.' },
+    { t: 'Hacés una pasada de un minuto solo por la mesa y seguís con el trabajo.', lv: 1, extra: ['trash'], fb: 'Algo es mejor que nada, pero lo que quedó en el piso y en el estante se suma a mañana.' },
+    { t: 'Saltás la ronda: mañana ordenás todo junto.', lv: 0, skip: 1, fb: 'Hoy no hay ronda de cierre: lo que quedó fuera de lugar se acumula para mañana.',
       next: { title: 'Martes, 7:00', text: 'Arrancaste el día buscando la llave 13 entre lo que quedó tirado: 12 minutos perdidos, y el trabajo urgente se atrasó igual.', pen: 8 } },
   ] },
   { day: 'Martes', q: 'Un compañero del turno anterior dejó su tijera sobre tu mesa.', o: [
-    { t: 'La devolvés a su lugar en el tablero y se lo comentás al compañero, con buena onda.', best: 1, fb: 'Corregir y avisar con respeto: así el estándar es de todos y no solo tuyo.' },
-    { t: 'La dejás donde está: no es tuya.', extra: ['tool:tijera'], fb: 'Lo que se tolera se vuelve normal. La tijera va a estar esperándote en la ronda de cierre.' },
-    { t: 'La guardás en tu cajón para que no se pierda.', pen: 8, fb: 'Un cajón personal no es un lugar estandarizado: el próximo que la busque no la va a encontrar, y su lugar en el tablero queda vacío.' },
+    { t: 'La devolvés a su lugar en el tablero y se lo comentás al compañero, con buena onda.', lv: 3, fb: 'Corregir y avisar con respeto: así el estándar es de todos y no solo tuyo.' },
+    { t: 'La dejás donde está: no es tuya.', lv: 0, extra: ['tool:tijera'], fb: 'Lo que se tolera se vuelve normal. La tijera va a estar esperándote en la ronda de cierre.' },
+    { t: 'La guardás en tu cajón para que no se pierda.', lv: 1, pen: 8, fb: 'Un cajón personal no es un lugar estandarizado: el próximo que la busque no la va a encontrar, y su lugar en el tablero queda vacío.' },
   ] },
   { day: 'Miércoles', q: 'El cronograma dice que hoy te toca limpiar el tambor de aceite, pero a simple vista está limpio.', o: [
-    { t: 'Lo limpiás e inspeccionás igual, y firmás el cronograma.', best: 1, fb: 'Al limpiarlo encontrás una pequeña pérdida y la reportás a tiempo. Limpiar es inspeccionar.' },
-    { t: 'Lo salteás, pero firmás igual para no quedar mal.', pen: 10, fb: 'Firmar sin hacer rompe la confianza en el estándar: el registro deja de servir.',
+    { t: 'Lo limpiás e inspeccionás igual, y firmás el cronograma.', lv: 3, fb: 'Al limpiarlo encontrás una pequeña pérdida y la reportás a tiempo. Limpiar es inspeccionar.' },
+    { t: 'Lo salteás, pero firmás igual para no quedar mal.', lv: 0, pen: 10, fb: 'Firmar sin hacer rompe la confianza en el estándar: el registro deja de servir.',
       next: { title: 'Jueves, 9:30', text: 'Apareció un charco de aceite: el tambor perdía y nadie lo vio. Y el cronograma decía que se había limpiado.', pen: 8, extra: ['spill'] } },
-    { t: 'Lo salteás sin firmar: total se ve limpio.', fb: 'Que “se vea limpio” no alcanza: la limpieza programada también es una inspección.',
+    { t: 'Lo salteás sin firmar: total se ve limpio.', lv: 1, fb: 'Que “se vea limpio” no alcanza: la limpieza programada también es una inspección.',
       next: { title: 'Jueves, 9:30', text: 'Apareció un charco de aceite: el tambor perdía y nadie lo vio.', pen: 8, extra: ['spill'] } },
   ] },
   { day: 'Jueves', q: 'Aparece en tu estante una caja de repuestos de otro sector, sin rótulo.', o: [
-    { t: 'Le ponés tarjeta roja y avisás al responsable del área.', best: 1, fb: 'Se identifica, se avisa y se decide. No se acumula ni se descarta a ciegas.' },
-    { t: 'La corrés al costado del pasillo para que no moleste.', extra: ['box'], fb: 'Así empieza la acumulación: un objeto sin dueño termina invadiendo el paso.' },
-    { t: 'La tirás: no es de tu sector.', pen: 10, fb: 'No se descarta lo que no se evaluó: podía ser un repuesto crítico de otro sector.' },
+    { t: 'Le ponés tarjeta roja y avisás al responsable del área.', lv: 3, fb: 'Se identifica, se avisa y se decide. No se acumula ni se descarta a ciegas.' },
+    { t: 'La corrés al costado del pasillo para que no moleste.', lv: 1, extra: ['box'], fb: 'Así empieza la acumulación: un objeto sin dueño termina invadiendo el paso.' },
+    { t: 'La tirás: no es de tu sector.', lv: 0, pen: 10, fb: 'No se descarta lo que no se evaluó: podía ser un repuesto crítico de otro sector.' },
   ] },
   { day: 'Viernes', q: 'A las 14 h hay auditoría. Un compañero propone esconder en el depósito todo lo que sobra.', o: [
-    { t: 'Proponés mostrar el puesto como está y anotar las mejoras pendientes.', best: 1, fb: 'Las 5S son para trabajar mejor, no para la foto. Mostrar lo pendiente es lo que permite mejorarlo.' },
-    { t: 'Esconden todo: el puesto queda impecable para la auditoría.', pen: 12, fb: 'El problema no desaparece, se muda al depósito. El lunes vuelve todo y la auditoría no sirvió para nada.' },
+    { t: 'Proponés mostrar el puesto como está y anotar las mejoras pendientes.', lv: 3, fb: 'Las 5S son para trabajar mejor, no para la foto. Mostrar lo pendiente es lo que permite mejorarlo.' },
+    { t: 'Muestran el puesto como está, pero sin anotar lo pendiente.', lv: 1, pen: 4, fb: 'No maquillar está bien, pero lo que no se anota no tiene responsable ni fecha: es probable que siga igual la semana que viene.' },
+    { t: 'Esconden todo: el puesto queda impecable para la auditoría.', lv: 0, pen: 12, fb: 'El problema no desaparece, se muda al depósito. El lunes vuelve todo y la auditoría no sirvió para nada.' },
   ] },
 ];
 const NEW_PER_DAY = [3, 3, 4, 4, 5];
+const HABIT_MAX = 15;
+const LEVELS = { 3: { t: 'Sostenible', c: 'best', title: 'Decisión sostenible' }, 1: { t: 'A medias', c: 'mid', title: 'A medias' }, 0: { t: 'Atajo', c: 'worse', title: 'Atajo' } };
 const ROUND = 15;
 const FIX_MSG = { tool: 'Herramienta a su lugar', trash: 'Basura al cesto', spill: 'Derrame limpiado', box: 'Pasillo liberado', bin: 'Reposición pedida' };
 
 function shitsuke() {
-  const st = { devs: [], spawned: 0, fixed: 0, pen: 0, best: 0, day: -1, next: null };
+  const st = { devs: [], spawned: 0, fixed: 0, pen: 0, best: 0, habit: 0, picks: [], day: -1, next: null };
   const free = k => {
     if (k === 'tool') { const used = st.devs.filter(d => d.k === 'tool'); const pos = [0, 1, 2, 3, 4].filter(p => !used.some(d => d.pos === p)); const ids = ALL_TOOLS.filter(t => !used.some(d => d.id === t)); return pos.length && ids.length ? { pos, ids } : null; }
     if (k === 'trash') { const p = [0, 1, 2].filter(p => !st.devs.some(d => d.k === 'trash' && d.pos === p)); return p.length ? p : null; }
@@ -1550,6 +1696,8 @@ function shitsuke() {
     $('#stateBar').style.background = v > 65 ? 'var(--green)' : v > 35 ? 'var(--yellow)' : 'var(--red)';
     $$('#days span').forEach((s, i) => s.className = i < st.day ? 'done' : i === st.day ? 'on' : '');
     $('#pend').textContent = st.devs.length;
+    $('#habit').textContent = `${st.habit} / ${HABIT_MAX}`;
+    $('#habitBar').style.width = (st.habit / HABIT_MAX * 100) + '%';
   }
 
   view(`<section>
@@ -1562,6 +1710,9 @@ function shitsuke() {
         <div class="row"><b>Estado del puesto</b><span class="spacer"></span><b id="state">100 %</b></div>
         <div class="meter"><i id="stateBar"></i></div>
         <div class="muted" style="font-size:13px">Pendientes fuera de estándar: <b id="pend">0</b></div>
+        <div class="row" style="margin-top:4px"><b>Hábito de la semana</b><span class="spacer"></span><b id="habit">0 / ${HABIT_MAX}</b></div>
+        <div class="meter"><i id="habitBar"></i></div>
+        <div class="muted" style="font-size:12px">Sostenible +3 · A medias +1 · Atajo 0</div>
         <div id="panel"></div>
       </div>
     </div>
@@ -1587,14 +1738,17 @@ function shitsuke() {
   }
 
   async function choose(opts, i) {
-    const o = opts[i];
-    $$('.opt').forEach((b, k) => { b.disabled = true; if (k === i) b.classList.add(o.best ? 'best' : 'worse'); });
-    if (o.best) st.best++;
+    const o = opts[i], D = DILEMMAS[st.day];
+    $$('.opt').forEach((b, k) => { const L = LEVELS[opts[k].lv]; b.disabled = true; b.classList.add(k === i ? L.c : 'dim'); b.insertAdjacentHTML('beforeend', `<span class="lv ${L.c}">${L.t}</span>`); });
+    if (o.lv === 3) st.best++;
+    st.habit += o.lv;
+    st.picks.push({ day: D.day, t: o.t, lv: o.lv, best: D.o.find(x => x.lv === 3) });
     st.pen += o.pen || 0;
     addExtra(o.extra);
     if (o.next) st.next = o.next;
     paint();
-    await feedback({ ok: !!o.best, ic: o.best ? 'check-mark-button' : 'thinking-face', title: o.best ? 'Buena decisión' : 'Pensalo de nuevo', text: o.fb, btn: 'Seguir' });
+    const L = LEVELS[o.lv];
+    await feedback({ ok: o.lv === 3, ic: o.lv === 3 ? 'check-mark-button' : 'thinking-face', title: `${L.title} · +${o.lv} al hábito`, text: o.lv === 3 ? o.fb : `${o.fb}\n\nLa opción sostenible: ${D.o.find(x => x.lv === 3).t}`, btn: 'Seguir' });
     if (o.skip) {
       $('#panel').insertAdjacentHTML('beforeend', `<p class="muted" style="margin-top:10px">Hoy no hubo ronda de cierre.</p><button class="btn yellow" id="endDay">Terminar el día</button>`);
       $('#endDay').onclick = () => endDay(0, true);
@@ -1640,10 +1794,10 @@ function shitsuke() {
         : `Corregiste ${done}, pero quedaron ${pend} pendientes que se suman a los de mañana.`,
       btn: st.day < 4 ? 'Siguiente día' : 'Ver resultado de la semana' });
     if (st.day < 4) return nextDay();
-    S.r.shitsuke = { best: st.best, fixed: st.fixed, spawned: st.spawned, state: state() };
+    S.r.shitsuke = { best: st.best, habit: st.habit, picks: st.picks, fixed: st.fixed, spawned: st.spawned, state: state() };
     stageEnd(4,
       `<div class="compare">
-        <div class="metric"><div class="v">${st.best} / 5</div><div class="l">decisiones alineadas con las 5S</div></div>
+        <div class="metric"><div class="v">${st.habit} / ${HABIT_MAX}</div><div class="l">hábito de la semana (${st.best} decisiones sostenibles)</div></div>
         <div class="metric"><div class="v">${st.fixed} / ${st.spawned}</div><div class="l">desvíos corregidos en las rondas</div></div>
         <div class="metric"><div class="v">${state()} %</div><div class="l">estado del puesto el viernes</div></div>
       </div>`,
@@ -1658,7 +1812,7 @@ const TIPS = {
   seiri: 'Antes de ordenar, preguntate: ¿esto se usa? ¿cada cuánto? Lo dudoso lleva tarjeta roja con fecha y responsable.',
   seiton: 'Un lugar para cada cosa y cada cosa en su lugar: lo más usado más cerca, y todo identificado con una etiqueta.',
   seiso: 'Limpiar es inspeccionar: cada anomalía que aparece se reporta, no se tapa ni se deja para después.',
-  seiketsu: 'Un estándar es un control visual en el puesto (lugar fijo con etiqueta, demarcación, mín/máx, rango, cronograma), no un cartel genérico.',
+  seiketsu: 'Un estándar es un control visual en el puesto que dice qué, dónde y cuánto, con lo justo: ni zonas sin control ni controles de más.',
   shitsuke: 'La disciplina son decisiones chicas que se repiten: la ronda diaria, corregir y avisar, y no maquillar para la auditoría.',
 };
 function computeScores() {
@@ -1667,8 +1821,8 @@ function computeScores() {
   const seiri = r.seiri ? r.seiri.ok / r.seiri.total : 0;
   const seiton = r.seiton ? .7 * ((r.seiton.eval?.total || 0) / 100) + .3 * clamp((r.seiton.tBefore - r.seiton.tAfter) / r.seiton.tBefore / .7) : 0;
   const seiso = r.seiso ? clamp(.3 * clamp(r.seiso.clean / .9) + .2 * (r.seiso.rep / r.seiso.total) + .3 * (r.seiso.act / r.seiso.total) + .2 * r.seiso.src - r.seiso.toolErr * .02) : 0;
-  const seiketsu = r.seiketsu ? .5 * (r.seiketsu.first / 5) + .5 * clamp(r.seiketsu.found / 5 - r.seiketsu.errors * .06) : 0;
-  const shitsuke = r.shitsuke ? .5 * (r.shitsuke.best / 5) + .3 * (r.shitsuke.fixed / Math.max(1, r.shitsuke.spawned)) + .2 * (r.shitsuke.state / 100) : 0;
+  const seiketsu = r.seiketsu ? r.seiketsu.score / 100 : 0;
+  const shitsuke = r.shitsuke ? .5 * (r.shitsuke.habit / HABIT_MAX) + .3 * (r.shitsuke.fixed / Math.max(1, r.shitsuke.spawned)) + .2 * (r.shitsuke.state / 100) : 0;
   return { seiri: to5(seiri), seiton: to5(seiton), seiso: to5(seiso), seiketsu: to5(seiketsu), shitsuke: to5(shitsuke) };
 }
 function radar(sc) {
@@ -1687,13 +1841,40 @@ function radar(sc) {
   });
   return `<svg viewBox="0 0 340 340" width="100%" style="max-width:360px" role="img" aria-label="Gráfico radar de la auditoría 5S">${g}</svg>`;
 }
+// Punto de mejora de cada etapa, calculado a partir de lo que hizo la persona
+function stageTip(key) {
+  const r = S.r[key];
+  if (!r) return TIPS[key];
+  if (key === 'seiri') return r.tip || (r.score >= 100 ? 'Clasificaste todo con buen criterio. Para sostenerlo, lo dudoso tiene que tener fecha y responsable en su tarjeta roja.' : TIPS.seiri);
+  if (key === 'seiton') return r.eval?.tip || TIPS.seiton;
+  if (key === 'seiso') {
+    if (!r.src) return 'Limpiaste, pero ante la suciedad que vuelve elegiste atacar el síntoma. La mejor limpieza es no ensuciar: buscá la fuente (virutas, pérdidas) y eliminala.';
+    if (r.act < r.total) return `${r.wrong.join(' y ')}: la acción que elegiste no resolvía la causa. Ante una anomalía, primero se identifica de dónde viene, se señaliza y se reporta a quien corresponde.`;
+    if (r.toolErr) return 'Usaste un método de limpieza que no correspondía a la zona. Antes de limpiar, mirá qué es: nunca húmedo en lo eléctrico.';
+    if (r.clean < .9) return 'Quedó parte del puesto sin limpiar. Limpiar todo, también lo que no se ve, es lo que deja a la vista las fallas.';
+    return 'Limpiaste, inspeccionaste y atacaste la fuente. Para sostenerlo, armá un cronograma con responsable y frecuencia.';
+  }
+  if (key === 'seiketsu') return r.tip || TIPS.seiketsu;
+  if (key === 'shitsuke') {
+    const miss = [...r.picks].sort((a, b) => a.lv - b.lv).find(p => p.lv < 3);
+    if (miss) return `El ${miss.day.toLowerCase()} elegiste “${miss.t.replace(/\.$/, '')}” (${LEVELS[miss.lv].t.toLowerCase()}). La opción sostenible era: ${miss.best.t.charAt(0).toLowerCase() + miss.best.t.slice(1)}`;
+    const left = r.spawned - r.fixed;
+    if (left > 0) return `Tus decisiones fueron sostenibles, pero en las rondas de cierre quedaron ${left} desvío${left === 1 ? '' : 's'} sin corregir. Recorré el puesto siempre en el mismo orden (tablero, mesa, piso, estante) para no saltearte nada.`;
+    return 'Semana impecable: decisiones sostenibles y rondas completas. El desafío ahora es que el equipo haga lo mismo cuando no estás.';
+  }
+  return TIPS[key];
+}
 function audit() {
   setStep(5);
+  S.replay = null;
   const sc = computeScores();
   const keys = STAGES.map(s => s.key);
   const avg = keys.reduce((a, k) => a + sc[k], 0) / keys.length;
   const low = keys.reduce((a, k) => sc[k] < sc[a] ? k : a, keys[0]);
+  if (!S.first) S.first = { ...sc };
   const verdict = avg >= 4.5 ? 'Puesto de clase mundial' : avg >= 3.5 ? 'Buen nivel, con margen de mejora' : avg >= 2.5 ? 'En camino' : 'Hay que reforzar la base';
+  const lowS = STAGES.find(s => s.key === low);
+  const diff = k => { const d = Math.round((sc[k] - S.first[k]) * 10) / 10; return d ? ` <span style="font-size:12px;color:${d > 0 ? 'var(--green-text)' : 'var(--danger)'}">${d > 0 ? '+' : ''}${dec(d)}</span>` : ''; };
   view(`<section class="card">
     <div class="kicker">Auditoría 5S · resultado final</div>
     <div class="audit">
@@ -1703,19 +1884,27 @@ function audit() {
           <div class="total">${dec(avg.toFixed(1))}<span style="font-size:22px;color:var(--muted)"> / 5</span></div>
           <div><b>${verdict}</b><div class="muted" style="font-size:13px">Promedio de las 5S</div></div>
         </div>
-        ${STAGES.map(s => `<div class="score-row"><span><b>${s.jp}</b> <span class="muted" style="font-size:12px">${s.es}</span></span>
-          <div class="meter"><i data-w="${(sc[s.key] / 5) * 100}"></i></div><b>${dec(sc[s.key])}</b></div>`).join('')}
-        <div class="tip"><b>Para mejorar en ${STAGES.find(s => s.key === low).jp}:</b> ${TIPS[low]}</div>
+        ${STAGES.map(s => `<div class="score-row wide"><span><b>${s.jp}</b> <span class="muted" style="font-size:12px">${s.es}</span></span>
+          <div class="meter"><i data-w="${(sc[s.key] / 5) * 100}"></i></div><b>${dec(sc[s.key])}${diff(s.key)}</b>
+          <button class="retry" data-retry="${STAGES.indexOf(s)}">Repetir</button>
+          <div class="srow-tip"><b style="font-weight:500;text-align:left">Punto de mejora:</b> ${stageTip(s.key)}</div></div>`).join('')}
       </div>
+    </div>
+    <div class="next-step">
+      <div class="kicker">Tu próximo paso</div>
+      <b style="font-size:17px;font-weight:500">${lowS.jp} · ${lowS.es} es la etapa con más margen (${dec(sc[low])} / 5)</b>
+      <p>${stageTip(low)}</p>
+      <div class="row" style="margin-top:12px"><button class="btn yellow" data-retry="${STAGES.indexOf(lowS)}">Repetir ${lowS.jp}</button></div>
     </div>
     <div class="row" style="margin-top:22px">${S.user ? `<span class="muted" style="font-size:13px">${esc(S.user.nombre)} ${esc(S.user.apellido)} · ${esc(S.user.sector)}</span><span id="saveState" class="chip">Guardando resultado…</span>` : ''}<span class="spacer"></span>
       <button class="btn ghostbtn" id="newp">Nuevo participante</button>
-      <button class="btn yellow" id="again">Jugar de nuevo</button></div>
+      <button class="btn ghostbtn" id="again">Jugar todo de nuevo</button></div>
   </section>`);
   requestAnimationFrame(() => $$('.score-row .meter i').forEach(i => i.style.width = i.dataset.w + '%'));
   saveResult(sc, avg);
-  $('#again').onclick = () => { S.r = {}; S.saved = false; S.t0 = Date.now(); intro(0); };
-  $('#newp').onclick = register;
+  $$('[data-retry]').forEach(b => b.onclick = () => { S.replay = true; intro(+b.dataset.retry); });
+  $('#again').onclick = () => { S.r = {}; S.first = null; S.saved = false; S.t0 = Date.now(); intro(0); };
+  $('#newp').onclick = () => { S.first = null; register(); };
 }
 
 // =========================================================
@@ -1754,6 +1943,8 @@ function register() {
 }
 
 async function saveResult(sc, avg) {
+  const pill0 = $('#saveState');
+  if (S.saved && pill0) { pill0.textContent = 'Se guardó el primer resultado'; pill0.className = 'chip chip-ok'; }
   if (S.saved || !S.user) return;
   const r = S.r;
   const doc = {
