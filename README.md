@@ -21,20 +21,22 @@ queda guardado en Firestore. Un panel de administración muestra todos los resul
 3. **Authentication → Usuarios → Agregar usuario:** crear la cuenta genérica de administración
    `admin@practicas-5s.app` con la contraseña que quieras. Esa contraseña es la que se usa para entrar al panel.
 
-No hace falta pegar la configuración web: publicado en Firebase Hosting, el juego la toma sola desde
-`/__/firebase/init.json`. (Si se quiere usar fuera de Hosting, se puede pegar en `FIREBASE_CONFIG`.)
+La configuración de la app web ya está en `FIREBASE_CONFIG` (`src/index.src.html`). Esos datos son públicos por diseño:
+la seguridad la dan las reglas de Firestore y la cuenta de administración.
 
 ## Publicar
 
 ```bash
+firebase deploy        # sube el sitio y las reglas (public/index.html ya viene compilado)
+
+# Solo si se modifica src/index.src.html:
 npm install
 npm run build
-firebase deploy        # sube el sitio y las reglas
 ```
 
 Panel de administración: botón *Acceso de administración* en la pantalla de registro, o agregando `#admin` a la URL. Pide solo la contraseña de la cuenta genérica.
 
-Fuera de Firebase Hosting (por ejemplo, abriendo el archivo directo) el juego funciona en **modo local** (los datos quedan en el navegador; contraseña de prueba del panel: `admin5s`).
+Si la red bloquea Firebase (`gstatic.com` o `firestore.googleapis.com`), el juego se puede jugar igual pero avisa que no pudo guardar el resultado. Con `FIREBASE_CONFIG = null` funciona en **modo local** (datos en el navegador; contraseña de prueba del panel: `admin5s`).
 
 ## Créditos
 

@@ -248,7 +248,14 @@ p{margin:0 0 10px}
    Pegá acá la configuración de tu proyecto Firebase:
    Consola de Firebase → Configuración del proyecto → Tus apps → App web → Configuración del SDK
    ============================================================ */
-const FIREBASE_CONFIG = null;   // Opcional: si se deja en null, se toma sola desde Firebase Hosting (/__/firebase/init.json)
+const FIREBASE_CONFIG = {   // Proyecto practicas-5s (app web "Prácticas 5S"). Estos datos son públicos por diseño; la seguridad la dan las reglas de Firestore.
+  apiKey: "AIzaSyBvjVOqZFY0qN2I9Hpx03-ZynrWsxj77Hs",
+  authDomain: "practicas-5s.firebaseapp.com",
+  projectId: "practicas-5s",
+  storageBucket: "practicas-5s.firebasestorage.app",
+  messagingSenderId: "558984442003",
+  appId: "1:558984442003:web:f4d56695dfda2b2584dd66"
+};
 const ADMIN_EMAIL = 'admin@practicas-5s.app';   // Cuenta genérica de administración (se crea una vez en Firebase Authentication)
 
 async function loadConfig() {
@@ -263,19 +270,25 @@ async function loadConfig() {
 const CONFIG = await loadConfig();
 let api;
 if (CONFIG) {
-  const V = '10.12.2';
-  const { initializeApp } = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`);
-  const fs = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`);
-  const au = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-auth.js`);
-  const app = initializeApp(CONFIG), store = fs.getFirestore(app), auth = au.getAuth(app);
-  api = {
-    mode: 'firebase',
-    save: d => fs.addDoc(fs.collection(store, 'resultados'), { ...d, fecha: fs.serverTimestamp() }),
-    login: (_email, pass) => au.signInWithEmailAndPassword(auth, ADMIN_EMAIL, pass),
-    logout: () => au.signOut(auth),
-    list: async () => (await fs.getDocs(fs.query(fs.collection(store, 'resultados'), fs.orderBy('fecha', 'desc'))))
-      .docs.map(x => { const d = x.data(); return { id: x.id, ...d, fecha: d.fecha?.toDate?.() ?? null }; }),
-  };
+  try {
+    const V = '10.12.2';
+    const { initializeApp } = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`);
+    const fs = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`);
+    const au = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-auth.js`);
+    const app = initializeApp(CONFIG), store = fs.getFirestore(app), auth = au.getAuth(app);
+    api = {
+      mode: 'firebase',
+      save: d => fs.addDoc(fs.collection(store, 'resultados'), { ...d, fecha: fs.serverTimestamp() }),
+      login: (_email, pass) => au.signInWithEmailAndPassword(auth, ADMIN_EMAIL, pass),
+      logout: () => au.signOut(auth),
+      list: async () => (await fs.getDocs(fs.query(fs.collection(store, 'resultados'), fs.orderBy('fecha', 'desc'))))
+        .docs.map(x => { const d = x.data(); return { id: x.id, ...d, fecha: d.fecha?.toDate?.() ?? null }; }),
+    };
+  } catch (err) {
+    console.warn('Firebase no disponible', err);
+    const fail = () => Promise.reject(err);
+    api = { mode: 'error', save: fail, login: fail, logout: async () => {}, list: fail };
+  }
 } else {
   const KEY = 'p5s_resultados';
   const read = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } };
@@ -1659,6 +1672,7 @@ function adminLogin() {
     view(`<section style="display:grid;place-items:center;min-height:70vh">
       <div class="card" id="adm" style="width:min(420px,100%);display:grid;gap:14px">
         <div><div class="kicker">Administración</div><h2>Ingresar</h2>
+          ${api.mode === 'error' ? '<p style="margin:0;color:var(--danger)">No se pudo conectar con Firebase. Puede que la red bloquee gstatic.com o firestore.googleapis.com.</p>' : ''}
           <p class="muted" style="margin:0">${api.mode === 'local' ? 'Modo local de prueba: los datos se guardan solo en este navegador. Contraseña de prueba: admin5s.' : 'Ingresá la contraseña de administración para ver los resultados de los participantes.'}</p></div>
         <label class="fld"><span>Contraseña</span><input name="pass" type="password" autocomplete="current-password" required></label>
         <p class="muted" id="admErr" style="margin:0;color:var(--danger);display:none"></p>
