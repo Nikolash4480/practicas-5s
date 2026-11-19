@@ -1,0 +1,1767 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prácticas 5S · Juego interactivo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400..700&display=swap" rel="stylesheet">
+<!-- Ilustraciones: Fluent Emoji Flat © Microsoft, licencia MIT (https://github.com/microsoft/fluentui-emoji) -->
+<style>
+:root{
+  --bg:#efeeeb;--surface:#ffffff;--surface-2:#f5f5f3;--surface-3:#ebebe8;--line:#e2e2de;--line-strong:#c7c7c1;
+  --ink:#121212;--ink-2:#53534e;--ink-3:#6b6b66;--solid:#121212;--on-solid:#ffffff;
+  --accent:#f55200;--on-accent:#121212;--accent-text:#b53a0a;--accent-soft:#fde6d9;
+  --green:#17724a;--green-soft:#e1f2e8;--green-ink:#0f5535;--green-text:#0e7a46;
+  --amber-soft:#fbf0cf;--amber-line:#dfb54a;--amber-ink:#6a4c00;--danger:#c8321f;
+  --highlight:#eef03a;--on-highlight:#121212;--chart-off:#dcdcd7;--paper-2:#d4d1ca;--night:#131316;--on-night:#f2f2ef;--on-night-2:#a9a9b0;
+  --radius-xs:4px;--radius-sm:8px;--radius-md:12px;--radius-lg:16px;--radius-pill:999px;
+  --shadow-card:0 1px 2px rgba(18,18,18,.06),0 2px 8px rgba(18,18,18,.05);
+  --shadow-float:0 8px 28px rgba(18,18,18,.14);
+  --font-sans:Geist,"Helvetica Neue",Helvetica,Arial,sans-serif;--font-mono:"Geist Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-sans);font-size:14px;line-height:21px}
+body{min-height:100vh}
+button{font:inherit;cursor:pointer;color:inherit}
+header{background:var(--surface);box-shadow:inset 0 -1px 0 var(--line)}
+.bar{max-width:1120px;margin:0 auto;padding:0 20px;min-height:64px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:600;letter-spacing:-.01em}
+.logo i{width:32px;height:32px;border-radius:var(--radius-sm);background:var(--solid);color:var(--on-solid);display:inline-flex;align-items:center;justify-content:center;font-style:normal;font-family:var(--font-mono);font-size:12px;font-weight:700}
+.steps{display:flex;gap:6px;flex:1;justify-content:flex-end;flex-wrap:wrap;padding:12px 0}
+.step{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 14px;border-radius:var(--radius-pill);background:var(--surface-3);color:var(--ink-2);font-size:13px;white-space:nowrap}
+.step.on{background:var(--solid);color:var(--on-solid);font-weight:500}
+.step.done{background:var(--green-soft);color:var(--green-ink);font-weight:500}
+.step.done::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--green)}
+main{max-width:1120px;margin:0 auto;padding:28px 20px 64px}
+h1,h2,h3{margin:0 0 8px;font-weight:600;letter-spacing:-.02em}
+h1{font-size:56px;line-height:1.02;letter-spacing:-.03em}
+h2{font-size:28px;line-height:1.15}
+h3{font-size:20px;line-height:1.25;letter-spacing:-.01em}
+p{margin:0 0 10px}
+.muted{color:var(--ink-2)}
+.kicker{font-family:var(--font-mono);font-size:11px;line-height:14px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);margin-bottom:8px}
+.card{background:var(--surface);border-radius:var(--radius-lg);box-shadow:inset 0 0 0 1px var(--line);padding:24px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 18px;border:0;border-radius:var(--radius-sm);font-size:14px;font-weight:500;white-space:nowrap;background:var(--solid);color:var(--on-solid)}
+.btn.yellow{background:var(--accent);color:var(--on-accent)}
+.btn.ghostbtn{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px var(--line-strong)}
+.btn:hover{filter:brightness(1.06)}
+.btn[disabled]{opacity:.4;cursor:not-allowed;filter:none}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.spacer{flex:1}
+.stage-head{display:flex;gap:16px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;margin-bottom:18px}
+.counter{display:inline-flex;align-items:center;height:28px;padding:0 12px;border-radius:var(--radius-pill);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);font-size:12px;font-weight:500;white-space:nowrap}
+.chip{display:inline-flex;align-items:center;height:28px;padding:0 12px;border-radius:var(--radius-pill);background:var(--surface-3);font-size:12px;font-weight:500}
+.meter{height:8px;background:var(--chart-off);border-radius:var(--radius-pill);overflow:hidden;flex:1;min-width:120px}
+.meter i{display:block;height:100%;width:0;background:var(--green);border-radius:var(--radius-pill);transition:width .3s}
+
+/* Portada */
+.hero{display:grid;grid-template-columns:1.1fr 1fr;gap:32px;align-items:center}
+.hero h1 span{color:var(--accent-text)}
+.hero-scene{margin-top:20px}
+.s-list{display:grid;gap:8px}
+.s-item{display:flex;gap:12px;align-items:center;background:var(--surface);border-radius:var(--radius-md);box-shadow:inset 0 0 0 1px var(--line);padding:8px 12px 8px 8px}
+.s-num{flex:none;width:40px;height:40px;border-radius:var(--radius-sm);display:grid;place-items:center;background:var(--surface-3);font-family:var(--font-mono);font-size:13px;font-weight:700}
+.s-item b{display:block;font-size:13px;line-height:18px;font-weight:500}
+.s-item small{display:block;font-size:12px;line-height:16px;color:var(--ink-2)}
+
+/* Intro */
+.intro{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:start}
+.bigS{width:150px;height:150px;border-radius:var(--radius-lg);background:var(--solid);color:var(--on-solid);display:grid;place-items:center;text-align:center}
+.bigS .n{font-family:var(--font-mono);font-size:56px;font-weight:700;line-height:1;letter-spacing:-.04em}
+.bigS .k{font-size:22px;color:var(--on-night-2);margin-top:8px}
+.howto{margin:16px 0 22px;padding:0;list-style:none;display:grid;gap:8px;counter-reset:h}
+.howto li{counter-increment:h;display:flex;gap:12px;align-items:flex-start;padding:10px 12px;background:var(--surface-2);border-radius:var(--radius-md)}
+.howto li::before{content:counter(h,decimal-leading-zero);font-family:var(--font-mono);font-size:12px;font-weight:600;color:var(--accent-text);padding-top:1px}
+
+/* Escena */
+.scene-wrap{position:relative;aspect-ratio:1000/600;border-radius:var(--radius-lg);overflow:hidden;box-shadow:inset 0 0 0 1px var(--line);background:var(--surface-2);user-select:none}
+.scene-wrap.wide{aspect-ratio:1000/420}
+.solo{max-width:900px;margin:0 auto}
+.scene-wrap>svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.layer{position:absolute;inset:0}
+.hit{position:absolute;transform:translate(-50%,-50%);width:9%;aspect-ratio:1/1;border-radius:50%;cursor:pointer}
+.hit.found{box-shadow:0 0 0 3px var(--green),0 0 0 8px rgba(23,114,74,.18)}
+.hit.found::after{content:"";position:absolute;right:-4px;top:-4px;width:16px;height:16px;border-radius:50%;background:var(--green) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8.5l2.5 2.5L12 5.5' stroke='white' stroke-width='2' fill='none'/%3E%3C/svg%3E")}
+.hit.pulse{box-shadow:0 0 0 3px var(--danger);animation:ring 1.2s infinite}
+.hit.done{box-shadow:0 0 0 3px var(--green);cursor:default;animation:none}
+.dropzone{position:absolute;border:2px dashed var(--ink-3);border-radius:var(--radius-md);background:rgba(255,255,255,.18);display:flex;align-items:flex-start;justify-content:center;transition:.15s;cursor:pointer}
+.dropzone span{margin-top:-14px;background:var(--solid);color:var(--on-solid);font-size:12px;font-weight:500;height:26px;display:inline-flex;align-items:center;padding:0 12px;border-radius:var(--radius-pill);white-space:nowrap}
+.dropzone span small{font-size:12px;color:var(--on-night-2);margin-left:4px}
+.dropzone.over{border-style:solid;border-color:var(--green);background:rgba(225,242,232,.55)}
+.hotspot{position:absolute;transform:translate(-50%,-50%);width:40px;height:40px;border-radius:50%;background:var(--highlight);color:var(--on-highlight);font-family:var(--font-mono);font-weight:700;font-size:15px;display:grid;place-items:center;box-shadow:var(--shadow-float);cursor:pointer}
+.hotspot::before{content:"";position:absolute;inset:-6px;border-radius:50%;box-shadow:0 0 0 2px var(--highlight);animation:ring 1.4s infinite}
+.hotspot.over{transform:translate(-50%,-50%) scale(1.2)}
+.hotspot.ok{background:var(--green);color:#fff;cursor:default}
+.hotspot.ok::before{display:none}
+
+/* Seiri */
+.seiri-play{display:grid;place-items:center;min-height:300px}
+.obj-card{position:relative;width:290px;background:var(--surface);border-radius:var(--radius-lg);padding:14px 14px 18px;text-align:center;box-shadow:inset 0 0 0 1px var(--line),var(--shadow-card);cursor:grab;touch-action:none;user-select:none;animation:pop .25s ease}
+.obj-card.dragging{opacity:.3}
+.obj-art{height:170px;display:grid;place-items:center;background:var(--surface-2);border-radius:var(--radius-md)}
+.obj-n{font-size:20px;line-height:1.25;font-weight:600;letter-spacing:-.01em;margin:14px 0 10px}
+.obj-card.good{box-shadow:inset 0 0 0 1.5px var(--green),0 0 0 4px var(--green-soft)}
+.obj-card.bad{box-shadow:inset 0 0 0 1.5px var(--danger),0 0 0 4px #f8dcd6;animation:shake .35s}
+.stamp{position:absolute;top:14px;right:-10px;background:var(--danger);color:#fff;font-size:10px;line-height:14px;font-weight:600;letter-spacing:.06em;padding:4px 8px;transform:rotate(10deg);border-radius:var(--radius-xs)}
+.bins{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:24px}
+.bin{border:0;background:var(--surface);border-radius:var(--radius-lg);box-shadow:inset 0 0 0 1px var(--line-strong);padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:4px;transition:.15s}
+.bin svg{height:48px;width:48px}
+.bin b{font-size:15px;font-weight:500}
+.bin small{font-size:12px;color:var(--ink-2)}
+.bin:hover,.bin.over{background:var(--surface-2);box-shadow:inset 0 0 0 1.5px var(--green),0 0 0 4px var(--green-soft)}
+.ghost{position:fixed;pointer-events:none;z-index:1000;opacity:.95;transform:rotate(-2deg);box-shadow:var(--shadow-float)!important}
+
+/* Seiton */
+.target-ask{display:flex;align-items:center;gap:12px;height:56px;padding:0 16px;background:var(--night);color:var(--on-night);border-radius:var(--radius-md);margin-bottom:12px}
+.target-ask b{font-weight:500}
+.timer{margin-left:auto;font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-weight:600;font-size:22px;color:var(--on-night)}
+.tray{display:flex;flex-wrap:wrap;gap:8px;min-height:64px;padding:8px;background:var(--surface-2);border-radius:var(--radius-lg);margin-bottom:14px}
+.tool{display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:var(--radius-md);box-shadow:inset 0 0 0 1px var(--line);padding:6px 12px 6px 6px;cursor:grab;touch-action:none;user-select:none}
+.tool svg{width:36px;height:36px;padding:2px;background:var(--surface-2);border-radius:var(--radius-sm)}
+.tool b{display:block;font-size:13px;line-height:18px;font-weight:500}
+.tool small{font-size:12px;line-height:16px;color:var(--ink-2)}
+.tool.sel{box-shadow:inset 0 0 0 1.5px var(--green),0 0 0 3px var(--green-soft)}
+.tool.dragging{opacity:.3}
+.compare{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:18px 0}
+.metric{background:var(--surface-2);border-radius:var(--radius-lg);padding:16px}
+.metric .v{font-size:30px;line-height:1.1;font-weight:500;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.metric .l{font-size:13px;color:var(--ink-2);margin-top:6px}
+
+/* Formularios y panel */
+.fld{display:grid;gap:6px;font-size:13px;font-weight:500}
+.fld input,.inp{height:40px;padding:0 12px;border:0;border-radius:var(--radius-md);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line-strong);font:inherit;font-size:14px;color:var(--ink)}
+.fld input:focus,.inp:focus{outline:none;box-shadow:inset 0 0 0 1.5px var(--green),0 0 0 3px var(--green-soft)}
+.chip-ok{background:var(--green-soft);color:var(--green-ink)}
+.chip-ko{background:#f8dcd6;color:var(--danger)}
+.tbl{width:100%;border-collapse:collapse;font-size:13px;white-space:nowrap}
+.tbl th{position:sticky;top:0;background:var(--surface-2);text-align:left;font-weight:500;color:var(--ink-2);padding:10px 12px;cursor:pointer;user-select:none;box-shadow:inset 0 -1px 0 var(--line)}
+.tbl td{padding:10px 12px;box-shadow:inset 0 -1px 0 var(--line)}
+.tbl tbody tr:hover td{background:var(--surface-2)}
+.score{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:var(--radius-pill);font-weight:500}
+.score.hi{background:var(--green-soft);color:var(--green-ink)}.score.mid{background:var(--amber-soft);color:var(--amber-ink)}.score.lo{background:#f8dcd6;color:var(--danger)}
+/* Plano de Seiton */
+.pslot{position:absolute;transform:translate(-50%,-50%);width:7.4%;aspect-ratio:1/1;border-radius:var(--radius-md);border:2px dashed var(--ink-3);background:rgba(255,255,255,.55);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s}
+.pslot span{position:absolute;top:-9px;right:-12px;font-family:var(--font-mono);font-size:10px;line-height:16px;font-weight:600;padding:0 6px;border-radius:var(--radius-pill);background:var(--solid);color:var(--on-solid);white-space:nowrap}
+.pslot.full{border:0;background:var(--surface);box-shadow:var(--shadow-card)}
+.pslot.over{border-style:solid;border-color:var(--green);background:var(--green-soft);transform:translate(-50%,-50%) scale(1.08)}
+.pslot svg{width:64%;height:64%}
+/* Seiso */
+#dirt{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair}
+
+/* Seiketsu */
+.split{display:grid;grid-template-columns:1fr 320px;gap:16px;align-items:start}
+.side{display:grid;gap:10px}
+.problems{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.problems li{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:19px;background:var(--surface);border-radius:var(--radius-md);box-shadow:inset 0 0 0 1px var(--line);padding:8px 10px}
+.problems li .num{flex:none;width:22px;height:22px;border-radius:50%;background:var(--highlight);font-family:var(--font-mono);font-weight:700;font-size:11px;display:grid;place-items:center}
+.problems li.ok{color:var(--ink-3)}
+.problems li.ok .num{background:var(--green);color:#fff}
+.ctls{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px;margin-top:14px}
+.ctl{display:flex;gap:10px;align-items:center;background:var(--surface);border-radius:var(--radius-md);box-shadow:inset 0 0 0 1px var(--line);padding:8px 10px 8px 8px;cursor:grab;touch-action:none;user-select:none}
+.ctl svg{width:40px;height:40px;flex:none;border-radius:var(--radius-sm)}
+.ctl b{display:block;font-size:13px;line-height:18px;font-weight:500}
+.ctl small{font-size:12px;line-height:16px;color:var(--ink-2)}
+.ctl.sel{box-shadow:inset 0 0 0 1.5px var(--green),0 0 0 3px var(--green-soft)}
+.ctl.used{opacity:.4;pointer-events:none}
+.ctl.dragging{opacity:.3}
+.timebar{height:8px;background:var(--chart-off);border-radius:var(--radius-pill);overflow:hidden}
+.timebar i{display:block;height:100%;background:var(--accent);width:100%;border-radius:var(--radius-pill)}
+
+/* Shitsuke */
+.days{display:flex;gap:4px}
+.days span{flex:1;text-align:center;height:28px;line-height:28px;font-size:12px;font-weight:500;border-radius:var(--radius-pill);background:var(--surface-3);color:var(--ink-2)}
+.days span.on{background:var(--solid);color:var(--on-solid)}
+.days span.done{background:var(--green-soft);color:var(--green-ink)}
+.dilemma{background:var(--surface-2);border-radius:var(--radius-md);padding:14px}
+.dilemma .q{font-size:15px;line-height:1.3;font-weight:500;margin-bottom:6px}
+.opt{display:block;width:100%;text-align:left;border:0;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);border-radius:var(--radius-md);padding:10px 12px;margin-top:8px;font-size:13px;line-height:19px}
+.opt:hover{box-shadow:inset 0 0 0 1px var(--line-strong)}
+.opt.best{background:var(--green-soft);color:var(--green-ink);box-shadow:inset 0 0 0 1.5px var(--green)}
+.opt.worse{box-shadow:inset 0 0 0 1.5px var(--danger)}
+.opt[disabled]{cursor:default}
+
+/* Auditoría */
+.audit{display:grid;grid-template-columns:360px 1fr;gap:28px;align-items:center}
+.score-row{display:grid;grid-template-columns:150px 1fr 40px;gap:12px;align-items:center;margin-bottom:12px}
+.score-row .meter i{transition:width .8s;background:var(--accent)}
+.score-row b{font-weight:500;font-variant-numeric:tabular-nums;text-align:right}
+.total{font-size:56px;font-weight:600;line-height:1.02;letter-spacing:-.03em}
+.tip{margin-top:16px;padding:12px 14px;border-radius:var(--radius-md);background:var(--amber-soft);color:var(--amber-ink);box-shadow:inset 0 0 0 1px var(--amber-line);font-size:13px;line-height:19px}
+.tip b{font-weight:600}
+
+/* Avisos */
+#toasts{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);display:grid;gap:8px;z-index:2000;width:min(540px,92vw)}
+.toast{display:flex;gap:10px;align-items:flex-start;background:var(--night);color:var(--on-night);padding:12px 14px;border-radius:var(--radius-md);box-shadow:var(--shadow-float);animation:up .2s ease;font-size:13px;line-height:19px}
+.toast::before{content:"";flex:none;width:8px;height:8px;margin-top:6px;border-radius:50%;background:var(--on-night-2)}
+.toast.ok::before{background:#2ecb85}
+.toast.ko::before{background:#ff6b5a}
+.overlay{position:fixed;inset:0;background:rgba(18,18,18,.45);display:grid;place-items:center;z-index:1500;padding:20px;animation:fade-in .15s}
+.modal{background:var(--surface);border-radius:var(--radius-lg);max-width:480px;width:100%;padding:22px;box-shadow:var(--shadow-float)}
+.modal .icon{width:40px;height:40px;border-radius:var(--radius-sm);display:grid;place-items:center;margin-bottom:14px;background:var(--surface-3);color:var(--ink)}
+.modal.ok .icon{background:var(--green-soft);color:var(--green-ink)}
+.modal.ko .icon{background:var(--amber-soft);color:var(--amber-ink)}
+.modal h3{font-size:20px}
+.modal p{white-space:pre-line;color:var(--ink-2)}
+.modal .row{margin-top:16px}
+.choices{display:grid;gap:0;margin-top:6px}
+
+@keyframes pop{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes ring{0%{opacity:1}100%{opacity:.25}}
+@keyframes up{from{transform:translateY(10px);opacity:0}to{transform:none;opacity:1}}
+@keyframes fade-in{from{opacity:0}}
+
+@media (max-width:900px){
+  h1{font-size:40px}h2{font-size:24px}
+  .hero,.intro,.audit,.split{grid-template-columns:1fr}
+  .bins{gap:8px}.bin{padding:10px 6px}.bin b{font-size:13px}.bin small{display:none}.bin svg{height:38px;width:38px}
+  .steps{justify-content:flex-start}
+  .bigS{width:110px;height:110px}.bigS .n{font-size:40px}
+  .hotspot{width:32px;height:32px;font-size:13px}
+  .dropzone span{font-size:10px;padding:0 8px;height:22px}
+  .dropzone span small{display:none}
+  .tray{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .tool{padding:4px 8px 4px 4px}.tool svg{width:28px;height:28px}.tool b{font-size:12px}.tool small{display:none}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+  <filter id="fSil" x="-10%" y="-10%" width="120%" height="120%"><feFlood flood-color="#5a4128"/><feComposite in2="SourceAlpha" operator="in"/></filter>
+  <filter id="fSoft" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="1.5" flood-color="#000" flood-opacity=".18"/></filter>
+</defs>
+</svg>
+
+<header>
+  <div class="bar">
+    <div class="logo"><i>5S</i>Prácticas 5S</div>
+    <nav class="steps" id="steps"></nav>
+  </div>
+</header>
+<main id="app"></main>
+<div id="toasts"></div>
+
+<script type="module">
+/* ============================================================
+   DATOS: Firebase (Firestore + Auth) o modo local de prueba
+   Pegá acá la configuración de tu proyecto Firebase:
+   Consola de Firebase → Configuración del proyecto → Tus apps → App web → Configuración del SDK
+   ============================================================ */
+const FIREBASE_CONFIG = {   // Proyecto practicas-5s (app web "Prácticas 5S"). Estos datos son públicos por diseño; la seguridad la dan las reglas de Firestore.
+  apiKey: "AIzaSyBvjVOqZFY0qN2I9Hpx03-ZynrWsxj77Hs",
+  authDomain: "practicas-5s.firebaseapp.com",
+  projectId: "practicas-5s",
+  storageBucket: "practicas-5s.firebasestorage.app",
+  messagingSenderId: "558984442003",
+  appId: "1:558984442003:web:f4d56695dfda2b2584dd66"
+};
+const ADMIN_EMAIL = 'admin@practicas-5s.app';   // Cuenta genérica de administración (se crea una vez en Firebase Authentication)
+
+async function loadConfig() {
+  if (FIREBASE_CONFIG) return FIREBASE_CONFIG;
+  if (!/^https?:$/.test(location.protocol)) return null;
+  try {
+    const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 4000);
+    const res = await fetch('/__/firebase/init.json', { signal: ctl.signal }); clearTimeout(t);
+    return res.ok ? await res.json() : null;
+  } catch { return null; }
+}
+const CONFIG = await loadConfig();
+let api;
+if (CONFIG) {
+  try {
+    const V = '10.12.2';
+    const { initializeApp } = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`);
+    const fs = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`);
+    const au = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-auth.js`);
+    const app = initializeApp(CONFIG), store = fs.getFirestore(app), auth = au.getAuth(app);
+    api = {
+      mode: 'firebase',
+      save: d => fs.addDoc(fs.collection(store, 'resultados'), { ...d, fecha: fs.serverTimestamp() }),
+      login: (_email, pass) => au.signInWithEmailAndPassword(auth, ADMIN_EMAIL, pass),
+      logout: () => au.signOut(auth),
+      list: async () => (await fs.getDocs(fs.query(fs.collection(store, 'resultados'), fs.orderBy('fecha', 'desc'))))
+        .docs.map(x => { const d = x.data(); return { id: x.id, ...d, fecha: d.fecha?.toDate?.() ?? null }; }),
+    };
+  } catch (err) {
+    console.warn('Firebase no disponible', err);
+    const fail = () => Promise.reject(err);
+    api = { mode: 'error', save: fail, login: fail, logout: async () => {}, list: fail };
+  }
+} else {
+  const KEY = 'p5s_resultados';
+  const read = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } };
+  let logged = false;
+  api = {
+    mode: 'local',
+    save: async d => { const all = read(); all.unshift({ ...d, id: String(Date.now()), fecha: new Date().toISOString() }); try { localStorage.setItem(KEY, JSON.stringify(all)); } catch {} },
+    login: async (_e, pass) => { if (pass !== 'admin5s') throw new Error('auth'); logged = true; },
+    logout: async () => { logged = false; },
+    list: async () => { if (!logged) throw new Error('auth'); return read(); },
+  };
+}
+window.DB = api;
+window.dispatchEvent(new Event('db-ready'));
+</script>
+<script>
+/* Ilustraciones SVG: Fluent Emoji Flat © Microsoft Corporation, licencia MIT */
+const ICONS = __ICONS__;
+
+// ---------- Utilidades ----------
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const app = $('#app');
+const h = html => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
+const view = html => { app.innerHTML = html; $('#toasts').innerHTML = ''; window.scrollTo(0, 0); };
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+const rand = (a, b) => a + Math.random() * (b - a);
+const shuffle = arr => { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const fmt = s => s.toFixed(1).replace('.', ',') + ' s';
+const dec = n => String(n).replace('.', ',');
+
+// Íconos de interfaz: lineales, 24 px, trazo 1,6, heredan el color (sistema Módulos de App)
+const LINE = {
+  check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  alert: '<path d="M12 4l9 16H3z"/><path d="M12 10v4.5M12 17.5v.01"/>',
+  clock: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M10 3h4"/>',
+  tag: '<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.2"/>',
+  down: '<path d="M3 6l7 7 4-4 7 7"/><path d="M15 16h6v-6"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/>',
+  trash: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
+};
+const LINE_MAP = { stopwatch: 'clock', label: 'tag', 'chart-decreasing': 'down', 'thinking-face': 'alert', 'glowing-star': 'check', clipboard: 'info' };
+const line = (n, s = 22) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${LINE[n]}</svg>`;
+const tile = (n, tone) => `<span style="display:inline-flex;width:48px;height:48px;border-radius:8px;align-items:center;justify-content:center;background:${tone === 'green' ? 'var(--green-soft)' : tone === 'red' ? '#f8dcd6' : 'var(--surface-3)'};color:${tone === 'green' ? 'var(--green-ink)' : tone === 'red' ? 'var(--danger)' : 'var(--ink)'}">${line(n, 24)}</span>`;
+
+// SVG suelto (para tarjetas y botones) y SVG ubicado dentro de una escena
+const icon = (name, size = 64) => `<svg viewBox="0 0 32 32" width="${size}" height="${size}" aria-hidden="true">${ICONS[name]}</svg>`;
+const put = (name, x, y, { size = 60, r = 0, attrs = '', soft = true, sil = false } = {}) =>
+  `<g transform="translate(${x} ${y}) rotate(${r})" ${sil ? 'filter="url(#fSil)" opacity=".5"' : soft ? 'filter="url(#fSoft)"' : ''} ${attrs}>
+    ${attrs ? `<rect x="${-size * .4}" y="${-size * .4}" width="${size * .8}" height="${size * .8}" fill="transparent"/>` : ''}<svg x="${-size / 2}" y="${-size / 2}" width="${size}" height="${size}" viewBox="0 0 32 32" overflow="visible">${ICONS[name]}</svg></g>`;
+
+function toast(msg, type = '') {
+  const t = h(`<div class="toast ${type}"></div>`);
+  t.textContent = msg;
+  const box = $('#toasts');
+  while (box.children.length >= 2) box.firstElementChild.remove();
+  box.appendChild(t);
+  setTimeout(() => t.remove(), 2600);
+}
+
+function feedback({ ok = false, ic, title, text, btn = 'Entendido' }) {
+  return new Promise(resolve => {
+    const o = h(`<div class="overlay"><div class="modal ${ok ? 'ok' : 'ko'}">
+      <div class="icon">${line(LINE_MAP[ic] || (ok ? 'check' : 'alert'))}</div><h3></h3><p></p>
+      <div class="row" style="justify-content:flex-end"><button class="btn">${btn}</button></div></div></div>`);
+    $('h3', o).textContent = title;
+    $('p', o).textContent = text;
+    document.body.appendChild(o);
+    const b = $('button', o); b.focus();
+    b.onclick = () => { o.remove(); resolve(); };
+  });
+}
+
+function enableDrag(node, onDrop) {
+  node.addEventListener('pointerdown', e => {
+    if (e.button !== 0 || node.dataset.locked) return;
+    e.preventDefault();
+    const rect = node.getBoundingClientRect();
+    const ox = e.clientX - rect.left, oy = e.clientY - rect.top, sx = e.clientX, sy = e.clientY;
+    let ghost = null, moved = false;
+    const clearOver = () => $$('[data-drop].over').forEach(z => z.classList.remove('over'));
+    const zoneAt = ev => document.elementFromPoint(ev.clientX, ev.clientY)?.closest('[data-drop]');
+    const move = ev => {
+      if (!moved && Math.abs(ev.clientX - sx) + Math.abs(ev.clientY - sy) > 6) {
+        moved = true;
+        ghost = node.cloneNode(true);
+        ghost.classList.add('ghost');
+        ghost.style.width = rect.width + 'px'; ghost.style.margin = 0;
+        document.body.appendChild(ghost);
+        node.classList.add('dragging');
+      }
+      if (!moved) return;
+      ghost.style.left = (ev.clientX - ox) + 'px';
+      ghost.style.top = (ev.clientY - oy) + 'px';
+      clearOver(); zoneAt(ev)?.classList.add('over');
+    };
+    const up = ev => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+      window.removeEventListener('pointercancel', up);
+      clearOver();
+      if (ghost) ghost.remove();
+      node.classList.remove('dragging');
+      if (moved) { const z = zoneAt(ev); if (z) onDrop(z.dataset.drop); }
+      else node.dispatchEvent(new CustomEvent('tapselect'));
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+    window.addEventListener('pointercancel', up);
+  });
+}
+
+// =========================================================
+// ESCENA DEL PUESTO (plana, 1000×600)
+// =========================================================
+const TOOLS = {
+  llave:      { ic: 'wrench',          n: 'Llave 13 mm',     l: 'LLAVE 13' },
+  dest:       { ic: 'screwdriver',     n: 'Destornillador',  l: 'DESTORN.' },
+  tijera:     { ic: 'scissors',        n: 'Tijera',          l: 'TIJERA' },
+  martillo:   { ic: 'hammer',          n: 'Martillo',        l: 'MARTILLO' },
+  serrucho:   { ic: 'carpentry-saw',   n: 'Serrucho',        l: 'SERRUCHO' },
+  linterna:   { ic: 'flashlight',      n: 'Linterna',        l: 'LINTERNA' },
+  regla:      { ic: 'straight-ruler',  n: 'Regla metálica',  l: 'REGLA' },
+  guantes:    { ic: 'gloves',          n: 'Guantes',         l: 'GUANTES' },
+  antiparras: { ic: 'goggles',         n: 'Antiparras',      l: 'ANTIPARRAS' },
+};
+const SLOTS = {
+  llave: { x: 192, y: 96 }, dest: { x: 272, y: 96 }, tijera: { x: 352, y: 96 }, martillo: { x: 432, y: 96 }, serrucho: { x: 512, y: 96 },
+  linterna: { x: 212, y: 190 }, regla: { x: 308, y: 190 }, guantes: { x: 404, y: 190 }, antiparras: { x: 500, y: 190 },
+};
+const ALL_TOOLS = Object.keys(SLOTS);
+const SLOT_SIZE = 60;
+const BENCH_POS = [[170, 270], [262, 272], [354, 270], [446, 272], [538, 270]];
+const TRASH_POS = [[700, 560], [160, 545], [560, 470]];
+const SPILL_POS = [[270, 560], [830, 548]];
+const BINS = [{ k: 'torn', x: 672, l: 'TORN. M6', c: '#8E979D' }, { k: 'aran', x: 732, l: 'ARANDELAS', c: '#B9C0C5' }, { k: 'tar', x: 792, l: 'TARUGOS', c: '#E4DCC6' }];
+const T = 'font-family="Geist, Helvetica, Arial, sans-serif"';
+
+function label(x, y, text, w = 54) {
+  return `<rect x="${x - w / 2}" y="${y - 8}" width="${w}" height="11" rx="2" fill="#F2B705"/>
+    <text x="${x}" y="${y}" font-size="6.5" font-weight="800" text-anchor="middle" fill="#1D2830" ${T}>${text}</text>`;
+}
+function arc(r, a1, a2) {
+  const p = a => [r * Math.sin(a * Math.PI / 180), -r * Math.cos(a * Math.PI / 180)].map(v => v.toFixed(2)).join(' ');
+  return `M${p(a1)} A${r} ${r} 0 ${a2 - a1 > 180 ? 1 : 0} 1 ${p(a2)}`;
+}
+function gaugeSVG(zones, needle) {
+  let ticks = '';
+  for (let a = -135; a <= 135; a += 27) { const s = Math.sin(a * Math.PI / 180), c = -Math.cos(a * Math.PI / 180); ticks += `M${(22 * s).toFixed(1)} ${(22 * c).toFixed(1)} L${(26 * s).toFixed(1)} ${(26 * c).toFixed(1)} `; }
+  return `<rect x="597" y="0" width="8" height="292" fill="#A9B0B5"/><rect x="605" y="114" width="10" height="8" fill="#A9B0B5"/>
+  <rect x="604" y="226" width="22" height="7" rx="3" fill="#C8372D"/>
+  <g transform="translate(628 118)">
+    <circle r="33" fill="#8E979D"/><circle r="28" fill="#FFFFFF"/>
+    ${zones ? `<path d="${arc(23, -60, 45)}" stroke="#2F8F5B" stroke-width="6" fill="none"/><path d="${arc(23, 60, 135)}" stroke="#C8372D" stroke-width="6" fill="none"/>` : ''}
+    <path d="${ticks}" stroke="#333" stroke-width="1.2"/>
+    <text y="14" font-size="6" text-anchor="middle" fill="#444" ${T}>bar</text>
+    <g transform="rotate(${needle})"><path d="M-2 4 L0 -24 L2 4 Z" fill="#C8372D"/></g><circle r="3" fill="#333"/>
+  </g>`;
+}
+function schedSVG(on, unsignedJ) {
+  if (!on) return `<g transform="translate(40 96) rotate(-4)"><rect width="70" height="62" fill="#FFF59A"/>
+    <text x="35" y="28" font-size="8" font-weight="800" text-anchor="middle" fill="#55503A" ${T}>¡MANTENER</text>
+    <text x="35" y="40" font-size="8" font-weight="800" text-anchor="middle" fill="#55503A" ${T}>LIMPIO!</text></g>`;
+  const rows = [['LUN', 'N.B.', 1], ['MAR', 'M.P.', 1], ['MIÉ', 'L.G.', 1], ['JUE', 'N.B.', !unsignedJ], ['VIE', 'M.P.', 'hoy']];
+  let s = `<g transform="translate(24 62)"><rect width="98" height="146" fill="#FFFFFF" stroke="#D2CCBD"/>
+    <circle cx="49" cy="6" r="4" fill="#C8372D"/>
+    <text x="49" y="21" font-size="7.5" font-weight="800" text-anchor="middle" fill="#1D2830" ${T}>CRONOGRAMA</text>
+    <text x="49" y="30" font-size="6" text-anchor="middle" fill="#666" ${T}>Limpieza · Puesto 3</text>
+    <text x="10" y="44" font-size="5.5" font-weight="800" fill="#666" ${T}>DÍA</text><text x="36" y="44" font-size="5.5" font-weight="800" fill="#666" ${T}>RESP.</text><text x="66" y="44" font-size="5.5" font-weight="800" fill="#666" ${T}>FIRMA</text>`;
+  rows.forEach(([d, r, sig], i) => {
+    const y = 58 + i * 18;
+    s += `<path d="M6 ${y + 6} H92" stroke="#E6E1D4"/><text x="10" y="${y}" font-size="6.5" font-weight="700" fill="#1D2830" ${T}>${d}</text>
+      <text x="36" y="${y}" font-size="6.5" fill="#1D2830" ${T}>${r}</text>`;
+    if (sig === 'hoy') s += `<text x="66" y="${y}" font-size="6" fill="#999" font-style="italic" ${T}>al cierre</text>`;
+    else s += `<rect x="64" y="${y - 8}" width="22" height="11" fill="none" stroke="#BBB"/>` + (sig ? `<path d="M66 ${y - 2} q4 -6 7 0 t8 -3" stroke="#1D4A77" stroke-width="1.3" fill="none"/>` : '');
+  });
+  return s + '</g>';
+}
+function binSVG(b, level, minmax) {
+  const H = 40, lv = Math.min(level, 1.05), top = H - (H - 4) * lv;
+  let s = `<g transform="translate(${b.x} 108)">
+    <rect x="${b.x ? 4 : 4}" y="${top}" width="44" height="${H - top}" fill="${b.c}"/>
+    <path d="M0 0 H52 L49 ${H} H3 Z" fill="rgba(170,205,230,.35)" stroke="#3D6F99" stroke-width="2"/>`;
+  if (level > 1) s += `<ellipse cx="26" cy="${top}" rx="25" ry="5" fill="${b.c}"/>`;
+  if (minmax) s += `<path d="M1 ${H - 9} H51" stroke="#C8372D" stroke-width="2" stroke-dasharray="4 2"/><text x="54" y="${H - 7}" font-size="5.5" font-weight="800" fill="#C8372D" ${T}>MÍN</text>
+    <path d="M1 ${H - 32.4} H51" stroke="#2F8F5B" stroke-width="2" stroke-dasharray="4 2"/><text x="54" y="${H - 30.4}" font-size="5.5" font-weight="800" fill="#2F8F5B" ${T}>MÁX</text>`;
+  return s + `<rect x="10" y="${H - 12}" width="32" height="9" fill="#FFF"/><text x="26" y="${H - 5.5}" font-size="5.2" font-weight="800" text-anchor="middle" fill="#1D2830" ${T}>${b.l}</text></g>`;
+}
+function shelfSVG(o) {
+  const lv = Object.assign({ torn: .6, aran: .7, tar: .55 }, o.bins || {});
+  let s = `<rect x="660" y="56" width="9" height="416" fill="#6F8597"/><rect x="851" y="56" width="9" height="416" fill="#6F8597"/>`;
+  [150, 260, 370].forEach(y => { s += `<rect x="654" y="${y}" width="212" height="11" fill="#8AA0B3"/>`; });
+  BINS.forEach(b => { s += binSVG(b, lv[b.k], o.minmax); });
+  s += o.shelfItems ?? (put('package', 712, 230, { size: 54 }) + put('blue-book', 805, 232, { size: 50 }));
+  s += put('package', 712, 340, { size: 58 }) + put('toolbox', 806, 342, { size: 58 });
+  return s;
+}
+function benchSVG() {
+  return `<rect x="100" y="316" width="16" height="160" fill="#7A5634"/><rect x="600" y="316" width="16" height="160" fill="#7A5634"/>
+  <rect x="104" y="430" width="508" height="10" fill="#8C6640"/>
+  <rect x="88" y="292" width="540" height="26" rx="2" fill="#C98F55"/><rect x="88" y="292" width="540" height="5" fill="#DCA76E"/>`;
+}
+function depositSVG(items) {
+  return `<rect x="880" y="372" width="108" height="100" rx="6" fill="#4F6B84"/>${items}
+    <rect x="880" y="396" width="108" height="76" rx="6" fill="#6688A6"/>
+    <rect x="898" y="424" width="72" height="20" rx="3" fill="#F2B705"/><text x="934" y="438" font-size="10" font-weight="900" text-anchor="middle" fill="#1D2830" ${T}>DEPÓSITO</text>`;
+}
+const puddle = (x, y) => `<path transform="translate(${x} ${y})" d="M-50 2 C-52 -12 -30 -18 -14 -14 C0 -22 26 -20 36 -10 C54 -8 56 8 40 12 C30 20 6 18 -6 14 C-22 20 -48 16 -50 2 Z" fill="#3B342D" opacity=".85"/>`;
+
+/* o: board, sil, labels, tape, minmax, zones, needle, sched, schedUnsigned, bins, benchTools, trash, spills, boxWalk, deposit, depositItems, shelfItems, hit */
+function sceneSVG(o = {}) {
+  let s = `<svg viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1000" height="400" fill="#ECE8DE"/><rect y="388" width="1000" height="12" fill="#B9B3A4"/>
+    <rect y="400" width="1000" height="200" fill="#CFCABD"/>`;
+  if (o.tape) s += `<rect y="503" width="1000" height="10" fill="#F2B705"/>
+    <text x="500" y="578" font-size="24" font-weight="900" text-anchor="middle" fill="rgba(255,255,255,.55)" letter-spacing="6" ${T}>PASILLO · MANTENER LIBRE</text>`;
+  s += schedSVG(o.sched, o.schedUnsigned);
+  s += `<rect x="140" y="36" width="420" height="222" rx="6" fill="#D9B88A"/>`;
+  for (let y = 48; y < 254; y += 16) for (let x = 152; x < 556; x += 16) s += `<circle cx="${x}" cy="${y}" r="1.8" fill="#B8956A"/>`;
+  if (o.sil) ALL_TOOLS.forEach(id => { const p = SLOTS[id]; s += `<rect x="${p.x - 34}" y="${p.y - 34}" width="68" height="68" rx="8" fill="rgba(255,255,255,.28)" stroke="#8C6A43" stroke-width="1.5" stroke-dasharray="5 4"/><circle cx="${p.x}" cy="${p.y - 30}" r="2.6" fill="#8E979D"/>`; });
+  const lbl = o.labels === true ? ALL_TOOLS : (o.labels || []);
+  lbl.forEach(id => { const p = SLOTS[id]; s += label(p.x, p.y + 44, TOOLS[id].l); });
+  const JIT = { llave: [18, -6, 20], dest: [-24, 10, -35], tijera: [6, -14, 25], martillo: [-10, 20, -40], serrucho: [-30, -4, 15], linterna: [22, 8, 30], regla: [-6, -18, -50], guantes: [30, 12, 10], antiparras: [-18, 6, -15] };
+  (o.board || []).forEach(id => { const p = SLOTS[id], j = o.messyBoard ? JIT[id] : [0, 0, 0]; s += put(TOOLS[id].ic, p.x + j[0], p.y + j[1], { size: SLOT_SIZE, r: j[2], attrs: o.hit ? `data-hit="${id}" style="cursor:pointer"` : '' }); });
+  s += gaugeSVG(o.zones, o.needle ?? -12);
+  s += shelfSVG(o);
+  s += benchSVG();
+  (o.benchTools || []).forEach(({ id, pos }) => { const [x, y] = BENCH_POS[pos]; s += put(TOOLS[id].ic, x, y, { size: 44, r: -20 }); });
+  if (o.overlay) s += o.overlay;
+  if (o.deposit) s += depositSVG(o.depositItems || '');
+  (o.spills || []).forEach(p => { s += puddle(...SPILL_POS[p]); });
+  (o.trash || []).forEach(p => { const [x, y] = TRASH_POS[p]; s += put(p % 2 ? 'page-with-curl' : 'cup-with-straw', x, y, { size: 46, r: 70 + p * 20 }); });
+  if (o.boxWalk) s += put('package', 430, 500, { size: 84 });
+  return s + '</svg>';
+}
+const pct = (x, y, H = 600) => `left:${x / 10}%;top:${y / H * 100}%`;
+
+// =========================================================
+// ESTADO Y NAVEGACIÓN
+// =========================================================
+const S = { r: {} };
+const STAGES = [
+  { key: 'seiri', n: '1S', jp: 'Seiri', kanji: '整理', es: 'Clasificar',
+    def: 'Separar lo necesario de lo innecesario y sacar del puesto todo lo que no aporta al trabajo.',
+    how: ['Van a aparecer objetos del puesto, de a uno.', 'Arrastralos (o tocá el destino) a Necesario, Innecesario o Dudoso.', 'Lo dudoso lleva tarjeta roja: se aparta y se decide después.'],
+    fn: () => seiri() },
+  { key: 'seiton', n: '2S', jp: 'Seiton', kanji: '整頓', es: 'Ordenar',
+    def: 'Un lugar para cada cosa y cada cosa en su lugar: lo más usado, más cerca, y todo identificado.',
+    how: ['Primero: encontrá la llave 13 mm en la mesa desordenada (se mide el tiempo).', 'Después: ubicá cada objeto en el tablero, la estantería o el depósito, según cuánto se usa.', 'Al final se repite la búsqueda para comparar.'],
+    fn: () => seiton() },
+  { key: 'seiso', n: '3S', jp: 'Seiso', kanji: '清掃', es: 'Limpiar',
+    def: 'Limpiar el puesto y, al hacerlo, inspeccionarlo: la limpieza deja a la vista las fallas.',
+    how: ['Pasá el mouse apretado o el dedo para limpiar la mesa.', 'Si aparece algo raro, tocalo para reportarlo con una tarjeta.', 'Terminá cuando el puesto esté limpio al menos en un 85 %.'],
+    fn: () => seiso() },
+  { key: 'seiketsu', n: '4S', jp: 'Seiketsu', kanji: '清潔', es: 'Estandarizar',
+    def: 'Convertir lo logrado en controles visuales, para que cualquiera detecte un desvío de un vistazo, sin preguntar ni recordar.',
+    how: ['El puesto tiene 5 problemas que se repiten (los números amarillos).', 'Arrastrá a cada número el control visual que lo resuelve. Ojo: hay controles que no sirven.', 'Después, una semana más tarde, auditás el puesto en 40 segundos usando esos controles.'],
+    fn: () => seiketsu() },
+  { key: 'shitsuke', n: '5S', jp: 'Shitsuke', kanji: '躾', es: 'Disciplina',
+    def: 'Sostener lo logrado por hábito, aunque haya apuro y aunque nadie esté mirando.',
+    how: ['Vas a vivir una semana de trabajo, de lunes a viernes.', 'Cada día aparece una situación real y elegís qué hacer. Tus decisiones tienen consecuencias en los días siguientes.', 'Al cierre de cada turno tenés 15 segundos para la ronda: tocá todo lo que esté fuera del estándar.'],
+    fn: () => shitsuke() },
+];
+
+function setStep(idx) {
+  $('#steps').innerHTML = STAGES.map((s, i) =>
+    `<span class="step ${i === idx ? 'on' : ''} ${i < idx ? 'done' : ''}">${s.jp} · ${s.es}</span>`).join('');
+}
+
+function home() {
+  S.r = {};
+  setStep(-1);
+  view(`<section class="hero">
+    <div>
+      <div class="kicker">${S.user ? `Hola, ${esc(S.user.nombre)}` : 'Juego interactivo'}</div>
+      <h1>Prácticas <span>5S</span></h1>
+      <p class="muted" style="font-size:18px">Te toca un puesto de trabajo desordenado. Vas a transformarlo aplicando las 5S, una por una, y al final hay una auditoría con tu puntaje.</p>
+      <p class="muted">Duración: unos 10 a 15 minutos · Funciona con mouse o pantalla táctil.</p>
+      <div class="row" style="margin-top:18px"><button class="btn yellow" id="go">Empezar →</button></div>
+      <div class="scene-wrap hero-scene">${sceneSVG({ board: ALL_TOOLS, sil: true, labels: true, tape: true, minmax: true, zones: true, sched: true })}</div>
+    </div>
+    <div class="s-list">
+      ${STAGES.map(s => `<div class="s-item"><div class="s-num">${s.n}</div><div><b>${s.jp} ${s.kanji} · ${s.es}</b><small>${s.def}</small></div></div>`).join('')}
+    </div>
+  </section>`);
+  $('#go').onclick = () => intro(0);
+}
+
+function intro(i) {
+  const s = STAGES[i];
+  setStep(i);
+  view(`<section class="card intro">
+    <div class="bigS"><div><div class="n">${s.n}</div><div class="k">${s.kanji}</div></div></div>
+    <div>
+      <div class="kicker">Etapa ${i + 1} de 5</div>
+      <h2 style="font-size:34px">${s.jp} · ${s.es}</h2>
+      <p style="font-size:17px">${s.def}</p>
+      <ul class="howto">${s.how.map(x => `<li>${x}</li>`).join('')}</ul>
+      <button class="btn yellow" id="go">Empezar ${s.jp} →</button>
+    </div>
+  </section>`);
+  $('#go').onclick = s.fn;
+}
+
+function stageEnd(i, statsHtml, lesson) {
+  const s = STAGES[i];
+  view(`<section class="card">
+    <div class="kicker">${s.n} · ${s.jp} completado</div>
+    <h2>${s.es}: etapa completa</h2>
+    ${statsHtml}
+    <div class="tip"><b>Para llevarte:</b> ${lesson}</div>
+    <div class="row" style="margin-top:20px"><span class="spacer"></span>
+      <button class="btn yellow" id="go">${i < 4 ? 'Siguiente: ' + STAGES[i + 1].jp + ' →' : 'Ver auditoría final →'}</button></div>
+  </section>`);
+  $('#go').onclick = () => i < 4 ? intro(i + 1) : audit();
+}
+
+// =========================================================
+// 1S · SEIRI — Clasificar
+// =========================================================
+const LABEL = { nec: 'Necesario', inn: 'Innecesario', dud: 'Dudoso (tarjeta roja)' };
+const SEIRI_ITEMS = [
+  { ic: 'wrench', n: 'Llave combinada 13 mm', h: 'Se usa varias veces por día', c: 'nec', x: 'Se usa todos los días: es necesaria y se queda en el puesto.' },
+  { ic: 'gloves', n: 'Guantes de trabajo', h: 'Uso diario · en buen estado', c: 'nec', x: 'Se usan a diario y están en condiciones: se quedan.' },
+  { ic: 'goggles', n: 'Antiparras', h: 'EPP obligatorio en cada tarea', c: 'nec', x: 'Es EPP de uso diario: necesario y siempre a mano.' },
+  { ic: 'spiral-calendar', n: 'Calendario de 2019', h: 'Colgado desde hace años', c: 'inn', x: 'No cumple ninguna función: se descarta.' },
+  { ic: 'hot-beverage', n: 'Taza rajada', h: 'Rota, nadie la usa', c: 'inn', x: 'Está rota y no se usa: se descarta.' },
+  { ic: 'low-battery', n: 'Pilas agotadas', h: 'Sin carga y sulfatadas', c: 'inn', x: 'No sirven: van a su disposición final, no a un cajón.' },
+  { ic: 'electric-plug', n: 'Cable sin identificar', h: 'Nadie sabe de qué equipo es', c: 'dud', x: 'No se sabe si se necesita: lleva tarjeta roja hasta que alguien lo reclame o se decida qué hacer.' },
+  { ic: 'package', n: 'Caja cerrada sin rótulo', h: 'Contenido desconocido', c: 'dud', x: 'Hay que revisarla antes de decidir: tarjeta roja.' },
+];
+const RED_TAG = `<svg viewBox="0 0 32 32"><path d="M10 5 H27 V27 H10 L4 16 Z" fill="#C8372D"/><circle cx="10" cy="16" r="2.2" fill="#fff"/><path d="M14 12 H24 M14 16 H24 M14 20 H21" stroke="#fff" stroke-width="1.6"/></svg>`;
+
+function seiri() {
+  const items = shuffle(SEIRI_ITEMS);
+  let i = 0, ok = 0;
+  view(`<section>
+    <div class="stage-head">
+      <div><div class="kicker">1S · Seiri 整理 · Clasificar</div><h2>¿Se queda o se va?</h2>
+      <p class="muted">Arrastrá el objeto a su destino, o tocá directamente el destino.</p></div>
+      <div class="counter" id="cnt"></div>
+    </div>
+    <div class="seiri-play"><div id="slot"></div></div>
+    <div class="bins">
+      <button class="bin nec" data-drop="nec">${tile('check', 'green')}<b>Necesario</b><small>Se queda en el puesto</small></button>
+      <button class="bin inn" data-drop="inn">${tile('trash', '')}<b>Innecesario</b><small>Se descarta o se devuelve</small></button>
+      <button class="bin dud" data-drop="dud">${tile('tag', 'red')}<b>Dudoso</b><small>Tarjeta roja: se evalúa</small></button>
+    </div>
+  </section>`);
+
+  const next = () => {
+    if (i >= items.length) {
+      S.r.seiri = { ok, total: items.length };
+      return stageEnd(0,
+        `<div class="compare"><div class="metric"><div class="v">${ok} / ${items.length}</div><div class="l">objetos bien clasificados</div></div>
+         <div class="metric"><div class="v">${items.filter(x => x.c !== 'nec').length}</div><div class="l">objetos que salieron del puesto</div></div></div>`,
+        'antes de ordenar hay que sacar lo que sobra. La pregunta clave es <b>¿esto se usa y cada cuánto?</b> Lo que genera dudas no se queda “por las dudas”: lleva tarjeta roja con fecha y responsable.');
+    }
+    const it = items[i];
+    $('#cnt').textContent = `Objeto ${i + 1} de ${items.length}`;
+    const card = h(`<div class="obj-card"><div class="obj-art">${icon(it.ic, 130)}</div><div class="obj-n">${it.n}</div><div class="chip">${it.h}</div></div>`);
+    const slot = $('#slot'); slot.innerHTML = ''; slot.appendChild(card);
+    let busy = false;
+    const decide = async c => {
+      if (busy) return; busy = true;
+      card.dataset.locked = 1;
+      if (c === it.c) {
+        ok++;
+        card.classList.add('good');
+        if (c === 'dud') card.appendChild(h('<div class="stamp">TARJETA ROJA</div>'));
+        toast(it.x, 'ok');
+        await wait(1500);
+      } else {
+        card.classList.add('bad');
+        await feedback({ title: `Era “${LABEL[it.c]}”`, text: it.x });
+      }
+      i++; next();
+    };
+    enableDrag(card, decide);
+    $$('.bin').forEach(b => b.onclick = () => decide(b.dataset.drop));
+  };
+  next();
+}
+
+// =========================================================
+// 2S · SEITON — Ordenar
+// =========================================================
+const SEITON_ITEMS = [
+  { id: 'llave', ic: 'wrench', n: 'Llave 13 mm', l: 'LLAVE 13', f: 'Varias veces por día', u: 25, type: 'ajuste', size: 'chico' },
+  { id: 'dest', ic: 'screwdriver', n: 'Destornillador', l: 'DESTORN.', f: 'Todos los días', u: 15, type: 'ajuste', size: 'chico' },
+  { id: 'tijera', ic: 'scissors', n: 'Tijera', l: 'TIJERA', f: 'Todos los días', u: 12, type: 'corte', size: 'chico', sharp: 1 },
+  { id: 'serrucho', ic: 'carpentry-saw', n: 'Serrucho', l: 'SERRUCHO', f: 'Dos veces por semana', u: 2, type: 'corte', size: 'grande', sharp: 1 },
+  { id: 'martillo', ic: 'hammer', n: 'Martillo', l: 'MARTILLO', f: 'Tres veces por semana', u: 3, type: 'golpe', size: 'grande', heavy: 1 },
+  { id: 'regla', ic: 'straight-ruler', n: 'Regla metálica', l: 'REGLA', f: 'Dos veces por semana', u: 2, type: 'medicion', size: 'mediano' },
+  { id: 'escuadra', ic: 'triangular-ruler', n: 'Escuadra', l: 'ESCUADRA', f: 'Una vez por semana', u: 1, type: 'medicion', size: 'mediano' },
+  { id: 'guantes', ic: 'gloves', n: 'Guantes', l: 'GUANTES', f: 'Varias veces por día', u: 20, type: 'epp', size: 'mediano' },
+  { id: 'antiparras', ic: 'goggles', n: 'Antiparras', l: 'ANTIPARRAS', f: 'Varias veces por día', u: 18, type: 'epp', size: 'chico' },
+  { id: 'bulones', ic: 'nut-and-bolt', n: 'Caja de bulones', l: 'BULONES', f: 'Todos los días', u: 10, type: 'insumo', size: 'mediano', heavy: 1 },
+  { id: 'gear', ic: 'gear', n: 'Repuesto de bomba', l: 'REPUESTO', f: 'Una vez al año', u: .02, type: 'repuesto', size: 'grande', heavy: 1 },
+  { id: 'manual', ic: 'blue-book', n: 'Manual del equipo', l: 'MANUAL', f: 'Cinco veces al año', u: .1, type: 'doc', size: 'mediano' },
+];
+const TYPE_N = { ajuste: 'ajuste', corte: 'corte', golpe: 'golpe', medicion: 'medición', epp: 'protección personal', insumo: 'insumos', repuesto: 'repuestos', doc: 'documentación' };
+
+// Puesto amplio (vista frontal 1200×620). Cada lugar: mueble/sector, distancia y altura.
+const PLACES = [
+  ...[47, 101, 155].map((x, i) => ({ id: 'L' + (i + 1), x, y: 300, sec: 'casilleros', d: 4, alt: 'medio' })),
+  ...[[287, 105, 'tabA'], [420, 105, 'tabB'], [553, 105, 'tabC'], [287, 200, 'tabA'], [420, 200, 'tabB'], [553, 200, 'tabC']].map(([x, y, sec], i) => ({ id: 'T' + (i + 1), x, y, sec, d: .6, alt: 'medio' })),
+  { id: 'M1', x: 290, y: 272, sec: 'mesa', d: .4, alt: 'medio' }, { id: 'M2', x: 410, y: 272, sec: 'mesa', d: .4, alt: 'medio' },
+  ...[352, 407, 462].map((y, i) => ({ id: 'C' + (i + 1), x: 565, y, sec: 'cajonera', d: .7, alt: 'bajo' })),
+  { id: 'K1', x: 730, y: 352, sec: 'carro', d: 1.2, alt: 'medio' }, { id: 'K2', x: 730, y: 440, sec: 'carro', d: 1.2, alt: 'bajo' },
+  { id: 'E1', x: 872, y: 140, sec: 'estAlto', d: 2.5, alt: 'alto' }, { id: 'E2', x: 958, y: 140, sec: 'estAlto', d: 2.5, alt: 'alto' },
+  { id: 'E3', x: 872, y: 270, sec: 'estMedio', d: 2.5, alt: 'medio' }, { id: 'E4', x: 958, y: 270, sec: 'estMedio', d: 2.5, alt: 'medio' },
+  { id: 'E5', x: 872, y: 400, sec: 'estBajo', d: 2.5, alt: 'bajo' }, { id: 'E6', x: 958, y: 400, sec: 'estBajo', d: 2.5, alt: 'bajo' },
+  { id: 'D1', x: 1078, y: 420, sec: 'deposito', d: 25, alt: 'bajo' }, { id: 'D2', x: 1140, y: 420, sec: 'deposito', d: 25, alt: 'bajo' }, { id: 'D3', x: 1109, y: 470, sec: 'deposito', d: 25, alt: 'bajo' },
+];
+const SEC_N = { casilleros: 'casilleros', tabA: 'tablero', tabB: 'tablero', tabC: 'tablero', mesa: 'mesa', cajonera: 'cajonera', carro: 'carro', estAlto: 'estante alto', estMedio: 'estante medio', estBajo: 'estante bajo', deposito: 'depósito' };
+const placeById = id => PLACES.find(p => p.id === id);
+const walk = assign => Object.entries(assign).reduce((a, [itemId, pid]) => a + itemById(itemId).u * placeById(pid).d * 2, 0);
+const optimalWalk = () => {
+  const items = [...SEITON_ITEMS].sort((a, b) => b.u - a.u), places = [...PLACES].sort((a, b) => a.d - b.d);
+  return items.reduce((a, it, i) => a + it.u * places[i].d * 2, 0);
+};
+const meters = m => `${Math.round(m).toLocaleString('es-AR')} m`;
+
+function workshopSVG(assign = {}, hit = false) {
+  const W = (x, y, w, hh, f, extra = '') => `<rect x="${x}" y="${y}" width="${w}" height="${hh}" fill="${f}" ${extra}/>`;
+  let s = `<svg viewBox="0 0 1200 620" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    ${W(0, 0, 1200, 500, '#ECE8DE')}${W(0, 492, 1200, 8, '#B9B3A4')}${W(0, 500, 1200, 120, '#CFCABD')}`;
+  // Casilleros
+  s += W(18, 104, 166, 392, '#8A9AA6', 'rx="4"');
+  [22, 76, 130].forEach((x, i) => {
+    s += W(x, 110, 50, 380, '#A9B7C2', 'rx="3"');
+    for (let k = 0; k < 4; k++) s += W(x + 12, 124 + k * 7, 26, 3, '#7F8E9A', 'rx="1.5"');
+    s += W(x + 40, 280, 4, 26, '#5F6E7A', 'rx="2"') + W(x + 9, 160, 32, 12, '#FFFFFF', 'rx="2"') + `<text x="${x + 25}" y="169" font-size="8" font-weight="700" text-anchor="middle" fill="#121212" ${T}>${i + 1}</text>`;
+  });
+  s += `<text x="101" y="96" font-size="12" font-weight="600" text-anchor="middle" fill="#53534e" ${T}>Casilleros</text>`;
+  // Tablero perforado + mesa + cajonera
+  s += W(220, 50, 400, 200, '#D9B88A', 'rx="6"');
+  for (let y = 62; y < 246; y += 16) for (let x = 232; x < 616; x += 16) s += `<circle cx="${x}" cy="${y}" r="1.8" fill="#B8956A"/>`;
+  s += `<path d="M353 56 V244 M487 56 V244" stroke="#B8956A" stroke-width="2" stroke-dasharray="4 4"/>`;
+  s += W(214, 292, 432, 24, '#C98F55', 'rx="2"') + W(214, 292, 432, 5, '#DCA76E') + W(226, 316, 14, 180, '#7A5634') + W(620, 316, 14, 180, '#7A5634');
+  s += W(500, 322, 126, 172, '#B0B8BE', 'rx="4"');
+  [326, 381, 436].forEach(y => { s += W(506, y, 114, 50, '#C9CFD4', 'rx="3"') + W(548, y + 6, 30, 5, '#7F8E9A', 'rx="2.5"'); });
+  s += `<text x="420" y="40" font-size="12" font-weight="600" text-anchor="middle" fill="#53534e" ${T}>Tablero</text>
+    <text x="350" y="340" font-size="12" font-weight="600" text-anchor="middle" fill="#53534e" ${T}>Mesa de trabajo</text>
+    <text x="563" y="510" font-size="11" font-weight="600" text-anchor="middle" fill="#53534e" ${T}>Cajonera</text>`;
+  // Carro de herramientas
+  s += W(672, 324, 116, 58, '#C8372D', 'rx="5"') + W(678, 330, 104, 46, '#E05A4E', 'rx="3"') + W(672, 412, 116, 58, '#C8372D', 'rx="5"') + W(678, 418, 104, 46, '#E05A4E', 'rx="3"');
+  s += W(676, 382, 6, 30, '#8E979D') + W(778, 382, 6, 30, '#8E979D') + W(676, 470, 6, 14, '#8E979D') + W(778, 470, 6, 14, '#8E979D');
+  s += `<circle cx="684" cy="488" r="8" fill="#2B2B2B"/><circle cx="776" cy="488" r="8" fill="#2B2B2B"/><path d="M788 330 h14 v-24" stroke="#8E979D" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <text x="730" y="316" font-size="12" font-weight="600" text-anchor="middle" fill="#53534e" ${T}>Carro</text>`;
+  // Estantería
+  s += W(820, 70, 9, 422, '#6F8597') + W(1001, 70, 9, 422, '#6F8597');
+  [170, 300, 430].forEach(y => { s += W(814, y, 202, 11, '#8AA0B3'); });
+  s += `<text x="915" y="62" font-size="12" font-weight="600" text-anchor="middle" fill="#53534e" ${T}>Estantería</text>
+    <text x="1020" y="160" font-size="9" fill="#6b6b66" ${T}>alto</text><text x="1020" y="290" font-size="9" fill="#6b6b66" ${T}>medio</text><text x="1020" y="420" font-size="9" fill="#6b6b66" ${T}>bajo</text>`;
+  // Depósito (puerta al fondo)
+  s += W(1044, 120, 132, 372, '#6688A6', 'rx="4"') + W(1054, 130, 112, 352, '#7A9BB8', 'rx="3"') + `<circle cx="1154" cy="320" r="6" fill="#3D5468"/>`;
+  s += W(1064, 150, 92, 34, '#F2B705', 'rx="3"') + `<text x="1110" y="165" font-size="11" font-weight="800" text-anchor="middle" fill="#121212" ${T}>DEPÓSITO</text><text x="1110" y="178" font-size="9" text-anchor="middle" fill="#121212" ${T}>a 25 m</text>`;
+  s += W(1052, 444, 116, 50, '#A9825A', 'rx="3"') + `<path d="M1052 460 h116 M1052 478 h116" stroke="#8C6A43" stroke-width="2"/>`;
+  // Objetos ubicados, con su etiqueta
+  Object.entries(assign).forEach(([itemId, pid]) => {
+    const it = itemById(itemId), p = placeById(pid);
+    s += put(it.ic, p.x, p.y, { size: 46, attrs: hit ? `data-hit="${itemId}" style="cursor:pointer"` : '' }) + label(p.x, p.y + 33, it.l, 50);
+  });
+  return s + '</svg>';
+}
+
+// Evaluación abierta: reconoce el criterio usado y puntúa principios generales
+const pairs = arr => { const out = []; for (let i = 0; i < arr.length; i++) for (let j = i + 1; j < arr.length; j++) out.push([arr[i], arr[j]]); return out; };
+const FURN = { tabA: 'tablero', tabB: 'tablero', tabC: 'tablero', estAlto: 'estanteria', estMedio: 'estanteria', estBajo: 'estanteria' };
+const furn = sec => FURN[sec] || sec;
+function groupScore(assign, key) {
+  const its = SEITON_ITEMS.filter(i => assign[i.id]);
+  const sec = i => placeById(assign[i.id]).sec;
+  const near = (a, b) => sec(a) === sec(b) ? 1 : furn(sec(a)) === furn(sec(b)) ? .8 : 0;
+  const P = pairs(its);
+  const sameK = P.filter(([a, b]) => a[key] === b[key]), sameS = P.filter(([a, b]) => sec(a) === sec(b));
+  const coh = sameK.length ? sameK.reduce((t, [a, b]) => t + near(a, b), 0) / sameK.length : 0;
+  const pur = sameS.length ? sameS.filter(([a, b]) => a[key] === b[key]).length / sameS.length : 0;
+  const split = sameK.filter(([a, b]) => near(a, b) === 0 && a.u >= 1 && b.u >= 1); // lo de uso muy ocasional puede ir al depósito con cualquier criterio
+  return { score: (coh + pur) / 2, split };
+}
+function freqScore(assign) {
+  const its = SEITON_ITEMS.filter(i => assign[i.id]);
+  const rank = (arr, f) => { const s = [...arr].sort((a, b) => f(a) - f(b)); return arr.map(x => s.indexOf(x)); };
+  const ru = rank(its, i => -i.u), rd = rank(its, i => placeById(assign[i.id]).d);
+  const n = its.length; const d2 = ru.reduce((a, r, k) => a + (r - rd[k]) ** 2, 0);
+  return Math.max(0, 1 - 6 * d2 / (n * (n * n - 1)));
+}
+function evaluateSeiton(assign, declared = null) {
+  const crit = [
+    { k: 'frecuencia', n: 'por frecuencia de uso', v: freqScore(assign) },
+    { k: 'tipo', n: 'por tipo de herramienta', ...groupScore(assign, 'type') },
+    { k: 'tamano', n: 'por tamaño', ...groupScore(assign, 'size') },
+  ].map(c => ({ ...c, v: c.v ?? c.score })).sort((a, b) => b.v - a.v);
+  const main = declared ? crit.find(c => c.k === declared) : crit[0], clear = main.v >= .6, also = crit.filter(c => c !== main && c.v >= .7);
+  const detected = crit[0];
+  const w = walk(assign), best = optimalWalk(), eff = Math.sqrt(clamp(best / w));
+  const viol = [];
+  SEITON_ITEMS.forEach(it => {
+    const p = placeById(assign[it.id]);
+    if (it.heavy && p.alt === 'alto') viol.push(`${it.n} es pesado y quedó en el estante alto: lo pesado va abajo o a media altura.`);
+    if (it.sharp && p.sec === 'mesa') viol.push(`${it.n} quedó suelta sobre la mesa: lo cortante va colgado o en un cajón.`);
+    if (it.type === 'epp' && p.d > 4) viol.push(`${it.n} quedó lejos del puesto: el EPP tiene que estar a mano antes de empezar cada tarea.`);
+  });
+  const checks = SEITON_ITEMS.filter(i => i.heavy || i.sharp || i.type === 'epp').length;
+  const seg = clamp(1 - viol.length / checks);
+  const coh = clear ? main.v : main.v * .6;
+  const total = Math.round(100 * (.4 * coh + .35 * eff + .25 * seg));
+  // Punto de mejora: el componente más bajo, con una indicación concreta
+  const comps = [{ k: 'coh', v: coh }, { k: 'eff', v: eff }, { k: 'seg', v: seg }].sort((a, b) => a.v - b.v);
+  let tip = '';
+  // par "más usado pero más lejos": la excepción más clara al principio de frecuencia
+  const inv = pairs(SEITON_ITEMS).map(([a, b]) => a.u >= b.u ? [a, b] : [b, a])
+    .filter(([a, b]) => placeById(assign[a.id]).d > placeById(assign[b.id]).d && a.u - b.u >= 3)
+    .sort((x, y) => (y[0].u - y[1].u) - (x[0].u - x[1].u))[0];
+  if (comps[0].v > .85) tip = inv ? `Muy buen orden. Un detalle para pulir: ${inv[0].n} se usa más que ${inv[1].n}, pero quedó más lejos. Si los intercambiás, caminás menos.` : 'Tu orden es coherente, eficiente y seguro. Para sostenerlo, lo que sigue es estandarizarlo (Seiketsu).';
+  else if (comps[0].k === 'coh') {
+    if (!clear) tip = declared ? `Dijiste que ordenaste ${main.n}, pero el puesto todavía no lo refleja (${Math.round(main.v * 100)} %). ${main.split?.length ? `Por ejemplo, ${main.split[0][0].n} y ${main.split[0][1].n} quedaron en muebles distintos.` : 'Revisá los objetos que quedaron fuera de esa lógica.'}${detected !== main && detected.v >= .6 ? ` En cambio, se parece más a un orden ${detected.n}.` : ''}` : 'No se ve un criterio claro: elegí uno (por frecuencia, por tipo o por tamaño) y aplicalo en todo el puesto, así cualquiera entiende dónde va cada cosa.';
+    else if (main.split?.length) { const [a, b] = main.split[0]; tip = `Ordenaste ${main.n}, pero ${a.n} y ${b.n} quedaron en lugares distintos. Juntalos para que el criterio se cumpla en todo el puesto.`; }
+    else tip = inv ? `Ordenaste ${main.n}, pero hay una excepción: ${inv[0].n} se usa más que ${inv[1].n} y quedó más lejos.` : `Ordenaste ${main.n}: revisá que no queden objetos fuera de su grupo.`;
+  } else if (comps[0].k === 'eff') {
+    const worst = [...SEITON_ITEMS].sort((a, b) => b.u * placeById(assign[b.id]).d - a.u * placeById(assign[a.id]).d)[0];
+    tip = `${worst.n} se usa ${worst.f.toLowerCase()} y está a ${dec(placeById(assign[worst.id]).d)} m. ${clear ? `Sin abandonar tu criterio (${main.n}), acercá ese grupo al puesto` : 'Acercalo al puesto'}: hoy caminás ${meters(w)} por semana y se puede llegar a ${meters(best)}.`;
+  } else tip = viol[0];
+  const good = comps[2].k === 'coh' ? (clear ? `Se reconoce un criterio claro: ordenaste ${main.n}.` : 'Ubicaste todo en algún lugar.') : comps[2].k === 'eff' ? 'Lo más usado quedó cerca: caminás poco.' : 'El orden es seguro: nada pesado arriba ni cortantes sueltos.';
+  return { main, clear, also, detected, declared, crit, coh, eff, seg, total, w, best, viol, tip, good };
+}
+
+const MESS = {
+  wall: [['spiral-calendar', 88, 112, 70, -8], ['t-shirt', 528, 74, 52, 14], ['axe', 212, 92, 58, 38], ['page-with-curl', 335, 84, 50, 8],
+    ['carpentry-saw', 470, 176, 62, -28], ['pushpin', 285, 190, 40, 10], ['ladder', 935, 300, 175, 7]],
+  bench: [['electric-plug', 160, 268, 44, 70], ['sponge', 206, 266, 46, -20], ['page-with-curl', 252, 270, 52, 15], ['hot-beverage', 300, 264, 44, 0],
+    ['pizza', 352, 268, 56, 10], ['paperclip', 402, 276, 40, -40], ['clipboard', 446, 264, 50, -10], ['basket', 496, 270, 50, 5],
+    ['link', 548, 270, 44, -30], ['low-battery', 592, 274, 38, 80], ['pushpin', 330, 284, 30, 0], ['magnet', 470, 284, 34, 20]],
+  under: [['package', 182, 444, 76, -4], ['package', 190, 384, 62, 6], ['bucket', 300, 452, 58, 0], ['broom', 384, 420, 92, -25],
+    ['oil-drum', 520, 432, 84, 0], ['newspaper', 444, 472, 50, 20], ['fire-extinguisher', 616, 448, 62, 0]],
+  shelf: [['package', 702, 228, 56, -6], ['roll-of-paper', 758, 232, 44, 0], ['alarm-clock', 806, 230, 40, 15], ['low-battery', 842, 242, 30, 0],
+    ['card-file-box', 700, 340, 54, 0], ['teddy-bear', 770, 340, 48, -8], ['package', 830, 336, 56, 8]],
+  floor: [['package', 706, 458, 78, 6], ['package', 700, 522, 92, -4], ['package', 792, 532, 80, 10], ['package', 432, 540, 86, -8],
+    ['package', 504, 566, 60, 20], ['toolbox', 322, 522, 70, -6], ['soccer-ball', 902, 474, 46, 0], ['chair', 925, 548, 88, -15],
+    ['cup-with-straw', 122, 560, 40, 60], ['page-with-curl', 602, 580, 44, 30], ['safety-vest', 860, 584, 58, 30]],
+};
+const MESS_SPOTS = [[566, 286], [236, 470], [764, 584], [818, 238], [150, 572], [478, 482], [610, 522], [404, 288], [262, 290], [742, 344], [362, 566], [60, 520]];
+function messySVG() {
+  const j = () => rand(-10, 10);
+  const add = list => list.map(([ic, x, y, sz, r]) => put(ic, x + j(), y + j() * .5, { size: sz, r: r + j(), attrs: 'data-hit="x"' })).join('');
+  let s = `<svg viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1000" height="400" fill="#E3DED2"/><rect y="388" width="1000" height="12" fill="#B0A999"/>
+    <rect y="400" width="1000" height="200" fill="#C7C1B2"/>
+    <path d="M60 470 q40 -14 90 6 M640 560 q60 10 120 -6 M300 590 q50 -10 110 2" stroke="#B3AC9C" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <rect x="140" y="36" width="420" height="222" rx="6" fill="#D9B88A"/>`;
+  for (let y = 48; y < 254; y += 16) for (let x = 152; x < 556; x += 16) s += `<circle cx="${x}" cy="${y}" r="1.8" fill="#B8956A"/>`;
+  s += add(MESS.wall) + gaugeSVG(false, 25);
+  s += `<rect x="660" y="56" width="9" height="416" fill="#6F8597"/><rect x="851" y="56" width="9" height="416" fill="#6F8597"/>`;
+  [150, 260, 370].forEach(y => { s += `<rect x="654" y="${y}" width="212" height="11" fill="#8AA0B3" transform="rotate(${y === 260 ? -1.5 : 0} 760 ${y})"/>`; });
+  s += binSVG(BINS[0], 1.15, false) + binSVG(BINS[1], .05, false) + binSVG(BINS[2], 1.1, false);
+  s += add(MESS.shelf) + benchSVG() + add(MESS.bench) + add(MESS.under);
+  s += `<path d="M560 470 C620 500 640 470 700 500 S820 470 860 520 S930 560 980 540" stroke="#2B2B2B" stroke-width="6" fill="none" stroke-linecap="round"/>`;
+  s += puddle(262, 562) + add(MESS.floor);
+  const spots = shuffle(MESS_SPOTS);
+  SEITON_ITEMS.forEach((it, k) => {
+    const [tx, ty] = spots[k];
+    s += put(it.ic, tx, ty, { size: 46, r: rand(-80, 80), attrs: `data-hit="${it.id}"` });
+    if (k % 2 === 0) s += put('page-with-curl', tx + rand(14, 22), ty + rand(-6, 10), { size: 30, r: rand(-30, 30), attrs: 'data-hit="x"' });
+  });
+  return s + '</svg>';
+}
+
+// Órdenes de trabajo: cada partida pide juntar 3 objetos distintos
+const ORDERS = [
+  { t: 'Cambiar el filtro de la bomba', items: ['llave', 'guantes', 'gear'] },
+  { t: 'Reparar el cable de un equipo', items: ['tijera', 'dest', 'antiparras'] },
+  { t: 'Colgar un cartel de seguridad', items: ['martillo', 'regla', 'bulones'] },
+  { t: 'Revisar la bomba según el procedimiento', items: ['manual', 'llave', 'antiparras'] },
+  { t: 'Armar un soporte a medida', items: ['serrucho', 'escuadra', 'guantes'] },
+]
+const PENALTY = 2;
+const itemById = id => SEITON_ITEMS.find(i => i.id === id);
+
+/* Búsqueda por orden de trabajo sobre una escena: el jugador junta los objetos en cualquier orden.
+   Cada toque equivocado suma PENALTY segundos. Resuelve con { time, misses }. */
+function hunt(order, sceneHtml, { step, title, sub, aspect = '1000/600' }) {
+  return new Promise(resolve => {
+    const got = new Set();
+    let misses = 0;
+    view(`<section>
+      <div class="stage-head"><div><div class="kicker">2S · Seiton 整頓 · Ordenar</div><h2>${step} · ${title}</h2>
+        <p class="muted">${sub}</p></div><div class="counter" id="cnt">0 / ${order.items.length}</div></div>
+      <div class="target-ask" style="height:auto;min-height:56px;flex-wrap:wrap;padding:10px 16px;gap:10px">
+        <span style="font-size:12px;color:var(--on-night-2)">Orden de trabajo</span><b>${order.t}</b>
+        <span id="need" style="display:flex;gap:6px;flex-wrap:wrap">${order.items.map(id => `<span class="need" data-need="${id}" style="display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px 0 4px;border-radius:999px;background:var(--night-2,#1d1d21);font-size:12px">${icon(itemById(id).ic, 22)}${itemById(id).n}</span>`).join('')}</span>
+        <span class="timer" id="timer">0,0 s</span>
+      </div>
+      <div class="scene-wrap solo" id="board" style="aspect-ratio:${aspect};max-width:${aspect === '1000/600' ? 900 : 1080}px">${sceneHtml}</div>
+    </section>`);
+    const t0 = performance.now();
+    let raf;
+    const now = () => (performance.now() - t0) / 1000 + misses * PENALTY;
+    const tick = () => { $('#timer').textContent = fmt(now()); raf = requestAnimationFrame(tick); };
+    tick();
+    $('#board').onclick = e => {
+      const g = e.target.closest('[data-hit]');
+      const id = g?.dataset.hit;
+      if (id && order.items.includes(id) && !got.has(id)) {
+        got.add(id);
+        g.style.opacity = '.25';
+        const chip = $(`[data-need="${id}"]`);
+        chip.style.background = 'var(--green)'; chip.style.color = '#fff';
+        $('#cnt').textContent = `${got.size} / ${order.items.length}`;
+        if (got.size === order.items.length) { cancelAnimationFrame(raf); $('#board').onclick = null; const time = now(); $('#timer').textContent = fmt(time); resolve({ time, misses }); }
+      } else if (!id || !got.has(id)) {
+        misses++;
+        toast(`Eso no está en la orden: +${PENALTY} s`, 'ko');
+      }
+    };
+  });
+}
+
+function timed(onTick) {
+  const t0 = performance.now();
+  let raf;
+  const tick = () => { onTick((performance.now() - t0) / 1000); raf = requestAnimationFrame(tick); };
+  tick();
+  return () => { cancelAnimationFrame(raf); return (performance.now() - t0) / 1000; };
+}
+
+function seiton() {
+  const r = { attempts: 0, eval: null, tBefore: 0, tAfter: 0, misses: 0 };
+  const order = ORDERS[Math.floor(Math.random() * ORDERS.length)];
+  hunt(order, messySVG(), { step: 'Paso 1', title: 'Juntá lo que pide la orden', sub: 'Así está el taller hoy. Tocá los 3 objetos de la orden en cualquier orden. Cada toque equivocado suma 2 segundos.' })
+    .then(async res => {
+      r.tBefore = res.time; r.misses = res.misses;
+      await feedback({ ok: true, ic: 'stopwatch', title: `Tardaste ${fmt(res.time)}`, text: `${res.misses ? `Con ${res.misses} toque${res.misses === 1 ? '' : 's'} equivocado${res.misses === 1 ? '' : 's'}. ` : ''}Ese tiempo buscando se repite en cada tarea mientras el puesto siga así. Ahora vamos a darle un lugar a cada cosa.`, btn: 'Ordenar el puesto' });
+      place();
+    });
+
+  function place() {
+    const assign = {};
+    let selected = null, prevTotal = null, declared = null;
+    r.attempts = 0;
+    view(`<section>
+      <div class="stage-head"><div><div class="kicker">2S · Seiton 整頓 · Ordenar</div><h2>Paso 2 · Ordená el puesto a tu manera</h2>
+        <p class="muted">No hay una sola forma correcta. Ubicá cada objeto donde te parezca (arrastrándolo o tocándolo y después el lugar) con el criterio que elijas: por uso, por tipo, por tamaño… Al confirmar, el juego reconoce tu criterio y te dice qué mejorar.</p></div>
+        <div class="counter" id="cnt">0 / ${SEITON_ITEMS.length}</div></div>
+      <div class="tray" id="tray"></div>
+      <div class="split">
+        <div class="scene-wrap" id="plan" style="aspect-ratio:1200/620"><div id="svgbox" class="layer"></div><div class="layer" id="slots"></div></div>
+        <div class="side">
+          <div><b style="font-size:13px">¿Qué criterio usaste?</b><div id="crit" class="row" style="gap:6px;margin-top:8px">
+            ${[['', 'Que lo detecte el juego'], ['frecuencia', 'Por uso'], ['tipo', 'Por tipo'], ['tamano', 'Por tamaño']].map(([k, t], i) => `<button class="chip" data-crit="${k}" style="border:0;cursor:pointer;${i === 0 ? 'background:var(--solid);color:var(--on-solid)' : ''}">${t}</button>`).join('')}</div></div>
+          <div class="card" id="result" style="padding:16px"><b>Cómo se evalúa</b><p class="muted" style="margin:6px 0 0;font-size:13px;line-height:19px">Coherencia de tu criterio, recorrido semanal para buscar y guardar, y seguridad (lo pesado abajo, lo cortante protegido, el EPP a mano). Cada aspecto suma puntos por separado.</p></div>
+          <button class="btn yellow" id="confirm" disabled>Evaluar mi orden</button>
+          <button class="btn ghostbtn" id="next" style="display:none">Seguir con este orden</button>
+        </div>
+      </div>
+    </section>`);
+
+    const renderTray = () => {
+      $('#tray').innerHTML = '';
+      SEITON_ITEMS.filter(it => !assign[it.id]).forEach(it => {
+        const node = h(`<div class="tool">${icon(it.ic, 40)}<div><b>${it.n}</b><small>${it.f}</small></div></div>`);
+        enableDrag(node, pid => drop(it.id, pid));
+        node.addEventListener('tapselect', () => { $$('.tool.sel').forEach(t => t.classList.remove('sel')); node.classList.add('sel'); selected = it.id; });
+        $('#tray').appendChild(node);
+      });
+      $('#tray').style.display = $('#tray').children.length ? '' : 'none';
+    };
+    const renderSlots = () => {
+      $('#svgbox').innerHTML = workshopSVG(assign);
+      $('#slots').innerHTML = PLACES.map(p => {
+        const itemId = Object.keys(assign).find(k => assign[k] === p.id);
+        return `<div class="pslot ${itemId ? 'full' : ''}" data-drop="${p.id}" data-item="${itemId || ''}" title="${SEC_N[p.sec]} · ${dec(p.d)} m" style="left:${p.x / 12}%;top:${p.y / 6.2}%;width:4.6%;${itemId ? 'background:transparent;box-shadow:none' : ''}"></div>`;
+      }).join('');
+      $$('.pslot').forEach(el => el.onclick = () => {
+        if (selected) { drop(selected, el.dataset.drop); return; }
+        if (el.dataset.item) { delete assign[el.dataset.item]; refresh(); }
+      });
+    };
+    const refresh = () => {
+      renderTray(); renderSlots();
+      const n = Object.keys(assign).length;
+      $('#cnt').textContent = `${n} / ${SEITON_ITEMS.length}`;
+      $('#confirm').disabled = n < SEITON_ITEMS.length;
+    };
+    const drop = (itemId, pid) => {
+      const prev = Object.keys(assign).find(k => assign[k] === pid);
+      if (prev && prev !== itemId) delete assign[prev];
+      assign[itemId] = pid;
+      selected = null;
+      refresh();
+    };
+    refresh();
+    $$('[data-crit]').forEach(b => b.onclick = () => {
+      declared = b.dataset.crit || null;
+      $$('[data-crit]').forEach(x => { const on = x === b; x.style.background = on ? 'var(--solid)' : ''; x.style.color = on ? 'var(--on-solid)' : ''; });
+    });
+
+    const bar = (n, v) => `<div style="margin-top:10px"><div class="row" style="gap:8px;font-size:13px"><span>${n}</span><span class="spacer"></span><b style="font-weight:500">${Math.round(v * 100)}</b></div>
+      <div class="meter" style="margin-top:4px"><i style="width:${v * 100}%;background:${v > .8 ? 'var(--green)' : v > .5 ? '#e9a613' : 'var(--danger)'}"></i></div></div>`;
+    $('#confirm').onclick = () => {
+      const ev = evaluateSeiton(assign, declared);
+      r.attempts++;
+      const delta = prevTotal === null ? '' : ` <span style="font-size:14px;color:${ev.total >= prevTotal ? 'var(--green-text)' : 'var(--danger)'}">${ev.total >= prevTotal ? '+' : ''}${ev.total - prevTotal} vs intento anterior</span>`;
+      prevTotal = ev.total;
+      r.eval = ev; r.assign = { ...assign };
+      $('#result').innerHTML = `<div class="kicker" style="margin-bottom:4px">Intento ${r.attempts}</div>
+        <div class="row" style="align-items:baseline;gap:8px"><span style="font-size:36px;font-weight:600;letter-spacing:-.02em">${ev.total}</span><span class="muted">/ 100</span>${delta}</div>
+        <p style="margin:6px 0 0;font-size:13px">${ev.declared ? 'Criterio elegido' : 'Criterio detectado'}: <b style="font-weight:600">${ev.clear || ev.declared ? ev.main.n : 'sin criterio claro'}</b>${ev.declared ? ` <span class="muted">(${Math.round(ev.main.v * 100)} % aplicado)</span>` : ''}${ev.clear && ev.also.length ? `<span class="muted"> · también respeta el orden ${ev.also.map(c => c.n).join(' y ')}</span>` : ''}</p>
+        ${bar('Coherencia del criterio', ev.coh)}${bar(`Recorrido (${meters(ev.w)}/sem)`, ev.eff)}${bar('Seguridad', ev.seg)}
+        <div class="tip" style="background:var(--green-soft);color:var(--green-ink);box-shadow:none;margin-top:14px"><b>Lo que hiciste bien:</b> ${ev.good}</div>
+        <div class="tip" style="margin-top:8px"><b>Punto de mejora:</b> ${ev.tip}</div>`;
+      $('#confirm').textContent = 'Volver a evaluar';
+      $('#next').style.display = '';
+    };
+    $('#next').onclick = () => search2(assign);
+  }
+
+  function search2(placed) {
+    hunt(order, workshopSVG(placed, true), { aspect: '1200/620', step: 'Paso 3', title: 'La misma orden, en el puesto ordenado', sub: 'Llega la misma orden de trabajo. Juntá los 3 objetos y compará con el desorden.' })
+      .then(res => {
+        r.tAfter = res.time;
+        S.r.seiton = r;
+        const gain = clamp((r.tBefore - r.tAfter) / r.tBefore) * 100;
+        stageEnd(1,
+          `<div class="compare">
+            <div class="metric"><div class="v">${fmt(r.tBefore)}</div><div class="l">en el taller desordenado${r.misses ? ` (${r.misses} error${r.misses === 1 ? '' : 'es'})` : ''}</div></div>
+            <div class="metric"><div class="v">${fmt(r.tAfter)}</div><div class="l">en el puesto ordenado${res.misses ? ` (${res.misses} error${res.misses === 1 ? '' : 'es'})` : ''}</div></div>
+            <div class="metric"><div class="v">${Math.round(gain)} %</div><div class="l">menos tiempo para la misma orden</div></div>
+            <div class="metric"><div class="v">${r.eval.total} / 100</div><div class="l">tu orden (${r.eval.clear ? r.eval.main.n : 'sin criterio claro'}), en ${r.attempts} intento${r.attempts === 1 ? '' : 's'}</div></div>
+          </div>`,
+          `hay más de una forma válida de ordenar: ${r.eval.clear ? `vos elegiste ordenar <b>${r.eval.main.n}</b>` : 'lo importante es elegir <b>un criterio claro</b>'}. Lo que no cambia, con cualquier criterio, es que cada cosa tenga un lugar fijo e identificado, que lo más usado quede cerca y que el orden sea seguro. Tu próximo paso: ${r.eval.tip.charAt(0).toLowerCase() + r.eval.tip.slice(1)}`);
+      });
+  }
+}
+
+// =========================================================
+// 3S · SEISO — Limpiar e inspeccionar (1000×420)
+// =========================================================
+const SEISO_ZONES = [
+  { id: 'mesa', n: 'Mesa', x: 60, y: 296, w: 880, h: 100, tool: 'esponja', why: 'La mesa tiene grasa pegada: la escoba no la saca y el paño seco solo la esparce. Se usa esponja húmeda.' },
+  { id: 'piso', n: 'Piso', x: 0, y: 452, w: 1000, h: 148, tool: 'escoba', why: 'En el piso hay virutas y polvo suelto: primero se barre. Con algo húmedo se forma barro.' },
+  { id: 'tablero', n: 'Tablero eléctrico', x: 806, y: 26, w: 168, h: 262, tool: 'pano', why: 'En un tablero eléctrico nunca se usa nada húmedo: paño seco y sin abrirlo.' },
+];
+const SEISO_TOOLS = [
+  { id: 'escoba', ic: 'broom', n: 'Escoba' },
+  { id: 'esponja', ic: 'sponge', n: 'Esponja húmeda' },
+  { id: 'pano', ic: 'roll-of-paper', n: 'Paño seco' },
+];
+const SEISO_ANOM = [
+  { n: 'Bulón suelto sobre la mesa', x: 330, y: 352, o: [
+    { t: 'Busco de qué equipo se soltó y lo reporto con una tarjeta', ok: 1, x: 'Bien: un bulón suelto es la señal de que algo se está aflojando. Primero se identifica de dónde salió.' },
+    { t: 'Lo guardo en un cajón por si hace falta', x: 'Guardarlo esconde el síntoma: el equipo del que se soltó sigue flojo y nadie lo sabe.' },
+    { t: 'Lo tiro: es solo un bulón', x: 'Tirarlo borra la pista. Ese bulón le falta a algún equipo que puede fallar.' },
+  ] },
+  { n: 'Pérdida de aceite en el tambor', x: 735, y: 556, o: [
+    { t: 'Pongo una bandeja antiderrame, coloco tarjeta de mantenimiento y aviso', ok: 1, x: 'Correcto: se contiene el derrame, queda registrado y se ataca la causa (la pérdida), no solo la mancha.' },
+    { t: 'Limpio el charco y sigo con lo mío', x: 'Mañana el charco vuelve: la pérdida sigue. Limpiar sin reportar es repetir el trabajo todos los días.' },
+    { t: 'Lo tapo con un cartón para que nadie pise', x: 'Taparlo esconde el problema y deja un riesgo de resbalón y de incendio.' },
+  ] },
+  { n: 'Cable dañado en el tablero', x: 893, y: 284, o: [
+    { t: 'Desenchufo, señalizo “No usar” y aviso a mantenimiento eléctrico', ok: 1, x: 'Correcto: un cable con la aislación dañada es riesgo eléctrico. Se deja fuera de uso y lo repara quien corresponde.' },
+    { t: 'Lo encinto yo y sigo trabajando', x: 'Una reparación improvisada no es segura ni queda registrada. Los trabajos eléctricos los hace personal habilitado.' },
+    { t: 'Lo dejo así: todavía funciona', x: 'Que funcione no significa que sea seguro: puede provocar una descarga o un incendio.' },
+  ] },
+];
+const SEISO_SOURCE = {
+  q: 'Al otro día vuelve a haber virutas bajo la mesa y una mancha de aceite junto al tambor. ¿Qué hacés?',
+  o: [
+    { t: 'Ataco las fuentes: bandeja colectora de virutas en la mesa y reparación de la pérdida del tambor', ok: 1, x: 'Exacto: la mejor limpieza es no ensuciar. Si se elimina la fuente, la limpieza diaria se vuelve rápida.' },
+    { t: 'Limpio dos veces por turno en lugar de una', x: 'Eso ataca el síntoma, no la causa: se duplica el trabajo y la suciedad sigue apareciendo.' },
+    { t: 'Pongo un cartel de “Mantener limpio”', x: 'Un cartel no frena las virutas ni la pérdida. Hay que eliminar la fuente de suciedad.' },
+  ],
+};
+
+function seisoSVG() {
+  let holes = '';
+  for (let y = 42; y < 216; y += 16) for (let x = 72; x < 516; x += 16) holes += `<circle cx="${x}" cy="${y}" r="1.8" fill="#B8956A"/>`;
+  let breakers = '';
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 4; c++) breakers += `<rect x="${834 + c * 28}" y="${92 + r * 44}" width="18" height="30" rx="3" fill="#FFFFFF" stroke="#9AA2A8"/><rect x="${839 + c * 28}" y="${98 + r * 44 + (r === 1 && c === 2 ? 8 : 0)}" width="8" height="10" rx="1" fill="#121212"/>`;
+  return `<svg viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1000" height="452" fill="#ECE8DE"/><rect y="444" width="1000" height="8" fill="#B9B3A4"/><rect y="452" width="1000" height="148" fill="#CFCABD"/>
+    <rect x="60" y="26" width="460" height="196" rx="6" fill="#D9B88A"/>${holes}
+    ${put('wrench', 120, 112, { size: 64 })}${put('screwdriver', 196, 112, { size: 64 })}${put('scissors', 272, 112, { size: 64 })}${put('hammer', 350, 112, { size: 64 })}${put('carpentry-saw', 430, 112, { size: 64 })}
+    <rect x="812" y="34" width="156" height="226" rx="6" fill="#D7DBDF" stroke="#9AA2A8" stroke-width="2"/>
+    <rect x="824" y="46" width="132" height="30" rx="3" fill="#F2B705"/><text x="890" y="66" font-size="11" font-weight="700" text-anchor="middle" fill="#121212" ${T}>TABLERO ELÉCTRICO</text>
+    ${breakers}
+    <path d="M893 260 C893 272 893 276 893 278" stroke="#2B2B2B" stroke-width="7" stroke-linecap="round"/>
+    <path d="M893 292 C893 308 880 318 866 326" stroke="#2B2B2B" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <path d="M893 278 L893 292 M889 279 L891 291 M897 279 L895 291" stroke="#C87533" stroke-width="1.8"/>
+    ${put('high-voltage', 906, 284, { size: 26 })}
+    <rect x="80" y="392" width="16" height="160" fill="#7A5634"/><rect x="904" y="392" width="16" height="160" fill="#7A5634"/>
+    <rect x="60" y="300" width="880" height="74" fill="#D2A26C"/><rect x="60" y="300" width="880" height="5" fill="#E2B985"/><rect x="60" y="374" width="880" height="20" fill="#A87642"/>
+    ${put('toolbox', 220, 318, { size: 96 })}${put('clipboard', 560, 340, { size: 52, r: -8 })}${put('gloves', 470, 344, { size: 52, r: -14 })}
+    ${put('nut-and-bolt', 330, 352, { size: 36, r: 30 })}
+    ${put('electric-plug', 850, 338, { size: 44, r: -60 })}
+    ${puddle(735, 560)}${put('oil-drum', 735, 470, { size: 130 })}
+    ${put('bucket', 140, 520, { size: 60 })}
+  </svg>`;
+}
+
+function seiso() {
+  const zoneById = id => SEISO_ZONES.find(z => z.id === id);
+  let tool = null, toolErr = 0, lastWarn = 0, strokeErr = false;
+  const found = new Set(), actOk = new Set(), prog = { mesa: 0, piso: 0, tablero: 0 };
+  view(`<section>
+    <div class="stage-head"><div><div class="kicker">3S · Seiso 清掃 · Limpiar</div><h2>Limpiá e inspeccioná el puesto</h2>
+      <p class="muted">Elegí la herramienta adecuada para cada zona y pasá el mouse apretado o el dedo. Si al limpiar aparece algo raro, tocalo y decidí qué hacer.</p></div>
+      <div class="counter" id="anomCnt">Anomalías: 0 / ${SEISO_ANOM.length}</div></div>
+    <div class="split">
+      <div class="scene-wrap" id="scene">${seisoSVG()}<canvas id="dirt"></canvas><div class="layer" id="anoms" style="pointer-events:none"></div></div>
+      <div class="side">
+        <b>Herramienta</b>
+        <div id="tools" style="display:grid;gap:8px">${SEISO_TOOLS.map(t => `<button class="opt" data-tool="${t.id}" style="display:flex;align-items:center;gap:10px;margin:0">${icon(t.ic, 32)}<span>${t.n}</span></button>`).join('')}</div>
+        <b style="margin-top:6px">Zonas</b>
+        ${SEISO_ZONES.map(z => `<div><div class="row" style="gap:8px;font-size:13px"><span>${z.n}</span><span class="spacer"></span><b id="pz-${z.id}" style="font-weight:500">0 %</b></div><div class="meter" style="margin-top:4px"><i id="bz-${z.id}"></i></div></div>`).join('')}
+        <button class="btn yellow" id="done" disabled style="margin-top:6px">Terminar limpieza</button>
+      </div>
+    </div>
+  </section>`);
+
+  $$('[data-tool]').forEach(b => b.onclick = () => {
+    tool = b.dataset.tool;
+    $$('[data-tool]').forEach(x => x.classList.toggle('best', x === b));
+  });
+
+  const scene = $('#scene'), cv = $('#dirt');
+  const W = Math.round(scene.clientWidth), H = Math.round(scene.clientHeight);
+  cv.width = W; cv.height = H;
+  const ctx = cv.getContext('2d', { willReadFrequently: true });
+  const sc = Math.max(W / 1000, H / 600), offX = (W - 1000 * sc) / 2, offY = (H - 600 * sc) / 2;
+  const toPx = (x, y) => [offX + x * sc, offY + y * sc];
+  const toVB = (px, py) => [(px - offX) / sc, (py - offY) / sc];
+  const zr = z => { const [x, y] = toPx(z.x, z.y); return [x, y, z.w * sc, z.h * sc]; };
+
+  // Suciedad distinta por zona: grasa en la mesa, virutas en el piso, polvo en el tablero
+  const paint = {
+    mesa: (x, y, w, h) => { ctx.fillStyle = '#6E5638'; ctx.fillRect(x, y, w, h); for (let k = 0; k < 70; k++) { ctx.fillStyle = ['#5A4429', '#7F6644', '#4E3A22'][k % 3]; ctx.beginPath(); ctx.ellipse(x + rand(0, w), y + rand(0, h), rand(8, 34), rand(5, 16), rand(0, 3), 0, 7); ctx.fill(); } },
+    piso: (x, y, w, h) => { ctx.fillStyle = '#8E8A80'; ctx.fillRect(x, y, w, h); ctx.lineWidth = 1.6; for (let k = 0; k < 260; k++) { const g = 150 + rand(0, 70) | 0; ctx.strokeStyle = `rgb(${g},${g},${g + 10})`; ctx.beginPath(); ctx.arc(x + rand(0, w), y + rand(0, h), rand(2, 6), rand(0, 3), rand(3, 6)); ctx.stroke(); } },
+    tablero: (x, y, w, h) => { ctx.fillStyle = '#A5A39C'; ctx.fillRect(x, y, w, h); ctx.fillStyle = 'rgba(230,226,215,.6)'; for (let k = 0; k < 300; k++) ctx.fillRect(x + rand(0, w), y + rand(0, h), 2, 2); ctx.strokeStyle = 'rgba(240,240,240,.7)'; ctx.lineWidth = 1; for (let k = 0; k < 6; k++) { ctx.beginPath(); ctx.moveTo(x + rand(0, w), y); ctx.lineTo(x + rand(0, w), y + rand(20, 80)); ctx.stroke(); } },
+  };
+  SEISO_ZONES.forEach(z => { ctx.save(); ctx.beginPath(); ctx.rect(...zr(z)); ctx.clip(); paint[z.id](...zr(z)); ctx.restore(); });
+  ctx.globalCompositeOperation = 'destination-out';
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.lineWidth = Math.max(36, W * .05);
+
+  const pos = e => { const b = cv.getBoundingClientRect(); return { x: (e.clientX - b.left) * (W / b.width), y: (e.clientY - b.top) * (H / b.height) }; };
+  const zoneAt = p => { const [x, y] = toVB(p.x, p.y); return SEISO_ZONES.find(z => x >= z.x && x <= z.x + z.w && y >= z.y && y <= z.y + z.h); };
+  let drawing = false, last = null, pending = false;
+  const scrub = p => {
+    const z = zoneAt(p);
+    if (!tool) { if (Date.now() - lastWarn > 1500) { lastWarn = Date.now(); toast('Primero elegí una herramienta de limpieza.', 'ko'); } last = p; return; }
+    if (z && z.tool !== tool && prog[z.id] < .85) {
+      if (!strokeErr) { strokeErr = true; toolErr++; }
+      if (Date.now() - lastWarn > 1800) { lastWarn = Date.now(); toast(z.why, 'ko'); }
+    }
+    const ok = zoneById(SEISO_ZONES.find(zz => zz.tool === tool).id);
+    ctx.save(); ctx.beginPath(); ctx.rect(...zr(ok)); ctx.clip();
+    ctx.beginPath(); ctx.moveTo(last.x, last.y); ctx.lineTo(p.x, p.y); ctx.stroke();
+    ctx.restore();
+    last = p;
+    if (!pending) { pending = true; setTimeout(() => { measure(); pending = false; }, 180); }
+  };
+  cv.addEventListener('pointerdown', e => { drawing = true; strokeErr = false; last = pos(e); cv.setPointerCapture(e.pointerId); scrub({ x: last.x + .1, y: last.y }); });
+  cv.addEventListener('pointermove', e => { if (drawing) scrub(pos(e)); });
+  const stop = () => { drawing = false; };
+  cv.addEventListener('pointerup', stop); cv.addEventListener('pointercancel', stop);
+
+  function measure() {
+    const d = ctx.getImageData(0, 0, W, H).data;
+    SEISO_ZONES.forEach(z => {
+      const [x0, y0, w, hh] = zr(z).map(Math.round);
+      let t = 0, c = 0;
+      for (let y = Math.max(0, y0); y < Math.min(H, y0 + hh); y += 5) for (let x = Math.max(0, x0); x < Math.min(W, x0 + w); x += 5) { t++; if (d[(y * W + x) * 4 + 3] < 60) c++; }
+      prog[z.id] = t ? c / t : 1;
+      $(`#pz-${z.id}`).textContent = Math.round(prog[z.id] * 100) + ' %';
+      $(`#bz-${z.id}`).style.width = prog[z.id] * 100 + '%';
+    });
+    $('#done').disabled = !SEISO_ZONES.every(z => prog[z.id] >= .85);
+    SEISO_ANOM.forEach((a, i) => {
+      if ($(`.hit[data-i="${i}"]`)) return;
+      const [cx, cy] = toPx(a.x, a.y), R = 18 * sc;
+      let t = 0, c = 0;
+      for (let y = cy - R; y <= cy + R; y += 4) for (let x = cx - R; x <= cx + R; x += 4) {
+        const xi = Math.round(x), yi = Math.round(y);
+        if (xi < 0 || yi < 0 || xi >= W || yi >= H) continue;
+        t++; if (d[(yi * W + xi) * 4 + 3] < 60) c++;
+      }
+      if (t && c / t > .6) {
+        const hit = h(`<div class="hit pulse" data-i="${i}" style="left:${cx / W * 100}%;top:${cy / H * 100}%;width:${80 * sc}px;pointer-events:auto"></div>`);
+        hit.onclick = () => decide(i, hit);
+        $('#anoms').appendChild(hit);
+        toast('Al limpiar apareció algo raro. Tocalo para decidir qué hacer.');
+      }
+    });
+  }
+
+  function choice(title, q, opts) {
+    return new Promise(resolve => {
+      const list = shuffle(opts);
+      const o = h(`<div class="overlay"><div class="modal"><div class="icon">${line('alert')}</div><h3></h3><p></p>
+        <div class="choices">${list.map((op, k) => `<button class="opt" data-k="${k}"></button>`).join('')}</div></div></div>`);
+      $('h3', o).textContent = title; $('p', o).textContent = q;
+      $$('.opt', o).forEach((b, k) => { b.textContent = list[k].t; b.onclick = () => { o.remove(); resolve(list[k]); }; });
+      document.body.appendChild(o);
+    });
+  }
+  async function decide(i, el) {
+    if (found.has(i)) return;
+    const a = SEISO_ANOM[i];
+    const pick = await choice(a.n, 'Lo encontraste al limpiar. ¿Qué hacés?', a.o);
+    found.add(i);
+    if (pick.ok) actOk.add(i);
+    el.classList.remove('pulse'); el.classList.add('done');
+    $('#anomCnt').textContent = `Anomalías: ${found.size} / ${SEISO_ANOM.length}`;
+    await feedback({ ok: !!pick.ok, ic: pick.ok ? 'label' : undefined, title: pick.ok ? 'Buena decisión' : 'No era lo mejor', text: pick.ok ? pick.x : `${pick.x}\n\nLo correcto: ${a.o.find(x => x.ok).t.toLowerCase()}.`, btn: 'Seguir limpiando' });
+  }
+
+  $('#done').onclick = async () => {
+    if (found.size < SEISO_ANOM.length) {
+      await feedback({ title: 'Quedaron anomalías sin atender', text: `Atendiste ${found.size} de ${SEISO_ANOM.length}. Una limpieza que no inspecciona pierde la mitad de su valor: el objetivo de Seiso es detectar fallas a tiempo.` });
+    }
+    const pick = await choice('Fuente de suciedad', SEISO_SOURCE.q, SEISO_SOURCE.o);
+    await feedback({ ok: !!pick.ok, title: pick.ok ? 'Eso es Seiso' : 'Eso no alcanza', text: pick.ok ? pick.x : `${pick.x}\n\nLo correcto: atacar las fuentes de suciedad.`, btn: 'Ver resultado' });
+    const clean = SEISO_ZONES.reduce((a, z) => a + prog[z.id], 0) / SEISO_ZONES.length;
+    S.r.seiso = { clean, rep: found.size, act: actOk.size, total: SEISO_ANOM.length, src: pick.ok ? 1 : 0, toolErr };
+    stageEnd(2,
+      `<div class="compare">
+        <div class="metric"><div class="v">${Math.round(clean * 100)} %</div><div class="l">del puesto limpio (${toolErr} vez${toolErr === 1 ? '' : 'es'} con la herramienta equivocada)</div></div>
+        <div class="metric"><div class="v">${actOk.size} / ${SEISO_ANOM.length}</div><div class="l">anomalías resueltas con la acción correcta</div></div>
+        <div class="metric"><div class="v">${pick.ok ? 'Sí' : 'No'}</div><div class="l">eliminaste la fuente de suciedad</div></div>
+      </div>`,
+      '<b>limpiar es inspeccionar</b>: cada zona se limpia con el método adecuado (nunca húmedo en lo eléctrico), lo que aparece se reporta con la acción correcta y, sobre todo, se eliminan las fuentes de suciedad. La mejor limpieza es no ensuciar.');
+  };
+}
+
+// =========================================================
+// 4S · SEIKETSU — Controles visuales
+// =========================================================
+const CTL_ICONS = {
+  sil: `<svg viewBox="0 0 48 48"><rect width="48" height="48" rx="8" fill="#D9B88A"/><rect x="4" y="6" width="18" height="24" rx="3" fill="none" stroke="#8C6A43" stroke-dasharray="3 2"/><svg x="25" y="5" width="20" height="20" viewBox="0 0 32 32">${ICONS.screwdriver}</svg><rect x="3" y="33" width="20" height="7" rx="1.5" fill="#F2B705"/><rect x="25" y="33" width="20" height="7" rx="1.5" fill="#F2B705"/></svg>`,
+  tape: `<svg viewBox="0 0 48 48"><rect width="48" height="48" rx="8" fill="#CFCABD"/><rect y="20" width="48" height="8" fill="#F2B705"/></svg>`,
+  minmax: `<svg viewBox="0 0 48 48"><rect width="48" height="48" rx="8" fill="#E9EEF2"/><rect x="12" y="24" width="24" height="17" fill="#8E979D"/><path d="M10 8 H38 L36 42 H12 Z" fill="rgba(170,205,230,.35)" stroke="#3D6F99" stroke-width="2"/><path d="M8 34 H40" stroke="#C8372D" stroke-width="2.5" stroke-dasharray="4 2"/><path d="M8 13 H40" stroke="#2F8F5B" stroke-width="2.5" stroke-dasharray="4 2"/></svg>`,
+  zones: `<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="21" fill="#fff" stroke="#8E979D" stroke-width="3"/><path d="${arc(15, -60, 45)}" transform="translate(24 24)" stroke="#2F8F5B" stroke-width="6" fill="none"/><path d="${arc(15, 60, 135)}" transform="translate(24 24)" stroke="#C8372D" stroke-width="6" fill="none"/><path d="M24 24 L24 9" stroke="#333" stroke-width="2"/></svg>`,
+  sched: `<svg viewBox="0 0 32 32">${ICONS.clipboard}</svg>`,
+  cartel: `<svg viewBox="0 0 48 48"><rect x="4" y="10" width="40" height="28" fill="#FFF59A"/><text x="24" y="28" font-size="8" font-weight="900" text-anchor="middle" fill="#55503A" ${T}>¡ORDEN!</text></svg>`,
+  verbal: `<svg viewBox="0 0 32 32">${ICONS['speech-balloon']}</svg>`,
+};
+const CONTROLS = [
+  { id: 'sil', n: 'Lugar fijo con etiqueta', d: 'Cada herramienta con su gancho y su etiqueta en el tablero', spot: 1, s: 'Sostiene Seiton: cada herramienta tiene un lugar único e identificado. Si falta, el lugar etiquetado vacío lo muestra al instante.' },
+  { id: 'tape', n: 'Demarcación amarilla', d: 'Líneas en el piso que delimitan zonas', spot: 2, s: 'Sostiene Seiri y Seiton: el pasillo queda definido y nada se “estaciona” ahí sin que se note.' },
+  { id: 'minmax', n: 'Marcas de mínimo y máximo', d: 'Niveles dibujados en cada contenedor', spot: 3, s: 'Sostiene Seiri: se repone antes de que falte y no se acumula de más.' },
+  { id: 'zones', n: 'Rango verde y rojo', d: 'Zonas de color en el instrumento', spot: 4, s: 'Sostiene Seiso: la inspección es inmediata, cualquiera ve si la lectura está fuera de rango.' },
+  { id: 'sched', n: 'Cronograma de limpieza', d: 'Quién limpia qué y cuándo, con firma', spot: 5, s: 'Sostiene Seiso: la limpieza tiene responsable y frecuencia, y queda registrada.' },
+  { id: 'cartel', n: 'Cartel “¡Mantener el orden!”', d: 'Un aviso general en la pared', spot: 0, x: 'Un cartel genérico no dice qué, dónde ni cuánto: no permite detectar ningún desvío concreto. No es un estándar.' },
+  { id: 'verbal', n: 'Recordatorio en la reunión', d: 'Avisarlo de palabra al equipo', spot: 0, x: 'Lo que se dice de palabra se olvida y no queda a la vista. Un estándar tiene que verse en el puesto.' },
+];
+const SPOTS = [
+  { n: 1, x: 350, y: 145, t: 'Cuando falta una herramienta del tablero, nadie lo nota hasta que la necesita.' },
+  { n: 2, x: 250, y: 545, t: 'Cajas y carros terminan invadiendo el paso de a poco.' },
+  { n: 3, x: 760, y: 92, t: 'Los insumos se agotan sin aviso, o se acumulan de más.' },
+  { n: 4, x: 628, y: 178, t: 'Nadie sabe si la presión que marca el manómetro está bien o mal.' },
+  { n: 5, x: 73, y: 214, t: 'No está claro quién limpia qué ni cuándo.' },
+];
+const DEVS = [
+  { id: 'sil', x: 272, y: 100, t: 'Falta el destornillador: su lugar etiquetado está vacío. Sin lugar fijo, nadie lo hubiera notado.' },
+  { id: 'box', x: 430, y: 500, t: 'La caja cruza la línea amarilla: el pasillo tiene que quedar libre.' },
+  { id: 'gauge', x: 628, y: 118, t: 'La aguja está en la zona roja: presión fuera de rango, hay que avisar a mantenimiento.' },
+  { id: 'bin', x: 698, y: 130, t: 'Los tornillos M6 están debajo de la marca de mínimo: hay que pedir reposición.' },
+  { id: 'sched', x: 98, y: 168, t: 'Falta la firma de la limpieza del jueves: no hay registro de que se haya hecho.' },
+];
+
+function seiketsu() {
+  const on = {}, missed = new Set();
+  let selected = null;
+  const r = { first: 0, found: 0, errors: 0, time: 0 };
+  const sceneOpts = () => ({ board: ALL_TOOLS.filter(t => t !== 'dest'), labels: on.sil ? true : [], sil: on.sil, messyBoard: !on.sil, tape: on.tape, minmax: on.minmax,
+    zones: on.zones, sched: on.sched, needle: 20, bins: { torn: .12, aran: 1.15, tar: .6 }, boxWalk: true });
+
+  view(`<section>
+    <div class="stage-head"><div><div class="kicker">4S · Seiketsu 清潔 · Estandarizar</div><h2>Paso 1 · Instalá los controles visuales</h2>
+      <p class="muted">Arrastrá a cada número el control que resuelve ese problema (o tocá el control y después el número).</p></div>
+      <div class="counter" id="cnt">0 / 5</div></div>
+    <div class="split">
+      <div class="scene-wrap" id="sw"><div id="svgbox" class="layer"></div><div class="layer" id="spots"></div></div>
+      <div class="side"><b>Problemas que se repiten</b><ul class="problems" id="probs">${SPOTS.map(p => `<li data-n="${p.n}"><span class="num">${p.n}</span><span>${p.t}</span></li>`).join('')}</ul></div>
+    </div>
+    <div class="ctls" id="ctls"></div>
+  </section>`);
+  const paint = () => { $('#svgbox').innerHTML = sceneSVG(sceneOpts()); };
+  paint();
+  $('#spots').innerHTML = SPOTS.map(p => `<div class="hotspot" data-drop="${p.n}" style="${pct(p.x, p.y)}">${p.n}</div>`).join('');
+
+  const apply = async (c, node, spotN) => {
+    spotN = +spotN;
+    const spotEl = $(`.hotspot[data-drop="${spotN}"]`);
+    if (spotEl.classList.contains('ok')) return;
+    if (c.spot === spotN) {
+      on[c.id] = true;
+      if (!missed.has(c.id)) r.first++;
+      node.classList.add('used'); node.classList.remove('sel'); selected = null;
+      spotEl.classList.add('ok'); spotEl.textContent = '✓';
+      $(`#probs li[data-n="${spotN}"]`).classList.add('ok');
+      paint();
+      const n = Object.keys(on).length;
+      $('#cnt').textContent = `${n} / 5`;
+      await feedback({ ok: true, title: `${c.n}: instalado`, text: c.s, btn: n === 5 ? 'Ir a la auditoría' : 'Seguir' });
+      if (n === 5) audit40();
+    } else {
+      missed.add(c.id);
+      const txt = c.spot === 0 ? c.x : `“${c.n}” sirve para otra cosa: ${c.d.toLowerCase()}. Para el problema ${spotN} hace falta otro control.`;
+      await feedback({ title: 'Ese control no resuelve este problema', text: txt });
+    }
+  };
+  shuffle(CONTROLS).forEach(c => {
+    const node = h(`<div class="ctl">${CTL_ICONS[c.id]}<div><b>${c.n}</b><small>${c.d}</small></div></div>`);
+    enableDrag(node, z => apply(c, node, z));
+    node.addEventListener('tapselect', () => { $$('.ctl.sel').forEach(t => t.classList.remove('sel')); node.classList.add('sel'); selected = { c, node }; });
+    $('#ctls').appendChild(node);
+  });
+  $$('.hotspot').forEach(s => s.onclick = () => { if (selected) apply(selected.c, selected.node, s.dataset.drop); });
+
+  function audit40() {
+    const LIMIT = 40;
+    view(`<section>
+      <div class="stage-head"><div><div class="kicker">4S · Seiketsu 清潔 · Estandarizar</div><h2>Paso 2 · Una semana después: auditoría de ${LIMIT} segundos</h2>
+        <p class="muted">Con los controles instalados, recorré el puesto y tocá cada cosa que esté fuera del estándar. Hay 5.</p></div>
+        <div class="counter" id="cnt">Desvíos: 0 / 5</div></div>
+      <div class="scene-wrap solo" id="sw" style="cursor:pointer">
+        <div class="layer">${sceneSVG({ board: ALL_TOOLS.filter(t => t !== 'dest'), labels: true, sil: true, tape: true, minmax: true, zones: true, sched: true, schedUnsigned: true, needle: 110, bins: { torn: .12, aran: .75, tar: .6 }, boxWalk: true })}</div>
+        <div class="layer">${DEVS.map(d => `<div class="hit" data-dev="${d.id}" style="${pct(d.x, d.y)}"></div>`).join('')}</div>
+      </div>
+      <div class="row" style="margin-top:14px"><b>Tiempo</b><div class="timebar" style="flex:1"><i id="tb"></i></div><span class="muted">Errores: <b id="err">0</b></span></div>
+    </section>`);
+    let over = false;
+    const t0 = performance.now();
+    const tick = () => {
+      if (over) return;
+      const left = 1 - (performance.now() - t0) / (LIMIT * 1000);
+      $('#tb').style.width = Math.max(0, left * 100) + '%';
+      if (left <= 0) finish(); else requestAnimationFrame(tick);
+    };
+    tick();
+    $('#sw').onclick = e => {
+      if (over) return;
+      const hit = e.target.closest('[data-dev]');
+      if (hit) {
+        if (hit.classList.contains('found')) return;
+        hit.classList.add('found'); r.found++;
+        $('#cnt').textContent = `Desvíos: ${r.found} / 5`;
+        toast(DEVS.find(d => d.id === hit.dataset.dev).t, 'ok');
+        if (r.found === 5) setTimeout(finish, 900);
+      } else {
+        r.errors++; $('#err').textContent = r.errors;
+        toast('Eso está dentro del estándar.', 'ko');
+      }
+    };
+    async function finish() {
+      if (over) return;
+      over = true;
+      r.time = (performance.now() - t0) / 1000;
+      const missedDevs = DEVS.filter(d => !$(`[data-dev="${d.id}"]`).classList.contains('found'));
+      missedDevs.forEach(d => $(`[data-dev="${d.id}"]`).classList.add('pulse'));
+      if (missedDevs.length) await feedback({ title: `Se terminó el tiempo: faltaron ${missedDevs.length}`, text: missedDevs.map(d => '• ' + d.t).join('\n') });
+      S.r.seiketsu = r;
+      stageEnd(3,
+        `<div class="compare">
+          <div class="metric"><div class="v">${r.first} / 5</div><div class="l">controles bien elegidos al primer intento</div></div>
+          <div class="metric"><div class="v">${r.found} / 5</div><div class="l">desvíos detectados en la auditoría</div></div>
+          <div class="metric"><div class="v">${fmt(Math.min(r.time, LIMIT))}</div><div class="l">tiempo de auditoría (${r.errors} error${r.errors === 1 ? '' : 'es'})</div></div>
+        </div>`,
+        'un estándar no es un cartel ni un recordatorio: es un <b>control visual en el lugar</b> (lugar fijo con etiqueta, demarcación, mínimo y máximo, rango de color, cronograma con firma). Sin esos controles, ninguno de los 5 desvíos se hubiera notado; con ellos, cualquier persona los encuentra en segundos.');
+    }
+  }
+}
+
+// =========================================================
+// 5S · SHITSUKE — Una semana de trabajo
+// =========================================================
+const DILEMMAS = [
+  { day: 'Lunes', q: 'Faltan 10 minutos para el cierre y te piden adelantar un trabajo para mañana.', o: [
+    { t: 'Hacés la ronda de cierre de 5 minutos y después seguís con el trabajo.', best: 1, fb: 'La ronda corta no se negocia: cinco minutos hoy evitan perder mucho más mañana.' },
+    { t: 'Saltás la ronda: mañana ordenás todo junto.', skip: 1, fb: 'Hoy no hay ronda de cierre: lo que quedó fuera de lugar se acumula para mañana.',
+      next: { title: 'Martes, 7:00', text: 'Arrancaste el día buscando la llave 13 entre lo que quedó tirado: 12 minutos perdidos, y el trabajo urgente se atrasó igual.', pen: 8 } },
+  ] },
+  { day: 'Martes', q: 'Un compañero del turno anterior dejó su tijera sobre tu mesa.', o: [
+    { t: 'La devolvés a su lugar en el tablero y se lo comentás al compañero, con buena onda.', best: 1, fb: 'Corregir y avisar con respeto: así el estándar es de todos y no solo tuyo.' },
+    { t: 'La dejás donde está: no es tuya.', extra: ['tool:tijera'], fb: 'Lo que se tolera se vuelve normal. La tijera va a estar esperándote en la ronda de cierre.' },
+    { t: 'La guardás en tu cajón para que no se pierda.', pen: 8, fb: 'Un cajón personal no es un lugar estandarizado: el próximo que la busque no la va a encontrar, y su lugar en el tablero queda vacío.' },
+  ] },
+  { day: 'Miércoles', q: 'El cronograma dice que hoy te toca limpiar el tambor de aceite, pero a simple vista está limpio.', o: [
+    { t: 'Lo limpiás e inspeccionás igual, y firmás el cronograma.', best: 1, fb: 'Al limpiarlo encontrás una pequeña pérdida y la reportás a tiempo. Limpiar es inspeccionar.' },
+    { t: 'Lo salteás, pero firmás igual para no quedar mal.', pen: 10, fb: 'Firmar sin hacer rompe la confianza en el estándar: el registro deja de servir.',
+      next: { title: 'Jueves, 9:30', text: 'Apareció un charco de aceite: el tambor perdía y nadie lo vio. Y el cronograma decía que se había limpiado.', pen: 8, extra: ['spill'] } },
+    { t: 'Lo salteás sin firmar: total se ve limpio.', fb: 'Que “se vea limpio” no alcanza: la limpieza programada también es una inspección.',
+      next: { title: 'Jueves, 9:30', text: 'Apareció un charco de aceite: el tambor perdía y nadie lo vio.', pen: 8, extra: ['spill'] } },
+  ] },
+  { day: 'Jueves', q: 'Aparece en tu estante una caja de repuestos de otro sector, sin rótulo.', o: [
+    { t: 'Le ponés tarjeta roja y avisás al responsable del área.', best: 1, fb: 'Se identifica, se avisa y se decide. No se acumula ni se descarta a ciegas.' },
+    { t: 'La corrés al costado del pasillo para que no moleste.', extra: ['box'], fb: 'Así empieza la acumulación: un objeto sin dueño termina invadiendo el paso.' },
+    { t: 'La tirás: no es de tu sector.', pen: 10, fb: 'No se descarta lo que no se evaluó: podía ser un repuesto crítico de otro sector.' },
+  ] },
+  { day: 'Viernes', q: 'A las 14 h hay auditoría. Un compañero propone esconder en el depósito todo lo que sobra.', o: [
+    { t: 'Proponés mostrar el puesto como está y anotar las mejoras pendientes.', best: 1, fb: 'Las 5S son para trabajar mejor, no para la foto. Mostrar lo pendiente es lo que permite mejorarlo.' },
+    { t: 'Esconden todo: el puesto queda impecable para la auditoría.', pen: 12, fb: 'El problema no desaparece, se muda al depósito. El lunes vuelve todo y la auditoría no sirvió para nada.' },
+  ] },
+];
+const NEW_PER_DAY = [3, 3, 4, 4, 5];
+const ROUND = 15;
+const FIX_MSG = { tool: 'Herramienta a su lugar', trash: 'Basura al cesto', spill: 'Derrame limpiado', box: 'Pasillo liberado', bin: 'Reposición pedida' };
+
+function shitsuke() {
+  const st = { devs: [], spawned: 0, fixed: 0, pen: 0, best: 0, day: -1, next: null };
+  const free = k => {
+    if (k === 'tool') { const used = st.devs.filter(d => d.k === 'tool'); const pos = [0, 1, 2, 3, 4].filter(p => !used.some(d => d.pos === p)); const ids = ALL_TOOLS.filter(t => !used.some(d => d.id === t)); return pos.length && ids.length ? { pos, ids } : null; }
+    if (k === 'trash') { const p = [0, 1, 2].filter(p => !st.devs.some(d => d.k === 'trash' && d.pos === p)); return p.length ? p : null; }
+    if (k === 'spill') { const p = [0, 1].filter(p => !st.devs.some(d => d.k === 'spill' && d.pos === p)); return p.length ? p : null; }
+    return st.devs.some(d => d.k === k) ? null : true;
+  };
+  const addDev = (k, forced) => {
+    const f = free(k);
+    if (!f) return false;
+    if (k === 'tool') {
+      if (forced && !f.ids.includes(forced)) return false;
+      const id = forced || f.ids[Math.floor(Math.random() * f.ids.length)];
+      st.devs.push({ k, id, pos: f.pos[0] });
+    } else if (k === 'trash' || k === 'spill') st.devs.push({ k, pos: f[Math.floor(Math.random() * f.length)] });
+    else st.devs.push({ k });
+    st.spawned++;
+    return true;
+  };
+  const addRandom = n => { let tries = 0; while (n > 0 && tries++ < 40) { if (addDev(['tool', 'tool', 'trash', 'spill', 'box', 'bin'][Math.floor(Math.random() * 6)])) n--; } };
+  const addExtra = list => (list || []).forEach(x => { const [k, id] = x.split(':'); addDev(k, id); });
+  const state = () => Math.max(0, Math.round(100 - st.devs.length * 7 - st.pen));
+  const devPos = d => d.k === 'tool' ? BENCH_POS[d.pos] : d.k === 'trash' ? TRASH_POS[d.pos] : d.k === 'spill' ? SPILL_POS[d.pos] : d.k === 'box' ? [430, 500] : [698, 130];
+  const sceneOpts = () => ({
+    board: ALL_TOOLS.filter(t => !st.devs.some(d => d.k === 'tool' && d.id === t)), labels: true, sil: true, tape: true, minmax: true, zones: true, sched: true,
+    benchTools: st.devs.filter(d => d.k === 'tool').map(d => ({ id: d.id, pos: d.pos })),
+    trash: st.devs.filter(d => d.k === 'trash').map(d => d.pos), spills: st.devs.filter(d => d.k === 'spill').map(d => d.pos),
+    boxWalk: st.devs.some(d => d.k === 'box'), bins: { torn: st.devs.some(d => d.k === 'bin') ? .1 : .6, aran: .7, tar: .55 },
+  });
+
+  let running = false;
+  function paint() {
+    $('#svgbox').innerHTML = sceneSVG(sceneOpts());
+    $('#hits').innerHTML = running ? st.devs.map((d, i) => { const [x, y] = devPos(d); return `<div class="hit" data-i="${i}" style="${pct(x, y)}"></div>`; }).join('') : '';
+    const v = state();
+    $('#state').textContent = v + ' %';
+    $('#stateBar').style.width = v + '%';
+    $('#stateBar').style.background = v > 65 ? 'var(--green)' : v > 35 ? 'var(--yellow)' : 'var(--red)';
+    $$('#days span').forEach((s, i) => s.className = i < st.day ? 'done' : i === st.day ? 'on' : '');
+    $('#pend').textContent = st.devs.length;
+  }
+
+  view(`<section>
+    <div class="stage-head"><div><div class="kicker">5S · Shitsuke 躾 · Disciplina</div><h2 id="dtitle">Una semana de trabajo</h2>
+      <p class="muted">Decidí qué hacer en cada situación y hacé la ronda de cierre. Lo que no se corrige, se acumula.</p></div></div>
+    <div class="split">
+      <div class="scene-wrap" id="sw"><div id="svgbox" class="layer"></div><div class="layer" id="hits"></div></div>
+      <div class="side card" style="padding:14px">
+        <div class="days" id="days">${DILEMMAS.map(d => `<span>${d.day.slice(0, 3)}</span>`).join('')}</div>
+        <div class="row"><b>Estado del puesto</b><span class="spacer"></span><b id="state">100 %</b></div>
+        <div class="meter"><i id="stateBar"></i></div>
+        <div class="muted" style="font-size:13px">Pendientes fuera de estándar: <b id="pend">0</b></div>
+        <div id="panel"></div>
+      </div>
+    </div>
+  </section>`);
+  nextDay();
+
+  async function nextDay() {
+    st.day++;
+    const D = DILEMMAS[st.day];
+    $('#dtitle').textContent = `${D.day} · día ${st.day + 1} de 5`;
+    if (st.next) {
+      const n = st.next; st.next = null;
+      st.pen += n.pen || 0; addExtra(n.extra);
+      paint();
+      await feedback({ ic: 'chart-decreasing', title: `Consecuencia · ${n.title}`, text: n.text, btn: 'Seguir' });
+    }
+    addRandom(NEW_PER_DAY[st.day]);
+    paint();
+    const opts = shuffle(D.o);
+    $('#panel').innerHTML = `<div class="dilemma"><div class="kicker">Situación del día</div><div class="q">${D.q}</div>
+      ${opts.map((o, i) => `<button class="opt" data-i="${i}">${o.t}</button>`).join('')}</div>`;
+    $$('.opt').forEach(b => b.onclick = () => choose(opts, +b.dataset.i));
+  }
+
+  async function choose(opts, i) {
+    const o = opts[i];
+    $$('.opt').forEach((b, k) => { b.disabled = true; if (k === i) b.classList.add(o.best ? 'best' : 'worse'); });
+    if (o.best) st.best++;
+    st.pen += o.pen || 0;
+    addExtra(o.extra);
+    if (o.next) st.next = o.next;
+    paint();
+    await feedback({ ok: !!o.best, ic: o.best ? 'check-mark-button' : 'thinking-face', title: o.best ? 'Buena decisión' : 'Pensalo de nuevo', text: o.fb, btn: 'Seguir' });
+    if (o.skip) {
+      $('#panel').insertAdjacentHTML('beforeend', `<p class="muted" style="margin-top:10px">Hoy no hubo ronda de cierre.</p><button class="btn yellow" id="endDay">Terminar el día</button>`);
+      $('#endDay').onclick = () => endDay(0, true);
+    } else {
+      $('#panel').insertAdjacentHTML('beforeend', `<div style="margin-top:12px"><b>Ronda de cierre</b><p class="muted" style="font-size:13px">Tenés ${ROUND} segundos: tocá todo lo que esté fuera del estándar.</p>
+        <div class="timebar"><i id="tb"></i></div><button class="btn yellow" id="startRound" style="margin-top:10px">Empezar ronda</button></div>`);
+      $('#startRound').onclick = round;
+    }
+  }
+
+  function round() {
+    $('#startRound').disabled = true;
+    running = true;
+    const fixedStart = st.fixed;
+    paint();
+    $('#hits').onclick = e => {
+      const hit = e.target.closest('[data-i]');
+      if (!hit || !running) return;
+      const d = st.devs[+hit.dataset.i];
+      st.devs.splice(+hit.dataset.i, 1);
+      st.fixed++;
+      toast(FIX_MSG[d.k], 'ok');
+      paint();
+      if (!st.devs.length) close();
+    };
+    const t0 = performance.now();
+    const tick = () => {
+      if (!running) return;
+      const left = 1 - (performance.now() - t0) / (ROUND * 1000);
+      $('#tb').style.width = Math.max(0, left * 100) + '%';
+      if (left <= 0) close(); else requestAnimationFrame(tick);
+    };
+    tick();
+    function close() { if (!running) return; running = false; paint(); endDay(st.fixed - fixedStart, false); }
+  }
+
+  async function endDay(done, skipped) {
+    const pend = st.devs.length;
+    await feedback({
+      ok: pend === 0 && !skipped, ic: pend === 0 ? 'glowing-star' : 'clipboard', title: `Fin del ${DILEMMAS[st.day].day.toLowerCase()}`,
+      text: skipped ? `Sin ronda de cierre: quedan ${pend} cosas fuera de estándar para mañana.`
+        : pend === 0 ? `Corregiste ${done} desvío${done === 1 ? '' : 's'} y el puesto quedó en estándar.`
+        : `Corregiste ${done}, pero quedaron ${pend} pendientes que se suman a los de mañana.`,
+      btn: st.day < 4 ? 'Siguiente día' : 'Ver resultado de la semana' });
+    if (st.day < 4) return nextDay();
+    S.r.shitsuke = { best: st.best, fixed: st.fixed, spawned: st.spawned, state: state() };
+    stageEnd(4,
+      `<div class="compare">
+        <div class="metric"><div class="v">${st.best} / 5</div><div class="l">decisiones alineadas con las 5S</div></div>
+        <div class="metric"><div class="v">${st.fixed} / ${st.spawned}</div><div class="l">desvíos corregidos en las rondas</div></div>
+        <div class="metric"><div class="v">${state()} %</div><div class="l">estado del puesto el viernes</div></div>
+      </div>`,
+      'la disciplina no es un esfuerzo heroico: son <b>decisiones chicas que se repiten</b>. Hacer la ronda aunque haya apuro, corregir y avisar, cumplir el cronograma aunque nadie controle y no maquillar para la auditoría. Cada atajo vuelve después como pérdida de tiempo o como falla.');
+  }
+}
+
+// =========================================================
+// AUDITORÍA FINAL
+// =========================================================
+const TIPS = {
+  seiri: 'Antes de ordenar, preguntate: ¿esto se usa? ¿cada cuánto? Lo dudoso lleva tarjeta roja con fecha y responsable.',
+  seiton: 'Un lugar para cada cosa y cada cosa en su lugar: lo más usado más cerca, y todo identificado con una etiqueta.',
+  seiso: 'Limpiar es inspeccionar: cada anomalía que aparece se reporta, no se tapa ni se deja para después.',
+  seiketsu: 'Un estándar es un control visual en el puesto (lugar fijo con etiqueta, demarcación, mín/máx, rango, cronograma), no un cartel genérico.',
+  shitsuke: 'La disciplina son decisiones chicas que se repiten: la ronda diaria, corregir y avisar, y no maquillar para la auditoría.',
+};
+function computeScores() {
+  const r = S.r;
+  const to5 = x => Math.round((1 + 4 * clamp(x)) * 10) / 10;
+  const seiri = r.seiri ? r.seiri.ok / r.seiri.total : 0;
+  const seiton = r.seiton ? .7 * ((r.seiton.eval?.total || 0) / 100) + .3 * clamp((r.seiton.tBefore - r.seiton.tAfter) / r.seiton.tBefore / .7) : 0;
+  const seiso = r.seiso ? clamp(.3 * clamp(r.seiso.clean / .9) + .2 * (r.seiso.rep / r.seiso.total) + .3 * (r.seiso.act / r.seiso.total) + .2 * r.seiso.src - r.seiso.toolErr * .02) : 0;
+  const seiketsu = r.seiketsu ? .5 * (r.seiketsu.first / 5) + .5 * clamp(r.seiketsu.found / 5 - r.seiketsu.errors * .06) : 0;
+  const shitsuke = r.shitsuke ? .5 * (r.shitsuke.best / 5) + .3 * (r.shitsuke.fixed / Math.max(1, r.shitsuke.spawned)) + .2 * (r.shitsuke.state / 100) : 0;
+  return { seiri: to5(seiri), seiton: to5(seiton), seiso: to5(seiso), seiketsu: to5(seiketsu), shitsuke: to5(shitsuke) };
+}
+function radar(sc) {
+  const keys = STAGES.map(s => s.key), cx = 170, cy = 165, R = 115;
+  const pt = (i, v) => { const a = (-90 + i * 72) * Math.PI / 180; return [cx + Math.cos(a) * R * v, cy + Math.sin(a) * R * v]; };
+  const poly = v => keys.map((_, i) => pt(i, v).join(',')).join(' ');
+  let g = '';
+  for (let l = 1; l <= 5; l++) g += `<polygon points="${poly(l / 5)}" fill="none" stroke="#e2e2de"/>`;
+  keys.forEach((_, i) => { const [x, y] = pt(i, 1); g += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#e2e2de"/>`; });
+  g += `<polygon points="${keys.map((k, i) => pt(i, sc[k] / 5).join(',')).join(' ')}" fill="rgba(245,82,0,.16)" stroke="#f55200" stroke-width="2"/>`;
+  keys.forEach((k, i) => {
+    const [x, y] = pt(i, sc[k] / 5); g += `<circle cx="${x}" cy="${y}" r="4" fill="#121212"/>`;
+    const [lx, ly] = pt(i, 1.22);
+    g += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" font-size="13" font-weight="500" fill="#121212" font-family="Geist, Helvetica, Arial">${STAGES[i].jp}</text>
+      <text x="${lx}" y="${ly + 15}" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="#6b6b66" font-family="Geist Mono, monospace">${dec(sc[k])}</text>`;
+  });
+  return `<svg viewBox="0 0 340 340" width="100%" style="max-width:360px" role="img" aria-label="Gráfico radar de la auditoría 5S">${g}</svg>`;
+}
+function audit() {
+  setStep(5);
+  const sc = computeScores();
+  const keys = STAGES.map(s => s.key);
+  const avg = keys.reduce((a, k) => a + sc[k], 0) / keys.length;
+  const low = keys.reduce((a, k) => sc[k] < sc[a] ? k : a, keys[0]);
+  const verdict = avg >= 4.5 ? 'Puesto de clase mundial' : avg >= 3.5 ? 'Buen nivel, con margen de mejora' : avg >= 2.5 ? 'En camino' : 'Hay que reforzar la base';
+  view(`<section class="card">
+    <div class="kicker">Auditoría 5S · resultado final</div>
+    <div class="audit">
+      <div>${radar(sc)}</div>
+      <div>
+        <div class="row" style="align-items:flex-end;margin-bottom:14px">
+          <div class="total">${dec(avg.toFixed(1))}<span style="font-size:22px;color:var(--muted)"> / 5</span></div>
+          <div><b>${verdict}</b><div class="muted" style="font-size:13px">Promedio de las 5S</div></div>
+        </div>
+        ${STAGES.map(s => `<div class="score-row"><span><b>${s.jp}</b> <span class="muted" style="font-size:12px">${s.es}</span></span>
+          <div class="meter"><i data-w="${(sc[s.key] / 5) * 100}"></i></div><b>${dec(sc[s.key])}</b></div>`).join('')}
+        <div class="tip"><b>Para mejorar en ${STAGES.find(s => s.key === low).jp}:</b> ${TIPS[low]}</div>
+      </div>
+    </div>
+    <div class="row" style="margin-top:22px">${S.user ? `<span class="muted" style="font-size:13px">${esc(S.user.nombre)} ${esc(S.user.apellido)} · ${esc(S.user.sector)}</span><span id="saveState" class="chip">Guardando resultado…</span>` : ''}<span class="spacer"></span>
+      <button class="btn ghostbtn" id="newp">Nuevo participante</button>
+      <button class="btn yellow" id="again">Jugar de nuevo</button></div>
+  </section>`);
+  requestAnimationFrame(() => $$('.score-row .meter i').forEach(i => i.style.width = i.dataset.w + '%'));
+  saveResult(sc, avg);
+  $('#again').onclick = () => { S.r = {}; S.saved = false; S.t0 = Date.now(); intro(0); };
+  $('#newp').onclick = register;
+}
+
+// =========================================================
+// REGISTRO, GUARDADO DE RESULTADOS Y PANEL DE ADMINISTRACIÓN
+// =========================================================
+const db = () => window.DB ? Promise.resolve(window.DB) : new Promise(r => window.addEventListener('db-ready', () => r(window.DB), { once: true }));
+const esc = t => String(t ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+function register() {
+  S.user = null;
+  setStep(-1);
+  $('#steps').style.visibility = 'hidden';
+  view(`<section style="display:grid;place-items:center;min-height:70vh">
+    <div class="card" id="reg" style="width:min(440px,100%);display:grid;gap:14px">
+      <div><div class="kicker">Prácticas 5S</div><h2>Antes de empezar</h2>
+        <p class="muted" style="margin:0">Anotate para que tu resultado quede registrado en el seguimiento del sector.</p></div>
+      <label class="fld"><span>Nombre</span><input name="nombre" autocomplete="given-name" maxlength="60" required></label>
+      <label class="fld"><span>Apellido</span><input name="apellido" autocomplete="family-name" maxlength="60" required></label>
+      <label class="fld"><span>Sector</span><input name="sector" maxlength="80" required placeholder="Ej.: Mantenimiento"></label>
+      <p class="muted" id="regErr" style="margin:0;color:var(--danger);display:none">Completá nombre, apellido y sector.</p>
+      <button class="btn yellow" type="button" id="regGo">Continuar</button>
+      <button class="btn ghostbtn" type="button" id="toAdmin" style="height:32px;font-size:12px">Acceso de administración</button>
+    </div>
+  </section>`);
+  const go = () => {
+    const u = Object.fromEntries(['nombre', 'apellido', 'sector'].map(k => [k, $(`#reg input[name=${k}]`).value.trim()]));
+    if (!u.nombre || !u.apellido || !u.sector) { $('#regErr').style.display = ''; return; }
+    S.user = u; S.t0 = Date.now(); S.saved = false;
+    $('#steps').style.visibility = '';
+    home();
+  };
+  $('#regGo').onclick = go;
+  $$('#reg input').forEach(i => i.onkeydown = e => { if (e.key === 'Enter') go(); });
+  $('#reg input[name=nombre]').focus();
+  $('#toAdmin').onclick = adminLogin;
+}
+
+async function saveResult(sc, avg) {
+  if (S.saved || !S.user) return;
+  const r = S.r;
+  const doc = {
+    nombre: S.user.nombre, apellido: S.user.apellido, sector: S.user.sector,
+    total: Math.round(avg * 10) / 10, scores: sc,
+    seiton: { criterio: r.seiton?.eval ? (r.seiton.eval.clear || r.seiton.eval.declared ? r.seiton.eval.main.n : 'sin criterio claro') : '', puntaje: r.seiton?.eval?.total ?? 0, intentos: r.seiton?.attempts ?? 0 },
+    duracionMin: Math.round((Date.now() - (S.t0 || Date.now())) / 6000) / 10,
+    version: 1,
+  };
+  const pill = $('#saveState');
+  try {
+    await (await db()).save(doc);
+    S.saved = true;
+    if (pill) { pill.textContent = 'Resultado guardado'; pill.className = 'chip chip-ok'; }
+  } catch (err) {
+    console.warn(err);
+    if (pill) { pill.textContent = 'No se pudo guardar el resultado'; pill.className = 'chip chip-ko'; }
+  }
+}
+
+function adminLogin() {
+  $('#steps').style.visibility = 'hidden';
+  db().then(api => {
+    view(`<section style="display:grid;place-items:center;min-height:70vh">
+      <div class="card" id="adm" style="width:min(420px,100%);display:grid;gap:14px">
+        <div><div class="kicker">Administración</div><h2>Ingresar</h2>
+          ${api.mode === 'error' ? '<p style="margin:0;color:var(--danger)">No se pudo conectar con Firebase. Puede que la red bloquee gstatic.com o firestore.googleapis.com.</p>' : ''}
+          <p class="muted" style="margin:0">${api.mode === 'local' ? 'Modo local de prueba: los datos se guardan solo en este navegador. Contraseña de prueba: admin5s.' : 'Ingresá la contraseña de administración para ver los resultados de los participantes.'}</p></div>
+        <label class="fld"><span>Contraseña</span><input name="pass" type="password" autocomplete="current-password" required></label>
+        <p class="muted" id="admErr" style="margin:0;color:var(--danger);display:none"></p>
+        <button class="btn yellow" type="button" id="admGo">Ingresar</button>
+        <button class="btn ghostbtn" type="button" id="back" style="height:32px;font-size:12px">Volver</button>
+      </div></section>`);
+    $('#back').onclick = register;
+    const go = async () => {
+      const email = $('#adm input[name=email]')?.value.trim(), pass = $('#adm input[name=pass]').value;
+      try { await api.login(email, pass); adminPanel(); }
+      catch (err) { $('#admErr').textContent = 'Contraseña incorrecta.'; $('#admErr').style.display = ''; }
+    };
+    $('#admGo').onclick = go;
+    $$('#adm input').forEach(i => i.onkeydown = e => { if (e.key === 'Enter') go(); });
+    $('#adm input').focus();
+  });
+}
+
+async function adminPanel() {
+  const api = await db();
+  view(`<section><div class="kicker">Administración</div><h2>Cargando resultados…</h2></section>`);
+  let rows = [];
+  try { rows = await api.list(); }
+  catch (err) { view(`<section class="card"><h2>No se pudieron leer los resultados</h2><p class="muted">Revisá que la base de Firestore esté creada y que las reglas estén publicadas.</p><button class="btn" id="out">Salir</button></section>`); $('#out').onclick = async () => { await api.logout(); register(); }; return; }
+  const keys = STAGES.map(s => s.key);
+  const state = { sector: '', q: '', sort: 'fecha', dir: -1 };
+  const fmtDate = d => d ? new Date(d).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—';
+  const sectors = [...new Set(rows.map(r => r.sector).filter(Boolean))].sort();
+
+  view(`<section>
+    <div class="stage-head"><div><div class="kicker">Administración${api.mode === 'local' ? ' · modo local' : ''}</div><h2>Resultados de los participantes</h2></div>
+      <div class="row"><button class="btn ghostbtn" id="copy">Copiar tabla</button><button class="btn ghostbtn" id="csv">Descargar CSV</button><button class="btn" id="out">Salir</button></div></div>
+    <div class="compare" id="kpis"></div>
+    <div class="card" style="padding:16px;margin-bottom:14px">
+      <div class="row" style="gap:10px">
+        <input id="q" class="inp" placeholder="Buscar por nombre o apellido" style="flex:1;min-width:200px">
+        <select id="sec" class="inp"><option value="">Todos los sectores</option>${sectors.map(s => `<option>${esc(s)}</option>`).join('')}</select>
+      </div>
+    </div>
+    <div class="card" style="padding:0;overflow:auto"><table class="tbl" id="tbl"></table></div>
+  </section>`);
+
+  const filtered = () => rows.filter(r => (!state.sector || r.sector === state.sector) && (!state.q || `${r.nombre} ${r.apellido}`.toLowerCase().includes(state.q.toLowerCase())))
+    .sort((a, b) => {
+      const v = x => state.sort === 'fecha' ? +new Date(x.fecha || 0) : state.sort === 'nombre' ? `${x.apellido} ${x.nombre}`.toLowerCase() : state.sort === 'sector' ? (x.sector || '').toLowerCase() : state.sort === 'total' ? x.total : x.scores?.[state.sort] ?? 0;
+      return (v(a) > v(b) ? 1 : v(a) < v(b) ? -1 : 0) * state.dir;
+    });
+  const avgOf = (list, f) => list.length ? list.reduce((t, x) => t + (f(x) || 0), 0) / list.length : 0;
+  const render = () => {
+    const list = filtered();
+    const perS = keys.map(k => ({ k, v: avgOf(list, x => x.scores?.[k]) }));
+    const low = [...perS].sort((a, b) => a.v - b.v)[0];
+    $('#kpis').innerHTML = `
+      <div class="metric"><div class="v">${list.length}</div><div class="l">participantes${state.sector ? ' en ' + esc(state.sector) : ''}</div></div>
+      <div class="metric"><div class="v">${list.length ? dec(avgOf(list, x => x.total).toFixed(1)) : '—'} <span style="font-size:15px;color:var(--ink-2)">/ 5</span></div><div class="l">promedio general</div></div>
+      <div class="metric"><div class="v">${list.length ? STAGES.find(s => s.key === low.k).jp : '—'}</div><div class="l">la S más baja${list.length ? ` (promedio ${dec(low.v.toFixed(1))})` : ''}: punto de mejora del grupo</div></div>
+      <div class="metric"><div class="l" style="margin:0 0 8px">Promedio por S</div>${perS.map(p => `<div class="row" style="gap:8px;font-size:12px;margin-top:4px"><span style="width:62px">${STAGES.find(s => s.key === p.k).jp}</span><div class="meter" style="min-width:60px"><i style="width:${p.v / 5 * 100}%;background:var(--accent)"></i></div><b style="font-weight:500;width:26px;text-align:right">${list.length ? dec(p.v.toFixed(1)) : '—'}</b></div>`).join('')}</div>`;
+    const th = (k, t) => `<th data-sort="${k}">${t}${state.sort === k ? (state.dir > 0 ? ' ↑' : ' ↓') : ''}</th>`;
+    $('#tbl').innerHTML = `<thead><tr>${th('fecha', 'Fecha')}${th('nombre', 'Participante')}${th('sector', 'Sector')}${th('total', 'Promedio')}${STAGES.map(s => th(s.key, s.jp)).join('')}<th>Criterio en Seiton</th><th>Duración</th></tr></thead>
+      <tbody>${list.length ? list.map(r => `<tr><td>${fmtDate(r.fecha)}</td><td><b style="font-weight:500">${esc(r.apellido)}, ${esc(r.nombre)}</b></td><td>${esc(r.sector)}</td>
+        <td><span class="score ${r.total >= 4 ? 'hi' : r.total >= 3 ? 'mid' : 'lo'}">${dec(Number(r.total).toFixed(1))}</span></td>
+        ${keys.map(k => `<td>${r.scores?.[k] != null ? dec(Number(r.scores[k]).toFixed(1)) : '—'}</td>`).join('')}
+        <td>${esc(r.seiton?.criterio || '—')}</td><td>${r.duracionMin != null ? dec(r.duracionMin) + ' min' : '—'}</td></tr>`).join('')
+        : `<tr><td colspan="${6 + keys.length}" class="muted" style="text-align:center;padding:28px">Todavía no hay resultados${state.sector || state.q ? ' para este filtro' : ''}.</td></tr>`}</tbody>`;
+    $$('#tbl th[data-sort]').forEach(t => t.onclick = () => { const k = t.dataset.sort; state.dir = state.sort === k ? -state.dir : (k === 'nombre' || k === 'sector' ? 1 : -1); state.sort = k; render(); });
+  };
+  render();
+  $('#q').oninput = e => { state.q = e.target.value; render(); };
+  $('#sec').onchange = e => { state.sector = e.target.value; render(); };
+  const toCSV = () => {
+    const head = ['Fecha', 'Apellido', 'Nombre', 'Sector', 'Promedio', ...STAGES.map(s => s.jp), 'Criterio Seiton', 'Puntaje Seiton', 'Duración (min)'];
+    const q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    return [head.map(q).join(';'), ...filtered().map(r => [fmtDate(r.fecha), r.apellido, r.nombre, r.sector, dec(r.total), ...keys.map(k => dec(r.scores?.[k] ?? '')), r.seiton?.criterio, r.seiton?.puntaje, dec(r.duracionMin ?? '')].map(q).join(';'))].join('\n');
+  };
+  $('#csv').onclick = () => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['﻿' + toCSV()], { type: 'text/csv;charset=utf-8' }));
+    a.download = `resultados-5s-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  };
+  $('#copy').onclick = async () => {
+    try { await navigator.clipboard.writeText(toCSV().replace(/;/g, '\t').replace(/"/g, '')); toast('Tabla copiada: pegala en Excel o Google Sheets.', 'ok'); }
+    catch { toast('No se pudo copiar desde este navegador.', 'ko'); }
+  };
+  $('#out').onclick = async () => { await api.logout(); register(); };
+}
+
+
+if (location.hash === '#admin') adminLogin(); else register();
+</script>
+</body>
+</html>
