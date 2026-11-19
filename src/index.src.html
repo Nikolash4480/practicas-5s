@@ -139,6 +139,25 @@ p{margin:0 0 10px}
 .tbl tbody tr:hover td{background:var(--surface-2)}
 .score{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:var(--radius-pill);font-weight:500}
 .score.hi{background:var(--green-soft);color:var(--green-ink)}.score.mid{background:var(--amber-soft);color:var(--amber-ink)}.score.lo{background:#f8dcd6;color:var(--danger)}
+/* Seiri en columnas */
+.scols{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.scol{background:var(--surface);border-radius:var(--radius-lg);box-shadow:inset 0 0 0 1px var(--line);padding:10px;min-height:240px;transition:.15s}
+.scol.over{box-shadow:inset 0 0 0 1.5px var(--green),0 0 0 4px var(--green-soft)}
+.scol-h{display:flex;gap:10px;align-items:center;padding:4px 4px 10px;box-shadow:inset 0 -1px 0 var(--line);margin-bottom:10px}
+.scol-h b{display:block;font-size:15px;font-weight:600}.scol-h small{font-size:12px;color:var(--ink-2)}
+.scol-b{display:grid;gap:8px}
+.scard{position:relative;display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:var(--radius-md);box-shadow:inset 0 0 0 1px var(--line);padding:8px 12px 8px 8px;cursor:grab;touch-action:none;user-select:none}
+.tray .scard{flex:1 1 230px;max-width:300px}
+.scard svg{flex:none;padding:3px;background:var(--surface-2);border-radius:var(--radius-sm)}
+.scard b{display:block;font-size:13px;line-height:18px;font-weight:500}.scard small{font-size:12px;line-height:16px;color:var(--ink-2)}
+.scard.sel{box-shadow:inset 0 0 0 1.5px var(--green),0 0 0 3px var(--green-soft)}
+.scard.dragging{opacity:.3}
+.sbadge{position:absolute;top:-7px;right:-7px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;color:#fff}
+.sbadge.ok{background:var(--green)}.sbadge.mid{background:#e9a613}.sbadge.ko{background:var(--danger)}
+/* Guía de muebles */
+.mguide{display:grid;gap:6px;font-size:12px;line-height:16px}
+.mguide div{display:grid;grid-template-columns:92px 1fr;gap:8px;padding:6px 8px;background:var(--surface-2);border-radius:var(--radius-sm)}
+.mguide b{font-weight:600}.mguide em{font-style:normal;font-family:var(--font-mono);font-size:11px;color:var(--ink-3)}
 /* Plano de Seiton */
 .pslot{position:absolute;transform:translate(-50%,-50%);width:7.4%;aspect-ratio:1/1;border-radius:var(--radius-md);border:2px dashed var(--ink-3);background:rgba(255,255,255,.55);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s}
 .pslot span{position:absolute;top:-9px;right:-12px;font-family:var(--font-mono);font-size:10px;line-height:16px;font-weight:600;padding:0 6px;border-radius:var(--radius-pill);background:var(--solid);color:var(--on-solid);white-space:nowrap}
@@ -212,6 +231,7 @@ p{margin:0 0 10px}
 @keyframes fade-in{from{opacity:0}}
 
 @media (max-width:900px){
+  .scols{grid-template-columns:1fr}
   h1{font-size:40px}h2{font-size:24px}
   .hero,.intro,.audit,.split{grid-template-columns:1fr}
   .bins{gap:8px}.bin{padding:10px 6px}.bin b{font-size:13px}.bin small{display:none}.bin svg{height:38px;width:38px}
@@ -425,7 +445,7 @@ const SLOT_SIZE = 60;
 const BENCH_POS = [[170, 270], [262, 272], [354, 270], [446, 272], [538, 270]];
 const TRASH_POS = [[700, 560], [160, 545], [560, 470]];
 const SPILL_POS = [[270, 560], [830, 548]];
-const BINS = [{ k: 'torn', x: 672, l: 'TORN. M6', c: '#8E979D' }, { k: 'aran', x: 732, l: 'ARANDELAS', c: '#B9C0C5' }, { k: 'tar', x: 792, l: 'TARUGOS', c: '#E4DCC6' }];
+const BINS = [{ k: 'torn', x: 663, l: 'TORN. M6', c: '#6B7780', edge: '#2E363C' }, { k: 'aran', x: 730, l: 'ARANDELAS', c: '#A9B4BC', edge: '#55616A' }, { k: 'tar', x: 797, l: 'TARUGOS', c: '#D9C49A', edge: '#8A7448' }];
 const T = 'font-family="Geist, Helvetica, Arial, sans-serif"';
 
 function label(x, y, text, w = 54) {
@@ -469,22 +489,39 @@ function schedSVG(on, unsignedJ) {
   return s + '</g>';
 }
 function binSVG(b, level, minmax) {
-  const H = 40, lv = Math.min(level, 1.05), top = H - (H - 4) * lv;
-  let s = `<g transform="translate(${b.x} 108)">
-    <rect x="${b.x ? 4 : 4}" y="${top}" width="44" height="${H - top}" fill="${b.c}"/>
-    <path d="M0 0 H52 L49 ${H} H3 Z" fill="rgba(170,205,230,.35)" stroke="#3D6F99" stroke-width="2"/>`;
-  if (level > 1) s += `<ellipse cx="26" cy="${top}" rx="25" ry="5" fill="${b.c}"/>`;
-  if (minmax) s += `<path d="M1 ${H - 9} H51" stroke="#C8372D" stroke-width="2" stroke-dasharray="4 2"/><text x="54" y="${H - 7}" font-size="5.5" font-weight="800" fill="#C8372D" ${T}>MÍN</text>
-    <path d="M1 ${H - 32.4} H51" stroke="#2F8F5B" stroke-width="2" stroke-dasharray="4 2"/><text x="54" y="${H - 30.4}" font-size="5.5" font-weight="800" fill="#2F8F5B" ${T}>MÁX</text>`;
-  return s + `<rect x="10" y="${H - 12}" width="32" height="9" fill="#FFF"/><text x="26" y="${H - 5.5}" font-size="5.2" font-weight="800" text-anchor="middle" fill="#1D2830" ${T}>${b.l}</text></g>`;
+  // Contenedor transparente de frente: el nivel se lee por el contenido oscuro y la línea superior marcada
+  const W = 62, H = 54, y0 = 94, lv = Math.min(level, 1.08), top = Math.min(H - 4, H - (H - 4) * lv);
+  let s = `<g transform="translate(${b.x} ${y0})">
+    <rect x="0" y="0" width="${W}" height="${H}" rx="3" fill="rgba(225,238,247,.75)"/>
+    <rect x="3" y="${Math.max(top, 2)}" width="${W - 6}" height="${Math.max(1, H - 3 - Math.max(top, 2))}" fill="${b.c}"/>
+    <path d="M3 ${Math.max(top, 2)} H${W - 3}" stroke="${b.edge}" stroke-width="2"/>`;
+  for (let k = 6; k < W - 6; k += 9) for (let j = Math.max(top, 2) + 6; j < H - 4; j += 8) s += `<circle cx="${k + (j % 16 ? 4 : 0)}" cy="${j}" r="1.8" fill="${b.edge}" opacity=".45"/>`;
+  if (level > 1) s += `<path d="M2 ${top} Q${W / 2} ${top - 12} ${W - 2} ${top} Z" fill="${b.c}"/>`;
+  s += `<rect x="0" y="0" width="${W}" height="${H}" rx="3" fill="none" stroke="#3D6F99" stroke-width="2"/>`;
+  if (minmax) {
+    const yMin = H - (H - 4) * .25, yMax = H - (H - 4) * .9;
+    s += `<path d="M-4 ${yMin} H${W + 4}" stroke="#C8372D" stroke-width="2.4" stroke-dasharray="5 2"/><path d="M-4 ${yMax} H${W + 4}" stroke="#2F8F5B" stroke-width="2.4" stroke-dasharray="5 2"/>
+      <text x="${W / 2}" y="${yMin - 2.5}" font-size="7" font-weight="800" text-anchor="middle" fill="#C8372D" ${T}>MÍN</text><text x="${W / 2}" y="${yMax - 2.5}" font-size="7" font-weight="800" text-anchor="middle" fill="#2F8F5B" ${T}>MÁX</text>`;
+  }
+  return s + `<rect x="6" y="${H + 3}" width="${W - 12}" height="9" rx="1.5" fill="#FFFFFF"/><text x="${W / 2}" y="${H + 9.6}" font-size="5.6" font-weight="800" text-anchor="middle" fill="#1D2830" ${T}>${b.l}</text></g>`;
+}
+// Caja de cartón vista de frente (para estantes y pilas)
+function frontBox(x, y, size = 60, r = 0, lbl = '') {
+  const w = size, hh = size * .72;
+  return `<g transform="translate(${x} ${y}) rotate(${r})" filter="url(#fSoft)">
+    <rect x="${-w / 2}" y="${-hh / 2}" width="${w}" height="${hh}" rx="2" fill="#C9965A"/>
+    <rect x="${-w / 2}" y="${-hh / 2}" width="${w}" height="${hh * .16}" fill="#B98546"/>
+    <rect x="${-w * .09}" y="${-hh / 2}" width="${w * .18}" height="${hh}" fill="#E2C08D" opacity=".9"/>
+    ${lbl ? `<rect x="${-w * .34}" y="${hh * .06}" width="${w * .68}" height="${hh * .26}" rx="1.5" fill="#FFFFFF"/><text x="0" y="${hh * .24}" font-size="${size * .12}" font-weight="800" text-anchor="middle" fill="#1D2830" ${T}>${lbl}</text>` : ''}
+  </g>`;
 }
 function shelfSVG(o) {
   const lv = Object.assign({ torn: .6, aran: .7, tar: .55 }, o.bins || {});
   let s = `<rect x="660" y="56" width="9" height="416" fill="#6F8597"/><rect x="851" y="56" width="9" height="416" fill="#6F8597"/>`;
   [150, 260, 370].forEach(y => { s += `<rect x="654" y="${y}" width="212" height="11" fill="#8AA0B3"/>`; });
   BINS.forEach(b => { s += binSVG(b, lv[b.k], o.minmax); });
-  s += o.shelfItems ?? (put('package', 712, 230, { size: 54 }) + put('blue-book', 805, 232, { size: 50 }));
-  s += put('package', 712, 340, { size: 58 }) + put('toolbox', 806, 342, { size: 58 });
+  s += o.shelfItems ?? (frontBox(712, 238, 58, 0, 'GUANTES') + put('books', 805, 232, { size: 52 }));
+  s += frontBox(712, 349, 62, 0, 'REPUESTOS') + put('toolbox', 806, 342, { size: 58 });
   return s;
 }
 function benchSVG() {
@@ -522,7 +559,7 @@ function sceneSVG(o = {}) {
   if (o.deposit) s += depositSVG(o.depositItems || '');
   (o.spills || []).forEach(p => { s += puddle(...SPILL_POS[p]); });
   (o.trash || []).forEach(p => { const [x, y] = TRASH_POS[p]; s += put(p % 2 ? 'page-with-curl' : 'cup-with-straw', x, y, { size: 46, r: 70 + p * 20 }); });
-  if (o.boxWalk) s += put('package', 430, 500, { size: 84 });
+  if (o.boxWalk) s += frontBox(430, 502, 84, -3);
   return s + '</svg>';
 }
 const pct = (x, y, H = 600) => `left:${x / 10}%;top:${y / H * 100}%`;
@@ -611,67 +648,116 @@ function stageEnd(i, statsHtml, lesson) {
 // 1S · SEIRI — Clasificar
 // =========================================================
 const LABEL = { nec: 'Necesario', inn: 'Innecesario', dud: 'Dudoso (tarjeta roja)' };
+// Solo datos objetivos: la persona decide a partir de la información, sin que la descripción le diga qué hacer
 const SEIRI_ITEMS = [
-  { ic: 'wrench', n: 'Llave combinada 13 mm', h: 'Se usa varias veces por día', c: 'nec', x: 'Se usa todos los días: es necesaria y se queda en el puesto.' },
-  { ic: 'gloves', n: 'Guantes de trabajo', h: 'Uso diario · en buen estado', c: 'nec', x: 'Se usan a diario y están en condiciones: se quedan.' },
-  { ic: 'goggles', n: 'Antiparras', h: 'EPP obligatorio en cada tarea', c: 'nec', x: 'Es EPP de uso diario: necesario y siempre a mano.' },
-  { ic: 'spiral-calendar', n: 'Calendario de 2019', h: 'Colgado desde hace años', c: 'inn', x: 'No cumple ninguna función: se descarta.' },
-  { ic: 'hot-beverage', n: 'Taza rajada', h: 'Rota, nadie la usa', c: 'inn', x: 'Está rota y no se usa: se descarta.' },
-  { ic: 'low-battery', n: 'Pilas agotadas', h: 'Sin carga y sulfatadas', c: 'inn', x: 'No sirven: van a su disposición final, no a un cajón.' },
-  { ic: 'electric-plug', n: 'Cable sin identificar', h: 'Nadie sabe de qué equipo es', c: 'dud', x: 'No se sabe si se necesita: lleva tarjeta roja hasta que alguien lo reclame o se decida qué hacer.' },
-  { ic: 'package', n: 'Caja cerrada sin rótulo', h: 'Contenido desconocido', c: 'dud', x: 'Hay que revisarla antes de decidir: tarjeta roja.' },
+  { id: 'llave', ic: 'wrench', n: 'Llave combinada 13 mm', h: 'Uso: varias veces por día', c: 'nec', x: 'Se usa todos los días: es necesaria y se queda en el puesto.' },
+  { id: 'guantes', ic: 'gloves', n: 'Guantes de trabajo', h: 'Estado: bueno · Uso: diario', c: 'nec', x: 'Se usan a diario y están en condiciones: se quedan.' },
+  { id: 'antiparras', ic: 'goggles', n: 'Antiparras', h: 'EPP · se usa en cada tarea', c: 'nec', x: 'Es EPP de uso diario: necesario y siempre a mano.' },
+  { id: 'calendario', ic: 'spiral-calendar', n: 'Calendario de 2019', h: 'Calendario de pared', c: 'inn', x: 'Un calendario de 2019 ya no cumple ninguna función: se descarta.' },
+  { id: 'taza', ic: 'hot-beverage', n: 'Taza rajada', h: 'Borde partido', c: 'inn', x: 'Una taza rota no sirve y puede cortar: se descarta.' },
+  { id: 'pilas', ic: 'low-battery', n: 'Pilas AA', h: 'Carga: 0 %', c: 'inn', x: 'Pilas sin carga no sirven: van a su disposición final, no a un cajón.' },
+  { id: 'cable', ic: 'electric-plug', n: 'Cable de alimentación', h: 'Sin etiqueta · equipo desconocido', c: 'dud', x: 'No se sabe de qué equipo es ni si alguien lo necesita: tarjeta roja hasta averiguarlo.' },
+  { id: 'caja', ic: 'package', n: 'Caja cerrada', h: 'Sin rótulo · contenido desconocido', c: 'dud', x: 'Antes de decidir hay que saber qué tiene: tarjeta roja y revisión.' },
+  { id: 'repuesto', ic: 'gear', n: 'Repuesto de bomba', h: 'Uso: una vez al año', c: 'dud', x: 'Se necesita, pero no en el puesto: con tarjeta roja se decide dónde guardarlo (por ejemplo, en el depósito).' },
 ];
-const RED_TAG = `<svg viewBox="0 0 32 32"><path d="M10 5 H27 V27 H10 L4 16 Z" fill="#C8372D"/><circle cx="10" cy="16" r="2.2" fill="#fff"/><path d="M14 12 H24 M14 16 H24 M14 20 H21" stroke="#fff" stroke-width="1.6"/></svg>`;
+const SEIRI_COLS = [
+  { k: 'nec', t: 'Necesario', d: 'Se queda en el puesto', tone: 'green', ic: 'check' },
+  { k: 'inn', t: 'Innecesario', d: 'Se descarta o se devuelve', tone: '', ic: 'trash' },
+  { k: 'dud', t: 'Dudoso', d: 'Tarjeta roja: se evalúa con plazo', tone: 'red', ic: 'tag' },
+];
+// Puntaje parcial: no todo error pesa igual
+function seiriPoints(pick, correct) {
+  if (pick === correct) return 1;
+  const t = { 'dud>nec': .5, 'inn>dud': .5, 'nec>dud': .25, 'dud>inn': .25 };
+  return t[`${correct}>${pick}`] ?? 0;
+}
+function seiriWhy(pick, correct) {
+  const k = `${correct}>${pick}`;
+  return {
+    'nec>inn': 'Se usa seguido: descartarlo obliga a conseguirlo de nuevo y frena el trabajo.',
+    'nec>dud': 'La información alcanza para decidir: es de uso frecuente, así que se queda. La tarjeta roja es para lo que no se puede decidir en el momento.',
+    'inn>nec': 'Quedárselo ocupa lugar y no aporta: es justamente lo que Seiri saca del puesto.',
+    'inn>dud': 'Con esta información ya se puede decidir: no hace falta tarjeta roja, se descarta.',
+    'dud>inn': 'Descartar algo sin saber qué es o de quién es puede hacer perder un elemento necesario: primero se evalúa.',
+    'dud>nec': 'Quedárselo “por las dudas” es acumular: la tarjeta roja da un plazo y un responsable para decidir.',
+  }[k];
+}
 
 function seiri() {
-  const items = shuffle(SEIRI_ITEMS);
-  let i = 0, ok = 0;
+  const assign = {};
+  let selected = null, prev = null, attempts = 0, lastEval = null;
   view(`<section>
     <div class="stage-head">
-      <div><div class="kicker">1S · Seiri 整理 · Clasificar</div><h2>¿Se queda o se va?</h2>
-      <p class="muted">Arrastrá el objeto a su destino, o tocá directamente el destino.</p></div>
-      <div class="counter" id="cnt"></div>
+      <div><div class="kicker">1S · Seiri 整理 · Clasificar</div><h2>¿Qué se queda en el puesto?</h2>
+      <p class="muted">Pasá cada objeto a la columna que te parezca (arrastrándolo, o tocándolo y después la columna). Podés cambiar de idea las veces que quieras. Cuando estés conforme, evaluá tu clasificación.</p></div>
+      <div class="counter" id="cnt">0 / ${SEIRI_ITEMS.length}</div>
     </div>
-    <div class="seiri-play"><div id="slot"></div></div>
-    <div class="bins">
-      <button class="bin nec" data-drop="nec">${tile('check', 'green')}<b>Necesario</b><small>Se queda en el puesto</small></button>
-      <button class="bin inn" data-drop="inn">${tile('trash', '')}<b>Innecesario</b><small>Se descarta o se devuelve</small></button>
-      <button class="bin dud" data-drop="dud">${tile('tag', 'red')}<b>Dudoso</b><small>Tarjeta roja: se evalúa</small></button>
-    </div>
+    <div class="tray" id="tray"></div>
+    <div class="scols">${SEIRI_COLS.map(c => `<div class="scol" data-drop="${c.k}"><div class="scol-h">${tile(c.ic, c.tone)}<div><b>${c.t}</b><small>${c.d}</small></div></div><div class="scol-b" id="col-${c.k}"></div></div>`).join('')}</div>
+    <div class="row" style="margin-top:14px"><span class="spacer"></span>
+      <button class="btn ghostbtn" id="next" style="display:none">Seguir</button>
+      <button class="btn yellow" id="eval" disabled>Evaluar mi clasificación</button></div>
+    <div id="sres"></div>
   </section>`);
 
-  const next = () => {
-    if (i >= items.length) {
-      S.r.seiri = { ok, total: items.length };
-      return stageEnd(0,
-        `<div class="compare"><div class="metric"><div class="v">${ok} / ${items.length}</div><div class="l">objetos bien clasificados</div></div>
-         <div class="metric"><div class="v">${items.filter(x => x.c !== 'nec').length}</div><div class="l">objetos que salieron del puesto</div></div></div>`,
-        'antes de ordenar hay que sacar lo que sobra. La pregunta clave es <b>¿esto se usa y cada cuánto?</b> Lo que genera dudas no se queda “por las dudas”: lleva tarjeta roja con fecha y responsable.');
-    }
-    const it = items[i];
-    $('#cnt').textContent = `Objeto ${i + 1} de ${items.length}`;
-    const card = h(`<div class="obj-card"><div class="obj-art">${icon(it.ic, 130)}</div><div class="obj-n">${it.n}</div><div class="chip">${it.h}</div></div>`);
-    const slot = $('#slot'); slot.innerHTML = ''; slot.appendChild(card);
-    let busy = false;
-    const decide = async c => {
-      if (busy) return; busy = true;
-      card.dataset.locked = 1;
-      if (c === it.c) {
-        ok++;
-        card.classList.add('good');
-        if (c === 'dud') card.appendChild(h('<div class="stamp">TARJETA ROJA</div>'));
-        toast(it.x, 'ok');
-        await wait(1500);
-      } else {
-        card.classList.add('bad');
-        await feedback({ title: `Era “${LABEL[it.c]}”`, text: it.x });
-      }
-      i++; next();
-    };
-    enableDrag(card, decide);
-    $$('.bin').forEach(b => b.onclick = () => decide(b.dataset.drop));
+  const card = it => {
+    const badge = lastEval && assign[it.id] ? (() => { const p = seiriPoints(assign[it.id], it.c); return `<span class="sbadge ${p === 1 ? 'ok' : p > 0 ? 'mid' : 'ko'}">${p === 1 ? '✓' : p > 0 ? '≈' : '✗'}</span>`; })() : '';
+    return h(`<div class="scard" data-id="${it.id}">${badge}${icon(it.ic, 44)}<div><b>${it.n}</b><small>${it.h}</small></div></div>`);
   };
-  next();
+  const render = () => {
+    $('#tray').innerHTML = '';
+    SEIRI_COLS.forEach(c => { $(`#col-${c.k}`).innerHTML = ''; });
+    SEIRI_ITEMS.forEach(it => {
+      const node = card(it);
+      const target = assign[it.id] ? $(`#col-${assign[it.id]}`) : $('#tray');
+      target.appendChild(node);
+      enableDrag(node, k => put_(it.id, k));
+      node.addEventListener('tapselect', () => {
+        if (assign[it.id] && !selected) { delete assign[it.id]; render(); return; }
+        $$('.scard.sel').forEach(x => x.classList.remove('sel')); node.classList.add('sel'); selected = it.id;
+      });
+    });
+    $('#tray').style.display = $('#tray').children.length ? '' : 'none';
+    const n = Object.keys(assign).length;
+    $('#cnt').textContent = `${n} / ${SEIRI_ITEMS.length}`;
+    $('#eval').disabled = n < SEIRI_ITEMS.length;
+  };
+  const put_ = (id, k) => { assign[id] = k; selected = null; lastEval = null; render(); };
+  $$('.scol').forEach(c => c.onclick = e => { if (selected && !e.target.closest('.scard')) put_(selected, c.dataset.drop); });
+  render();
+
+  $('#eval').onclick = () => {
+    attempts++;
+    const res = SEIRI_ITEMS.map(it => ({ it, pick: assign[it.id], p: seiriPoints(assign[it.id], it.c) }));
+    const pts = res.reduce((t, r) => t + r.p, 0), score = Math.round(pts / SEIRI_ITEMS.length * 100);
+    lastEval = { pts, score };
+    render();
+    const errs = res.filter(r => r.p < 1).sort((a, b) => a.p - b.p);
+    const exact = res.filter(r => r.p === 1);
+    const delta = prev === null ? '' : ` <span style="font-size:14px;color:${score >= prev ? 'var(--green-text)' : 'var(--danger)'}">${score >= prev ? '+' : ''}${score - prev} vs intento anterior</span>`;
+    prev = score;
+    const goodTxt = exact.length === SEIRI_ITEMS.length ? 'Clasificaste todo con buen criterio.' :
+      exact.some(r => r.it.c === 'dud') ? 'Usaste la tarjeta roja para lo que no se puede decidir en el momento: esa es la idea.' :
+      exact.some(r => r.it.c === 'inn') ? 'Sacaste del puesto lo que ya no cumple ninguna función.' : 'Identificaste lo que se usa todos los días.';
+    const e = errs[0];
+    const tipTxt = e ? `${e.it.n}: lo pusiste en “${LABEL[e.pick]}”. ${seiriWhy(e.pick, e.it.c)}${errs.length > 1 ? ` Revisá también ${errs.slice(1, 3).map(r => r.it.n).join(' y ')} (marcados con ${errs.slice(1).some(r => r.p > 0) ? '≈ o ✗' : '✗'}).` : ''}` : 'Para sostenerlo, lo dudoso tiene que tener fecha y responsable en su tarjeta roja.';
+    $('#sres').innerHTML = `<div class="card" style="margin-top:14px;padding:18px">
+      <div class="kicker" style="margin-bottom:4px">Intento ${attempts}</div>
+      <div class="row" style="align-items:baseline;gap:8px"><span style="font-size:36px;font-weight:600;letter-spacing:-.02em">${score}</span><span class="muted">/ 100</span>${delta}</div>
+      <p class="muted" style="margin:6px 0 0;font-size:13px">✓ bien clasificado · ≈ aceptable pero mejorable · ✗ a revisar</p>
+      <div class="tip" style="background:var(--green-soft);color:var(--green-ink);box-shadow:none;margin-top:12px"><b>Lo que hiciste bien:</b> ${goodTxt}</div>
+      <div class="tip" style="margin-top:8px"><b>Punto de mejora:</b> ${tipTxt}</div></div>`;
+    $('#eval').textContent = 'Volver a evaluar';
+    $('#next').style.display = '';
+    S.r.seiri = { ok: pts, total: SEIRI_ITEMS.length, attempts, score };
+  };
+  $('#next').onclick = () => {
+    const r = S.r.seiri;
+    stageEnd(0,
+      `<div class="compare"><div class="metric"><div class="v">${r.score} / 100</div><div class="l">tu clasificación, en ${r.attempts} intento${r.attempts === 1 ? '' : 's'}</div></div>
+       <div class="metric"><div class="v">${SEIRI_ITEMS.filter(x => assign[x.id] !== 'nec').length}</div><div class="l">objetos que salieron del puesto</div></div></div>`,
+      'antes de ordenar hay que sacar lo que sobra. La pregunta clave es <b>¿esto se usa y cada cuánto?</b> Lo que se puede decidir, se decide en el momento; lo que genera dudas no se queda “por las dudas”: lleva tarjeta roja con fecha y responsable.');
+  };
 }
 
 // =========================================================
@@ -689,20 +775,20 @@ const SEITON_ITEMS = [
   { id: 'antiparras', ic: 'goggles', n: 'Antiparras', l: 'ANTIPARRAS', f: 'Varias veces por día', u: 18, type: 'epp', size: 'chico' },
   { id: 'bulones', ic: 'nut-and-bolt', n: 'Caja de bulones', l: 'BULONES', f: 'Todos los días', u: 10, type: 'insumo', size: 'mediano', heavy: 1 },
   { id: 'gear', ic: 'gear', n: 'Repuesto de bomba', l: 'REPUESTO', f: 'Una vez al año', u: .02, type: 'repuesto', size: 'grande', heavy: 1 },
-  { id: 'manual', ic: 'blue-book', n: 'Manual del equipo', l: 'MANUAL', f: 'Cinco veces al año', u: .1, type: 'doc', size: 'mediano' },
+  { id: 'manual', ic: 'books', n: 'Manuales de equipos', l: 'MANUALES', f: 'Cinco veces al año', u: .1, type: 'doc', size: 'mediano' },
 ];
 const TYPE_N = { ajuste: 'ajuste', corte: 'corte', golpe: 'golpe', medicion: 'medición', epp: 'protección personal', insumo: 'insumos', repuesto: 'repuestos', doc: 'documentación' };
 
 // Puesto amplio (vista frontal 1200×620). Cada lugar: mueble/sector, distancia y altura.
 const PLACES = [
   ...[47, 101, 155].map((x, i) => ({ id: 'L' + (i + 1), x, y: 300, sec: 'casilleros', d: 4, alt: 'medio' })),
-  ...[[287, 105, 'tabA'], [420, 105, 'tabB'], [553, 105, 'tabC'], [287, 200, 'tabA'], [420, 200, 'tabB'], [553, 200, 'tabC']].map(([x, y, sec], i) => ({ id: 'T' + (i + 1), x, y, sec, d: .6, alt: 'medio' })),
+  ...[[287, 105, 'tabA'], [420, 105, 'tabB'], [553, 105, 'tabC'], [287, 200, 'tabA'], [420, 200, 'tabB'], [553, 200, 'tabC']].map(([x, y, sec], i) => ({ id: 'T' + (i + 1), x, y, sec, d: .5, alt: 'medio' })),
   { id: 'M1', x: 290, y: 272, sec: 'mesa', d: .4, alt: 'medio' }, { id: 'M2', x: 410, y: 272, sec: 'mesa', d: .4, alt: 'medio' },
-  ...[352, 407, 462].map((y, i) => ({ id: 'C' + (i + 1), x: 565, y, sec: 'cajonera', d: .7, alt: 'bajo' })),
-  { id: 'K1', x: 730, y: 352, sec: 'carro', d: 1.2, alt: 'medio' }, { id: 'K2', x: 730, y: 440, sec: 'carro', d: 1.2, alt: 'bajo' },
-  { id: 'E1', x: 872, y: 140, sec: 'estAlto', d: 2.5, alt: 'alto' }, { id: 'E2', x: 958, y: 140, sec: 'estAlto', d: 2.5, alt: 'alto' },
-  { id: 'E3', x: 872, y: 270, sec: 'estMedio', d: 2.5, alt: 'medio' }, { id: 'E4', x: 958, y: 270, sec: 'estMedio', d: 2.5, alt: 'medio' },
-  { id: 'E5', x: 872, y: 400, sec: 'estBajo', d: 2.5, alt: 'bajo' }, { id: 'E6', x: 958, y: 400, sec: 'estBajo', d: 2.5, alt: 'bajo' },
+  ...[352, 407, 462].map((y, i) => ({ id: 'C' + (i + 1), x: 565, y, sec: 'cajonera', d: .5, alt: 'bajo' })),
+  { id: 'K1', x: 730, y: 352, sec: 'carro', d: 1.5, alt: 'medio' }, { id: 'K2', x: 730, y: 440, sec: 'carro', d: 1.5, alt: 'bajo' },
+  { id: 'E1', x: 872, y: 140, sec: 'estAlto', d: 3, alt: 'alto' }, { id: 'E2', x: 958, y: 140, sec: 'estAlto', d: 3, alt: 'alto' },
+  { id: 'E3', x: 872, y: 270, sec: 'estMedio', d: 3, alt: 'medio' }, { id: 'E4', x: 958, y: 270, sec: 'estMedio', d: 3, alt: 'medio' },
+  { id: 'E5', x: 872, y: 400, sec: 'estBajo', d: 3, alt: 'bajo' }, { id: 'E6', x: 958, y: 400, sec: 'estBajo', d: 3, alt: 'bajo' },
   { id: 'D1', x: 1078, y: 420, sec: 'deposito', d: 25, alt: 'bajo' }, { id: 'D2', x: 1140, y: 420, sec: 'deposito', d: 25, alt: 'bajo' }, { id: 'D3', x: 1109, y: 470, sec: 'deposito', d: 25, alt: 'bajo' },
 ];
 const SEC_N = { casilleros: 'casilleros', tabA: 'tablero', tabB: 'tablero', tabC: 'tablero', mesa: 'mesa', cajonera: 'cajonera', carro: 'carro', estAlto: 'estante alto', estMedio: 'estante medio', estBajo: 'estante bajo', deposito: 'depósito' };
@@ -774,11 +860,13 @@ function groupScore(assign, key) {
   return { score: (coh + pur) / 2, split };
 }
 function freqScore(assign) {
+  // Correlación de Spearman con rangos promedio: lugares a la misma distancia (todo lo que está frente a la mesa) empatan
   const its = SEITON_ITEMS.filter(i => assign[i.id]);
-  const rank = (arr, f) => { const s = [...arr].sort((a, b) => f(a) - f(b)); return arr.map(x => s.indexOf(x)); };
-  const ru = rank(its, i => -i.u), rd = rank(its, i => placeById(assign[i.id]).d);
-  const n = its.length; const d2 = ru.reduce((a, r, k) => a + (r - rd[k]) ** 2, 0);
-  return Math.max(0, 1 - 6 * d2 / (n * (n * n - 1)));
+  const avgRank = vals => { const idx = vals.map((v, i) => [v, i]).sort((a, b) => a[0] - b[0]); const r = Array(vals.length); for (let i = 0; i < idx.length;) { let j = i; while (j + 1 < idx.length && idx[j + 1][0] === idx[i][0]) j++; for (let k = i; k <= j; k++) r[idx[k][1]] = (i + j) / 2; i = j + 1; } return r; };
+  const ru = avgRank(its.map(i => -i.u)), rd = avgRank(its.map(i => placeById(assign[i.id]).d));
+  const m = a => a.reduce((t, v) => t + v, 0) / a.length, mu = m(ru), md = m(rd);
+  const cov = ru.reduce((t, v, k) => t + (v - mu) * (rd[k] - md), 0), su = Math.sqrt(ru.reduce((t, v) => t + (v - mu) ** 2, 0)), sd = Math.sqrt(rd.reduce((t, v) => t + (v - md) ** 2, 0));
+  return su && sd ? Math.max(0, cov / (su * sd)) : 0;
 }
 function evaluateSeiton(assign, declared = null) {
   const crit = [
@@ -805,13 +893,13 @@ function evaluateSeiton(assign, declared = null) {
   let tip = '';
   // par "más usado pero más lejos": la excepción más clara al principio de frecuencia
   const inv = pairs(SEITON_ITEMS).map(([a, b]) => a.u >= b.u ? [a, b] : [b, a])
-    .filter(([a, b]) => placeById(assign[a.id]).d > placeById(assign[b.id]).d && a.u - b.u >= 3)
+    .filter(([a, b]) => placeById(assign[a.id]).d - placeById(assign[b.id]).d >= 1 && a.u - b.u >= 3) // diferencias menores a 1 m no cuentan: todo lo que está frente a la mesa queda al alcance
     .sort((x, y) => (y[0].u - y[1].u) - (x[0].u - x[1].u))[0];
   if (comps[0].v > .85) tip = inv ? `Muy buen orden. Un detalle para pulir: ${inv[0].n} se usa más que ${inv[1].n}, pero quedó más lejos. Si los intercambiás, caminás menos.` : 'Tu orden es coherente, eficiente y seguro. Para sostenerlo, lo que sigue es estandarizarlo (Seiketsu).';
   else if (comps[0].k === 'coh') {
     if (!clear) tip = declared ? `Dijiste que ordenaste ${main.n}, pero el puesto todavía no lo refleja (${Math.round(main.v * 100)} %). ${main.split?.length ? `Por ejemplo, ${main.split[0][0].n} y ${main.split[0][1].n} quedaron en muebles distintos.` : 'Revisá los objetos que quedaron fuera de esa lógica.'}${detected !== main && detected.v >= .6 ? ` En cambio, se parece más a un orden ${detected.n}.` : ''}` : 'No se ve un criterio claro: elegí uno (por frecuencia, por tipo o por tamaño) y aplicalo en todo el puesto, así cualquiera entiende dónde va cada cosa.';
     else if (main.split?.length) { const [a, b] = main.split[0]; tip = `Ordenaste ${main.n}, pero ${a.n} y ${b.n} quedaron en lugares distintos. Juntalos para que el criterio se cumpla en todo el puesto.`; }
-    else tip = inv ? `Ordenaste ${main.n}, pero hay una excepción: ${inv[0].n} se usa más que ${inv[1].n} y quedó más lejos.` : `Ordenaste ${main.n}: revisá que no queden objetos fuera de su grupo.`;
+    else tip = inv ? `Ordenaste ${main.n}, pero hay una excepción: ${inv[0].n} se usa más que ${inv[1].n} y quedó más lejos.` : main.k === 'frecuencia' ? 'Ordenaste por frecuencia de uso: para reforzarlo, agrupá también lo que es del mismo tipo dentro de cada mueble, así se encuentra más rápido.' : `Ordenaste ${main.n}: revisá que cada grupo quede completo en un mismo mueble o sector.`;
   } else if (comps[0].k === 'eff') {
     const worst = [...SEITON_ITEMS].sort((a, b) => b.u * placeById(assign[b.id]).d - a.u * placeById(assign[a.id]).d)[0];
     tip = `${worst.n} se usa ${worst.f.toLowerCase()} y está a ${dec(placeById(assign[worst.id]).d)} m. ${clear ? `Sin abandonar tu criterio (${main.n}), acercá ese grupo al puesto` : 'Acercalo al puesto'}: hoy caminás ${meters(w)} por semana y se puede llegar a ${meters(best)}.`;
@@ -826,18 +914,18 @@ const MESS = {
   bench: [['electric-plug', 160, 268, 44, 70], ['sponge', 206, 266, 46, -20], ['page-with-curl', 252, 270, 52, 15], ['hot-beverage', 300, 264, 44, 0],
     ['pizza', 352, 268, 56, 10], ['paperclip', 402, 276, 40, -40], ['clipboard', 446, 264, 50, -10], ['basket', 496, 270, 50, 5],
     ['link', 548, 270, 44, -30], ['low-battery', 592, 274, 38, 80], ['pushpin', 330, 284, 30, 0], ['magnet', 470, 284, 34, 20]],
-  under: [['package', 182, 444, 76, -4], ['package', 190, 384, 62, 6], ['bucket', 300, 452, 58, 0], ['broom', 384, 420, 92, -25],
+  under: [['box', 182, 444, 76, -4], ['box', 190, 384, 62, 6], ['bucket', 300, 452, 58, 0], ['broom', 384, 420, 92, -25],
     ['oil-drum', 520, 432, 84, 0], ['newspaper', 444, 472, 50, 20], ['fire-extinguisher', 616, 448, 62, 0]],
-  shelf: [['package', 702, 228, 56, -6], ['roll-of-paper', 758, 232, 44, 0], ['alarm-clock', 806, 230, 40, 15], ['low-battery', 842, 242, 30, 0],
-    ['card-file-box', 700, 340, 54, 0], ['teddy-bear', 770, 340, 48, -8], ['package', 830, 336, 56, 8]],
-  floor: [['package', 706, 458, 78, 6], ['package', 700, 522, 92, -4], ['package', 792, 532, 80, 10], ['package', 432, 540, 86, -8],
-    ['package', 504, 566, 60, 20], ['toolbox', 322, 522, 70, -6], ['soccer-ball', 902, 474, 46, 0], ['chair', 925, 548, 88, -15],
+  shelf: [['box', 702, 228, 56, -6], ['roll-of-paper', 758, 232, 44, 0], ['alarm-clock', 806, 230, 40, 15], ['low-battery', 842, 242, 30, 0],
+    ['card-file-box', 700, 340, 54, 0], ['teddy-bear', 770, 340, 48, -8], ['box', 830, 336, 56, 8]],
+  floor: [['box', 706, 458, 78, 6], ['box', 700, 522, 92, -4], ['box', 792, 532, 80, 10], ['box', 432, 540, 86, -8],
+    ['box', 504, 566, 60, 20], ['toolbox', 322, 522, 70, -6], ['soccer-ball', 902, 474, 46, 0], ['chair', 925, 548, 88, -15],
     ['cup-with-straw', 122, 560, 40, 60], ['page-with-curl', 602, 580, 44, 30], ['safety-vest', 860, 584, 58, 30]],
 };
 const MESS_SPOTS = [[566, 286], [236, 470], [764, 584], [818, 238], [150, 572], [478, 482], [610, 522], [404, 288], [262, 290], [742, 344], [362, 566], [60, 520]];
 function messySVG() {
   const j = () => rand(-10, 10);
-  const add = list => list.map(([ic, x, y, sz, r]) => put(ic, x + j(), y + j() * .5, { size: sz, r: r + j(), attrs: 'data-hit="x"' })).join('');
+  const add = list => list.map(([ic, x, y, sz, r]) => ic === 'box' ? `<g data-hit="x">${frontBox(x + j(), y + j() * .5, sz, r + j() * .3)}</g>` : put(ic, x + j(), y + j() * .5, { size: sz, r: r + j(), attrs: 'data-hit="x"' })).join('');
   let s = `<svg viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
     <rect width="1000" height="400" fill="#E3DED2"/><rect y="388" width="1000" height="12" fill="#B0A999"/>
     <rect y="400" width="1000" height="200" fill="#C7C1B2"/>
@@ -942,6 +1030,16 @@ function seiton() {
         <div class="side">
           <div><b style="font-size:13px">¿Qué criterio usaste?</b><div id="crit" class="row" style="gap:6px;margin-top:8px">
             ${[['', 'Que lo detecte el juego'], ['frecuencia', 'Por uso'], ['tipo', 'Por tipo'], ['tamano', 'Por tamaño']].map(([k, t], i) => `<button class="chip" data-crit="${k}" style="border:0;cursor:pointer;${i === 0 ? 'background:var(--solid);color:var(--on-solid)' : ''}">${t}</button>`).join('')}</div></div>
+          <details class="card" style="padding:12px 14px" open><summary style="cursor:pointer;font-weight:600;font-size:13px">Qué conviene guardar en cada mueble</summary>
+            <div class="mguide" style="margin-top:10px">
+              <div><span><b>Tablero</b><br><em>0,5 m</em></span><span>Herramientas de mano: a la vista y al alcance mientras trabajás.</span></div>
+              <div><span><b>Mesa</b><br><em>0,5 m</em></span><span>Superficie para trabajar: conviene dejarla lo más despejada posible.</span></div>
+              <div><span><b>Cajonera</b><br><em>0,5 m</em></span><span>Guardado cerrado y protegido, a mano: chicos, insumos, cortantes.</span></div>
+              <div><span><b>Carro</b><br><em>1,5 m</em></span><span>Móvil: se lleva hasta donde está la tarea.</span></div>
+              <div><span><b>Estantería</b><br><em>3 m</em></span><span>Alto: liviano y poco usado · medio: a la vista · bajo: lo pesado.</span></div>
+              <div><span><b>Casilleros</b><br><em>4 m</em></span><span>Elementos personales y EPP de cada persona.</span></div>
+              <div><span><b>Depósito</b><br><em>25 m</em></span><span>Lo de uso ocasional: fuera del puesto.</span></div>
+            </div></details>
           <div class="card" id="result" style="padding:16px"><b>Cómo se evalúa</b><p class="muted" style="margin:6px 0 0;font-size:13px;line-height:19px">Coherencia de tu criterio, recorrido semanal para buscar y guardar, y seguridad (lo pesado abajo, lo cortante protegido, el EPP a mano). Cada aspecto suma puntos por separado.</p></div>
           <button class="btn yellow" id="confirm" disabled>Evaluar mi orden</button>
           <button class="btn ghostbtn" id="next" style="display:none">Seguir con este orden</button>
