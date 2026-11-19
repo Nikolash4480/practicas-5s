@@ -327,6 +327,13 @@ window.dispatchEvent(new Event('db-ready'));
 <script>
 /* Ilustraciones SVG: Fluent Emoji Flat © Microsoft Corporation, licencia MIT */
 const ICONS = __ICONS__;
+// Manuales de perfil: lomos parados con la base apoyada (y = 30), uno inclinado sobre los demás
+ICONS.manuales = `<rect x="3" y="7" width="5" height="23" rx=".6" fill="#2D6A9F"/><rect x="8.4" y="10" width="6" height="20" rx=".6" fill="#C8372D"/>
+  <rect x="14.8" y="5" width="4.6" height="25" rx=".6" fill="#2F8F5B"/><rect x="19.8" y="9" width="5" height="21" rx=".6" fill="#E9A613"/>
+  <g transform="rotate(14 25 30)"><rect x="25" y="9.5" width="4.6" height="20.5" rx=".6" fill="#6B7780"/><rect x="25.6" y="13" width="3.4" height="2.6" fill="#fff" opacity=".85"/></g>
+  <rect x="3.6" y="11" width="3.8" height="2.6" fill="#fff" opacity=".85"/><rect x="9.1" y="14" width="4.6" height="2.6" fill="#fff" opacity=".85"/>
+  <rect x="15.4" y="9" width="3.4" height="2.6" fill="#fff" opacity=".85"/><rect x="20.4" y="13" width="3.8" height="2.6" fill="#fff" opacity=".85"/>
+  <path d="M3 25.5 h21.8" stroke="#000" stroke-opacity=".12" stroke-width=".8"/>`;
 
 // ---------- Utilidades ----------
 const $ = (s, r = document) => r.querySelector(s);
@@ -520,7 +527,7 @@ function shelfSVG(o) {
   let s = `<rect x="660" y="56" width="9" height="416" fill="#6F8597"/><rect x="851" y="56" width="9" height="416" fill="#6F8597"/>`;
   [150, 260, 370].forEach(y => { s += `<rect x="654" y="${y}" width="212" height="11" fill="#8AA0B3"/>`; });
   BINS.forEach(b => { s += binSVG(b, lv[b.k], o.minmax); });
-  s += o.shelfItems ?? (frontBox(712, 238, 58, 0, 'GUANTES') + put('books', 805, 232, { size: 52 }));
+  s += o.shelfItems ?? (frontBox(712, 238, 58, 0, 'GUANTES') + put('manuales', 805, 260 - 22, { size: 50 }));
   s += frontBox(712, 349, 62, 0, 'REPUESTOS') + put('toolbox', 806, 342, { size: 58 });
   return s;
 }
@@ -775,7 +782,7 @@ const SEITON_ITEMS = [
   { id: 'antiparras', ic: 'goggles', n: 'Antiparras', l: 'ANTIPARRAS', f: 'Varias veces por día', u: 18, type: 'epp', size: 'chico' },
   { id: 'bulones', ic: 'nut-and-bolt', n: 'Caja de bulones', l: 'BULONES', f: 'Todos los días', u: 10, type: 'insumo', size: 'mediano', heavy: 1 },
   { id: 'gear', ic: 'gear', n: 'Repuesto de bomba', l: 'REPUESTO', f: 'Una vez al año', u: .02, type: 'repuesto', size: 'grande', heavy: 1 },
-  { id: 'manual', ic: 'books', n: 'Manuales de equipos', l: 'MANUALES', f: 'Cinco veces al año', u: .1, type: 'doc', size: 'mediano' },
+  { id: 'manual', ic: 'manuales', n: 'Manuales de equipos', l: 'MANUALES', f: 'Cinco veces al año', u: .1, type: 'doc', size: 'mediano' },
 ];
 const TYPE_N = { ajuste: 'ajuste', corte: 'corte', golpe: 'golpe', medicion: 'medición', epp: 'protección personal', insumo: 'insumos', repuesto: 'repuestos', doc: 'documentación' };
 
@@ -839,7 +846,10 @@ function workshopSVG(assign = {}, hit = false) {
   // Objetos ubicados, con su etiqueta
   Object.entries(assign).forEach(([itemId, pid]) => {
     const it = itemById(itemId), p = placeById(pid);
-    s += put(it.ic, p.x, p.y, { size: 46, attrs: hit ? `data-hit="${itemId}" style="cursor:pointer"` : '' }) + label(p.x, p.y + 33, it.l, 50);
+    // En estantes y sobre la mesa, el objeto se apoya en la superficie (no flota) y la etiqueta va en el borde
+    const surf = { estAlto: 170, estMedio: 300, estBajo: 430, mesa: 292 }[p.sec];
+    const y = surf ? surf - 46 * .44 : p.y;
+    s += put(it.ic, p.x, y, { size: 46, attrs: hit ? `data-hit="${itemId}" style="cursor:pointer"` : '' }) + label(p.x, surf ? surf + 8.5 : p.y + 33, it.l, 50);
   });
   return s + '</svg>';
 }
