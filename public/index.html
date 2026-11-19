@@ -231,6 +231,10 @@ p{margin:0 0 10px}
 .btn.danger[disabled]{opacity:.45}
 .dlg{width:min(420px,92vw);padding:20px}
 #tbl input[type=checkbox]{width:16px;height:16px;accent-color:var(--solid)}
+.reg-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:520px){.reg-grid{grid-template-columns:1fr}.sep-dot{display:none}}
+.linkbtn{background:none;border:0;padding:4px;color:var(--ink-2);font:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.linkbtn:hover{color:var(--ink)}
 .retry{height:26px;padding:0 10px;font-size:12px;border:0;border-radius:var(--radius-pill);background:var(--surface-3);cursor:pointer}
 
 /* Auditoría */
@@ -646,24 +650,7 @@ function setStep(idx) {
     `<span class="step ${i === idx ? 'on' : ''} ${i < idx ? 'done' : ''}">${s.jp} · ${s.es}</span>`).join('');
 }
 
-function home() {
-  S.r = {}; S.first = null; S.replay = null;
-  setStep(-1);
-  view(`<section class="hero">
-    <div>
-      <div class="kicker">${S.user ? `Hola, ${esc(S.user.nombre)}` : 'Juego interactivo'}</div>
-      <h1>Prácticas <span>5S</span></h1>
-      <p class="muted" style="font-size:18px">Te toca un puesto de trabajo desordenado. Vas a transformarlo aplicando las 5S, una por una, y al final hay una auditoría con tu puntaje.</p>
-      <p class="muted">Duración: unos 10 a 15 minutos · Funciona con mouse o pantalla táctil.</p>
-      <div class="row" style="margin-top:18px"><button class="btn yellow" id="go">Empezar →</button></div>
-      <div class="scene-wrap hero-scene">${sceneSVG({ board: ALL_TOOLS, sil: true, labels: true, tape: true, minmax: true, zones: true, sched: true })}</div>
-    </div>
-    <div class="s-list">
-      ${STAGES.map(s => `<div class="s-item"><div class="s-num">${s.n}</div><div><b>${s.jp} ${s.kanji} · ${s.es}</b><small>${s.def}</small></div></div>`).join('')}
-    </div>
-  </section>`);
-  $('#go').onclick = () => intro(0);
-}
+function home() { register(); }
 
 function intro(i) {
   const s = STAGES[i];
@@ -1928,32 +1915,47 @@ function audit() {
 const db = () => window.DB ? Promise.resolve(window.DB) : new Promise(r => window.addEventListener('db-ready', () => r(window.DB), { once: true }));
 const esc = t => String(t ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
+const TEST_USER = { nombre: 'Usuario', apellido: 'de prueba', sector: 'Prueba', prueba: true };
 function register() {
-  S.user = null;
+  S.user = null; S.r = {}; S.first = null; S.replay = null;
   setStep(-1);
-  $('#steps').style.visibility = 'hidden';
-  view(`<section style="display:grid;place-items:center;min-height:70vh">
-    <div class="card" id="reg" style="width:min(440px,100%);display:grid;gap:14px">
-      <div><div class="kicker">Prácticas 5S</div><h2>Antes de empezar</h2>
-        <p class="muted" style="margin:0">Anotate para que tu resultado quede registrado en el seguimiento del sector.</p></div>
-      <label class="fld"><span>Nombre</span><input name="nombre" autocomplete="given-name" maxlength="60" required></label>
-      <label class="fld"><span>Apellido</span><input name="apellido" autocomplete="family-name" maxlength="60" required></label>
-      <label class="fld"><span>Sector</span><input name="sector" maxlength="80" required placeholder="Ej.: Mantenimiento"></label>
-      <label class="chk"><input type="checkbox" id="regTest"><span>Partida de prueba <small class="muted">· se guarda marcada y no cuenta en las estadísticas</small></span></label>
-      <p class="muted" id="regErr" style="margin:0;color:var(--danger);display:none">Completá nombre, apellido y sector.</p>
-      <button class="btn yellow" type="button" id="regGo">Continuar</button>
-      <button class="btn ghostbtn" type="button" id="toAdmin" style="height:32px;font-size:12px">Acceso de administración</button>
+  $('#steps').style.display = 'none';
+  view(`<section class="hero">
+    <div>
+      <div class="kicker">Juego interactivo</div>
+      <h1>Prácticas <span>5S</span></h1>
+      <p class="muted" style="font-size:18px">Te toca un puesto de trabajo desordenado. Vas a transformarlo aplicando las 5S, una por una, y al final hay una auditoría con tu puntaje.</p>
+      <p class="muted">Duración: unos 10 a 15 minutos · Funciona con mouse o pantalla táctil.</p>
+      <div class="card" id="reg" style="display:grid;gap:12px;margin-top:18px;padding:20px">
+        <div><b style="font-weight:500">Anotate para empezar</b><div class="muted" style="font-size:13px">Tu resultado queda registrado en el seguimiento del sector.</div></div>
+        <div class="reg-grid">
+          <label class="fld"><span>Nombre</span><input name="nombre" autocomplete="given-name" maxlength="60"></label>
+          <label class="fld"><span>Apellido</span><input name="apellido" autocomplete="family-name" maxlength="60"></label>
+          <label class="fld" style="grid-column:1/-1"><span>Sector</span><input name="sector" maxlength="80" placeholder="Ej.: Mantenimiento"></label>
+        </div>
+        <p class="muted" id="regErr" style="margin:0;color:var(--danger);display:none">Completá nombre, apellido y sector.</p>
+        <button class="btn yellow" type="button" id="regGo">Empezar →</button>
+        <div class="row" style="justify-content:center;gap:6px;font-size:12px">
+          <button class="linkbtn" type="button" id="asTest">Entrar como usuario de prueba</button><span class="muted sep-dot">·</span>
+          <button class="linkbtn" type="button" id="toAdmin">Acceso de administración</button>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="scene-wrap hero-scene" style="margin:0 0 14px">${sceneSVG({ board: ALL_TOOLS, sil: true, labels: true, tape: true, minmax: true, zones: true, sched: true })}</div>
+      <div class="s-list">
+        ${STAGES.map(s => `<div class="s-item"><div class="s-num">${s.n}</div><div><b>${s.jp} ${s.kanji} · ${s.es}</b><small>${s.def}</small></div></div>`).join('')}
+      </div>
     </div>
   </section>`);
+  const start = u => { S.user = u; S.t0 = Date.now(); S.saved = false; $('#steps').style.display = ''; intro(0); };
   const go = () => {
     const u = Object.fromEntries(['nombre', 'apellido', 'sector'].map(k => [k, $(`#reg input[name=${k}]`).value.trim()]));
     if (!u.nombre || !u.apellido || !u.sector) { $('#regErr').style.display = ''; return; }
-    if ($('#regTest').checked) u.prueba = true;
-    S.user = u; S.t0 = Date.now(); S.saved = false;
-    $('#steps').style.visibility = '';
-    home();
+    start(u);
   };
   $('#regGo').onclick = go;
+  $('#asTest').onclick = () => start({ ...TEST_USER });
   $$('#reg input').forEach(i => i.onkeydown = e => { if (e.key === 'Enter') go(); });
   $('#reg input[name=nombre]').focus();
   $('#toAdmin').onclick = adminLogin;
@@ -1984,7 +1986,7 @@ async function saveResult(sc, avg) {
 }
 
 function adminLogin() {
-  $('#steps').style.visibility = 'hidden';
+  $('#steps').style.display = 'none';
   db().then(api => {
     view(`<section style="display:grid;place-items:center;min-height:70vh">
       <div class="card" id="adm" style="width:min(420px,100%);display:grid;gap:14px">
@@ -2054,7 +2056,7 @@ async function adminPanel() {
       <div class="row" style="gap:10px">
         <input id="q" class="inp" placeholder="Buscar por nombre o apellido" style="flex:1;min-width:200px">
         <select id="sec" class="inp"><option value="">Todos los sectores</option>${sectors.map(s => `<option>${esc(s)}</option>`).join('')}</select>
-        <label class="chk"><input type="checkbox" id="tests"><span>Mostrar partidas de prueba (<span id="nTests">0</span>)</span></label>
+        <label class="chk"><input type="checkbox" id="tests"><span>Mostrar usuario de prueba (<span id="nTests">0</span>)</span></label>
       </div>
       <div class="row" id="selBar" style="display:none;margin-top:12px;gap:10px"><span id="selN"></span><span class="spacer"></span>
         <button class="btn ghostbtn" id="selClear" style="height:32px">Quitar selección</button><button class="btn danger" id="selDel" style="height:32px">Borrar seleccionados</button></div>
@@ -2111,10 +2113,10 @@ async function adminPanel() {
   $('#delMenu').onclick = async () => {
     const nT = rows.filter(r => r.prueba).length;
     const pick = await choiceDialog('Borrar resultados', 'Elegí qué querés borrar. También podés tildar filas en la tabla y borrar solo esas.', [
-      { k: 'tests', t: `Solo las partidas de prueba (${nT})` },
+      { k: 'tests', t: `Solo las del usuario de prueba (${nT})` },
       { k: 'all', t: `Todos los resultados (${rows.length})`, danger: true },
     ]);
-    if (pick === 'tests') doDelete(rows.filter(r => r.prueba).map(r => r.id), 'las partidas de prueba');
+    if (pick === 'tests') doDelete(rows.filter(r => r.prueba).map(r => r.id), 'las partidas del usuario de prueba');
     if (pick === 'all') doDelete(rows.map(r => r.id), 'todos los resultados');
   };
   const toCSV = () => {
